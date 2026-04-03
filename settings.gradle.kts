@@ -24,4 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "orkestr"
 include(":app")
- 
+include(":automation")
