@@ -1,7 +1,5 @@
 package com.tomtruyen.automation.core.event
 
-interface AutomationEvent {
-    val timestampMillis: Long
+abstract class AutomationEvent {
+    val timestampMillis: Long = System.currentTimeMillis()
 }
-
-// TODO: Add specific events like: Manual, ChargingStateChanged,...
