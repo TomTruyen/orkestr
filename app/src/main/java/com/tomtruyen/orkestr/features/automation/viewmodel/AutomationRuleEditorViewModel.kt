@@ -1,7 +1,7 @@
 package com.tomtruyen.orkestr.features.automation.viewmodel
 
 import com.tomtruyen.automation.core.AutomationRule
-import com.tomtruyen.automation.core.AutomationConfig
+import com.tomtruyen.automation.core.config.AutomationConfig
 import com.tomtruyen.automation.core.permission.AutomationPermission
 import com.tomtruyen.automation.core.definition.AutomationDefinitionRegistry
 import com.tomtruyen.automation.core.definition.AutomationNodeDefinition

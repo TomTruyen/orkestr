@@ -12,6 +12,8 @@ abstract class TriggerReceiver: BroadcastReceiver() {
     protected abstract val logger: AutomationLogger
 
     interface TriggerFactory {
+        val key: TriggerReceiverKey
+
         fun register(
             context: Context,
             service: AutomationRuntimeService,

@@ -1,4 +1,4 @@
-package com.tomtruyen.automation.core
+package com.tomtruyen.automation.core.config
 
 import com.tomtruyen.automation.core.permission.AutomationPermission
 

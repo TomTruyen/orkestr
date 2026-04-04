@@ -1,7 +1,7 @@
 package com.tomtruyen.automation.core.definition
 
 import androidx.annotation.StringRes
-import com.tomtruyen.automation.core.AutomationConfig
+import com.tomtruyen.automation.core.config.AutomationConfig
 import com.tomtruyen.automation.core.permission.AutomationPermission
 import com.tomtruyen.automation.features.actions.ActionType
 import com.tomtruyen.automation.features.actions.config.ActionConfig

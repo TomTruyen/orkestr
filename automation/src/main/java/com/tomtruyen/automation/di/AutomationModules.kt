@@ -16,6 +16,8 @@ import com.tomtruyen.automation.data.repository.AutomationRuleRepositoryImpl
 import com.tomtruyen.automation.features.actions.ActionExecutor
 import com.tomtruyen.automation.features.constraints.ConstraintEvaluator
 import com.tomtruyen.automation.features.triggers.TriggerMatcher
+import com.tomtruyen.automation.features.triggers.receiver.BatteryChangedReceiver
+import com.tomtruyen.automation.features.triggers.receiver.TriggerReceiver
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -50,6 +52,10 @@ val automationModule = module {
 
     // Logger
     single<AutomationLogger> { LogcatAutomationLogger() }
+
+    single<List<TriggerReceiver.TriggerFactory>> {
+        listOf(BatteryChangedReceiver.Factory)
+    }
 
     // Runtime Service
     single { TriggerMatcher() }

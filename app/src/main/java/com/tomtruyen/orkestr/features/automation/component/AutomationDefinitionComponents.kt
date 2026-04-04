@@ -15,7 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.tomtruyen.automation.core.AutomationConfig
+import com.tomtruyen.automation.core.config.AutomationConfig
 import com.tomtruyen.automation.core.definition.AutomationFieldDefinition
 import com.tomtruyen.automation.core.definition.AutomationFieldType
 

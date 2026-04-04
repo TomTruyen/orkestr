@@ -11,12 +11,17 @@ import android.content.Intent
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import com.tomtruyen.automation.data.repository.AutomationRuleRepository
 import com.tomtruyen.automation.features.triggers.receiver.BatteryChangedReceiver
 import com.tomtruyen.automation.features.triggers.receiver.TriggerReceiver
+import com.tomtruyen.automation.features.triggers.receiver.TriggerReceiverKey
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.distinctUntilChanged
 import org.koin.android.ext.android.inject
 import org.koin.core.component.KoinComponent
 
@@ -24,14 +29,13 @@ class AutomationForegroundService : Service(), KoinComponent {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     private val service by inject<AutomationRuntimeService>()
+    private val repository by inject<AutomationRuleRepository>()
 
     private val logger by inject<AutomationLogger>()
 
-    private val receivers = listOf<TriggerReceiver.TriggerFactory>(
-        BatteryChangedReceiver.Factory
-    )
+    private val receivers by inject<List<TriggerReceiver.TriggerFactory>>()
 
-    private val registeredReceivers = mutableListOf<TriggerReceiver>()
+    private val registeredReceivers = mutableMapOf<TriggerReceiver.TriggerFactory, TriggerReceiver>()
 
     override fun onCreate() {
         super.onCreate()
@@ -39,15 +43,23 @@ class AutomationForegroundService : Service(), KoinComponent {
         createNotificationChannel()
         startForeground(NOTIFICATION_ID, buildNotification())
 
-        receivers.forEach { receiver ->
-            registeredReceivers.add(
-                receiver.register(
-                    context = this,
-                    service = service,
-                    scope = scope,
-                    logger = logger
-                )
-            )
+        scope.launch {
+            repository.observeRules()
+                .map { rules ->
+                    rules
+                        .asSequence()
+                        .filter { it.enabled }
+                        .flatMap { rule ->
+                            rule.triggers.asSequence().flatMap { trigger ->
+                                trigger.requiredReceiverKeys.asSequence()
+                            }
+                        }
+                        .toSet()
+                }
+                .distinctUntilChanged()
+                .collect { activeReceiverKeys ->
+                    syncReceivers(activeReceiverKeys)
+                }
         }
     }
 
@@ -61,9 +73,10 @@ class AutomationForegroundService : Service(), KoinComponent {
     }
 
     override fun onDestroy() {
-        registeredReceivers.forEach { receiver ->
+        registeredReceivers.values.forEach { receiver ->
             unregisterReceiverSafely(receiver)
         }
+        registeredReceivers.clear()
 
         scope.cancel()
 
@@ -108,6 +121,29 @@ class AutomationForegroundService : Service(), KoinComponent {
 
     private fun unregisterReceiverSafely(receiver: BroadcastReceiver) {
         runCatching { unregisterReceiver(receiver) }
+    }
+
+    private fun syncReceivers(activeReceiverKeys: Set<TriggerReceiverKey>) {
+        val requiredFactories = receivers.filter { factory ->
+            factory.key in activeReceiverKeys
+        }.toSet()
+
+        registeredReceivers.keys
+            .filterNot(requiredFactories::contains)
+            .forEach { factory ->
+                registeredReceivers.remove(factory)?.let(::unregisterReceiverSafely)
+            }
+
+        requiredFactories
+            .filterNot(registeredReceivers::containsKey)
+            .forEach { factory ->
+                registeredReceivers[factory] = factory.register(
+                    context = this,
+                    service = service,
+                    scope = scope,
+                    logger = logger
+                )
+            }
     }
 
     companion object {

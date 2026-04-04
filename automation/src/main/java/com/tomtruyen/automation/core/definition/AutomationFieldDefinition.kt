@@ -2,7 +2,7 @@ package com.tomtruyen.automation.core.definition
 
 import androidx.annotation.StringRes
 import com.tomtruyen.automation.R
-import com.tomtruyen.automation.core.AutomationConfig
+import com.tomtruyen.automation.core.config.AutomationConfig
 import kotlin.reflect.KClass
 
 data class AutomationOption(

@@ -54,6 +54,8 @@ class BatteryChangedReceiver(
     }
 
     companion object Factory: TriggerFactory {
+        override val key: TriggerReceiverKey = TriggerReceiverKey.BATTERY_CHANGED
+
         override fun register(
             context: Context,
             service: AutomationRuntimeService,
