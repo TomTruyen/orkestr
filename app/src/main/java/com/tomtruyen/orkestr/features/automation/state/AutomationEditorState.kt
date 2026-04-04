@@ -61,10 +61,7 @@ data class DefinitionPickerState(
     val selectedTypeKey: String? = null,
     val values: Map<String, String> = emptyMap(),
     val errors: List<String> = emptyList()
-) {
-    val isConfiguring: Boolean
-        get() = selectedTypeKey != null
-}
+)
 
 data class AutomationRulesUiState(
     val rules: List<AutomationRule> = emptyList()

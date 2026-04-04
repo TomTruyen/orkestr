@@ -20,6 +20,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.tomtruyen.automation.features.actions.config.ActionConfig
+import com.tomtruyen.automation.features.constraints.config.ConstraintConfig
+import com.tomtruyen.automation.features.triggers.config.TriggerConfig
 import com.tomtruyen.orkestr.R
 import com.tomtruyen.orkestr.features.automation.component.AutomationCardColumn
 import com.tomtruyen.orkestr.features.automation.component.AutomationSectionHeader
@@ -31,9 +34,9 @@ import com.tomtruyen.orkestr.features.automation.viewmodel.AutomationRulesViewMo
 @Composable
 fun AutomationHomeScreen(
     viewModel: AutomationRulesViewModel,
-    summarizeTrigger: (com.tomtruyen.automation.features.triggers.config.TriggerConfig) -> String,
-    summarizeConstraint: (com.tomtruyen.automation.features.constraints.config.ConstraintConfig) -> String,
-    summarizeAction: (com.tomtruyen.automation.features.actions.config.ActionConfig) -> String,
+    summarizeTrigger: (TriggerConfig) -> String,
+    summarizeConstraint: (ConstraintConfig) -> String,
+    summarizeAction: (ActionConfig) -> String,
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.uiState.collectAsState()

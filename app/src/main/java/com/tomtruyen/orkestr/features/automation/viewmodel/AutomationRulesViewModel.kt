@@ -15,11 +15,20 @@ class AutomationRulesViewModel(
     initialState = AutomationRulesUiState()
 ) {
     init {
-        repository.observeRules()
-            .onEach { rules ->
-                updateState { it.copy(rules = rules) }
-            }
-            .launchIn(viewModelScope)
+        observeAutomationRules()
+    }
+
+    private fun observeAutomationRules() = repository.observeRules()
+        .onEach { rules ->
+            updateState { it.copy(rules = rules) }
+        }.launchIn(viewModelScope)
+
+    private fun deleteRule(id: String) = launch {
+        repository.deleteRule(id)
+    }
+
+    private fun toggleRuleEnabled(id: String, enabled: Boolean) = launch {
+        repository.updateEnabled(id, enabled)
     }
 
     override fun onAction(action: AutomationRulesAction) {
@@ -32,17 +41,12 @@ class AutomationRulesViewModel(
                 triggerEvent(AutomationRulesEvent.NavigateToEditRule(action.rule))
             }
 
-            is AutomationRulesAction.DeleteRuleClicked -> {
-                launch {
-                    repository.deleteRule(action.rule.id)
-                }
-            }
+            is AutomationRulesAction.DeleteRuleClicked -> deleteRule(action.rule.id)
 
-            is AutomationRulesAction.ToggleRuleEnabled -> {
-                launch {
-                    repository.updateEnabled(action.rule.id, action.enabled)
-                }
-            }
+            is AutomationRulesAction.ToggleRuleEnabled -> toggleRuleEnabled(
+                id = action.rule.id,
+                enabled = action.enabled
+            )
         }
     }
 }
