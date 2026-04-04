@@ -45,6 +45,8 @@ import com.tomtruyen.orkestr.features.automation.component.ValidationCard
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorAction
 import com.tomtruyen.orkestr.features.automation.state.RuleSection
 import com.tomtruyen.orkestr.features.automation.viewmodel.AutomationRuleEditorViewModel
+import com.tomtruyen.orkestr.ui.theme.ActionGreenContainer
+import com.tomtruyen.orkestr.ui.theme.OnActionGreenContainer
 
 @Composable
 fun AutomationRuleEditorScreen(
@@ -150,8 +152,8 @@ fun AutomationRuleEditorScreen(
                 RuleSectionEditorCard(
                     section = RuleSection.ACTIONS,
                     entries = state.actions.map(viewModel::summarizeAction),
-                    tint = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    tint = ActionGreenContainer,
+                    contentColor = OnActionGreenContainer,
                     onAddNode = { viewModel.onAction(AutomationEditorAction.AddNodeClicked(RuleSection.ACTIONS)) },
                     onNodeClick = {
                         permissionManager.request(
