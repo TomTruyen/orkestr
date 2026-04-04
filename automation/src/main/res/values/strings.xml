@@ -3,4 +3,6 @@
     <string name="automation_permission_notifications_rationale_message">This action posts a notification when the rule runs, so notification permission is required before you can configure it.</string>
     <string name="automation_permission_notifications_denied_title">Notification permission denied</string>
     <string name="automation_permission_notifications_denied_message">Notification permission is still missing, so this action cannot post anything until you allow it in system settings.</string>
+    <string name="automation_permission_notification_policy_title">Allow Do Not Disturb access</string>
+    <string name="automation_permission_notification_policy_message">This action changes the device Do Not Disturb mode, so notification policy access must be enabled in system settings first.</string>
 </resources>

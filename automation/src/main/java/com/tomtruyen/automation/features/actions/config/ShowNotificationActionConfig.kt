@@ -1,7 +1,7 @@
 package com.tomtruyen.automation.features.actions.config
 
 import com.tomtruyen.automation.core.permission.AutomationPermission
-import com.tomtruyen.automation.core.permission.AutomationPermissions
+import com.tomtruyen.automation.core.permission.PostNotificationPermission
 import com.tomtruyen.automation.features.actions.ActionType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -15,8 +15,7 @@ data class ShowNotificationActionConfig(
 ) : ActionConfig {
     override val type: ActionType = ActionType.SHOW_NOTIFICATION
     @Transient
-    override val requiredPermissions: List<AutomationPermission> =
-        listOf(AutomationPermissions.postNotifications)
+    override val requiredPermissions: List<AutomationPermission> = listOf(PostNotificationPermission)
 
     companion object {
         const val DISCRIMINATOR = "show_notification"

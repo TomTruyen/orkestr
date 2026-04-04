@@ -2,6 +2,7 @@ package com.tomtruyen.automation.core.permission
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -16,7 +17,7 @@ sealed interface AutomationPermission {
     val minSdk: Int
     fun isGranted(context: Context): Boolean
 
-    data class Runtime(
+    sealed class Runtime(
         val permission: String,
         @param:StringRes val rationaleTitleRes: Int,
         @param:StringRes val rationaleMessageRes: Int,
@@ -32,7 +33,7 @@ sealed interface AutomationPermission {
         }
     }
 
-    data class Intent(
+    sealed class Intent(
         @param:StringRes val titleRes: Int,
         @param:StringRes val messageRes: Int,
         val intent: PermissionIntent,
@@ -61,15 +62,4 @@ sealed interface PermissionIntent {
     ) : PermissionIntent {
         override fun createIntent(context: Context): Intent = factory(context)
     }
-}
-
-object AutomationPermissions {
-    val postNotifications = AutomationPermission.Runtime(
-        permission = Manifest.permission.POST_NOTIFICATIONS,
-        rationaleTitleRes = R.string.automation_permission_notifications_rationale_title,
-        rationaleMessageRes = R.string.automation_permission_notifications_rationale_message,
-        deniedTitleRes = R.string.automation_permission_notifications_denied_title,
-        deniedMessageRes = R.string.automation_permission_notifications_denied_message,
-        minSdk = Build.VERSION_CODES.TIRAMISU
-    )
 }

@@ -8,6 +8,7 @@ import com.tomtruyen.automation.data.repository.AutomationRuleRepository
 import com.tomtruyen.automation.data.definition.AutomationDefinitionRegistry
 import com.tomtruyen.automation.data.definition.BatteryLevelConstraintDefinition
 import com.tomtruyen.automation.data.definition.ChargeStateTriggerDefinition
+import com.tomtruyen.automation.data.definition.DoNotDisturbActionDefinition
 import com.tomtruyen.automation.data.definition.LogMessageActionDefinition
 import com.tomtruyen.automation.data.definition.ShowNotificationActionDefinition
 import com.tomtruyen.automation.data.AutomationDatabase
@@ -48,7 +49,11 @@ val automationModule = module {
         AutomationDefinitionRegistry(
             triggers = listOf(ChargeStateTriggerDefinition),
             constraints = listOf(BatteryLevelConstraintDefinition),
-            actions = listOf(ShowNotificationActionDefinition, LogMessageActionDefinition)
+            actions = listOf(
+                ShowNotificationActionDefinition,
+                LogMessageActionDefinition,
+                DoNotDisturbActionDefinition
+            )
         )
     }
 

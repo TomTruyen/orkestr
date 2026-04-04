@@ -1,11 +1,14 @@
 package com.tomtruyen.automation.data.definition
 
 import com.tomtruyen.automation.core.model.BatteryChargeState
-import com.tomtruyen.automation.core.permission.AutomationPermissions
 import com.tomtruyen.automation.core.utils.ComparisonOperator
 import com.tomtruyen.automation.features.actions.ActionType
 import com.tomtruyen.automation.features.actions.config.LogMessageActionConfig
 import com.tomtruyen.automation.features.actions.config.ShowNotificationActionConfig
+import com.tomtruyen.automation.features.actions.config.DoNotDisturbActionConfig
+import com.tomtruyen.automation.core.model.DoNotDisturbMode
+import com.tomtruyen.automation.core.permission.NotificationPolicyAccessPermission
+import com.tomtruyen.automation.core.permission.PostNotificationPermission
 import com.tomtruyen.automation.features.constraints.ConstraintType
 import com.tomtruyen.automation.features.constraints.config.BatteryLevelConstraintConfig
 import com.tomtruyen.automation.features.triggers.TriggerType
@@ -147,7 +150,7 @@ object ShowNotificationActionDefinition : ActionDefinition {
     override val type = ActionType.SHOW_NOTIFICATION
     override val title = "Show Notification"
     override val description = "Posts a simple notification when the rule finishes."
-    override val requiredPermissions = listOf(AutomationPermissions.postNotifications)
+    override val requiredPermissions = listOf(PostNotificationPermission)
     override val fields = listOf(
         AutomationFieldDefinition(
             id = "title",
@@ -213,5 +216,53 @@ object LogMessageActionDefinition : ActionDefinition {
     override fun summarize(values: Map<String, String>): String {
         val message = values["message"].orEmpty().ifBlank { "Rule executed" }
         return "Log \"$message\""
+    }
+}
+
+object DoNotDisturbActionDefinition : ActionDefinition {
+    override val type = ActionType.DO_NOT_DISTURB
+    override val title = "Do Not Disturb"
+    override val description = "Changes the device Do Not Disturb mode."
+    override val requiredPermissions = listOf(NotificationPolicyAccessPermission)
+    override val fields = listOf(
+        AutomationFieldDefinition(
+            id = "mode",
+            label = "Mode",
+            type = AutomationFieldType.SINGLE_CHOICE,
+            description = "The Do Not Disturb mode to apply.",
+            defaultValue = "priority_only",
+            options = listOf(
+                AutomationOption("priority_only", "Priority only"),
+                AutomationOption("alarms_only", "Alarms only"),
+                AutomationOption("total_silence", "Total silence"),
+                AutomationOption("off", "Off")
+            )
+        )
+    )
+
+    override fun createConfig(values: Map<String, String>) = DoNotDisturbActionConfig(
+        mode = when (normalized(values)["mode"]) {
+            "alarms_only" -> DoNotDisturbMode.ALARMS_ONLY
+            "total_silence" -> DoNotDisturbMode.TOTAL_SILENCE
+            "off" -> DoNotDisturbMode.OFF
+            else -> DoNotDisturbMode.PRIORITY_ONLY
+        }
+    )
+
+    override fun valuesOf(config: ActionConfig): Map<String, String> {
+        val typed = config as? DoNotDisturbActionConfig ?: DoNotDisturbActionConfig()
+        return mapOf(
+            "mode" to when (typed.mode) {
+                DoNotDisturbMode.PRIORITY_ONLY -> "priority_only"
+                DoNotDisturbMode.ALARMS_ONLY -> "alarms_only"
+                DoNotDisturbMode.TOTAL_SILENCE -> "total_silence"
+                DoNotDisturbMode.OFF -> "off"
+            }
+        )
+    }
+
+    override fun summarize(values: Map<String, String>): String {
+        val option = fields.first().options.firstOrNull { it.value == values["mode"] }?.label ?: "Priority only"
+        return "Set Do Not Disturb to $option"
     }
 }
