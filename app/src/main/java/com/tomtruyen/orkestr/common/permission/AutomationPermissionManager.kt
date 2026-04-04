@@ -3,7 +3,6 @@ package com.tomtruyen.orkestr.common.permission
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
-import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -18,7 +17,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.tomtruyen.automation.core.permission.AutomationPermission
 import com.tomtruyen.orkestr.R
 
@@ -38,18 +36,17 @@ class AutomationPermissionManager private constructor(
         }
 
         val intentPermissions = activePermissions.filterIsInstance<AutomationPermission.Intent>()
-        if (intentPermissions.isNotEmpty()) {
+        val missingIntentPermissions = intentPermissions.filterNot { it.isGranted(context) }
+        if (missingIntentPermissions.isNotEmpty()) {
             dialogState = PermissionDialogState.Intent(
-                permissions = intentPermissions,
+                permissions = missingIntentPermissions,
                 onGranted = onGranted
             )
             return
         }
 
         val runtimePermissions = activePermissions.filterIsInstance<AutomationPermission.Runtime>()
-        val missingRuntimePermissions = runtimePermissions.filter { permission ->
-            ContextCompat.checkSelfPermission(context, permission.permission) != PackageManager.PERMISSION_GRANTED
-        }
+        val missingRuntimePermissions = runtimePermissions.filterNot { it.isGranted(context) }
 
         if (missingRuntimePermissions.isEmpty()) {
             onGranted()
@@ -136,8 +133,7 @@ class AutomationPermissionManager private constructor(
     fun onPermissionsResult(result: Map<String, Boolean>) {
         val request = pendingRequest ?: return
         val deniedPermissions = request.permissions.filter { permission ->
-            result[permission.permission] != true &&
-                ContextCompat.checkSelfPermission(context, permission.permission) != PackageManager.PERMISSION_GRANTED
+            result[permission.permission] != true && !permission.isGranted(context)
         }
 
         pendingRequest = null

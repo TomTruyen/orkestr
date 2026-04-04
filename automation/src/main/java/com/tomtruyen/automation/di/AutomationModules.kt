@@ -12,6 +12,8 @@ import com.tomtruyen.automation.data.definition.LogMessageActionDefinition
 import com.tomtruyen.automation.data.definition.ShowNotificationActionDefinition
 import com.tomtruyen.automation.data.AutomationDatabase
 import com.tomtruyen.automation.data.repository.RoomAutomationRuleRepository
+import com.tomtruyen.automation.features.actions.delegate.LogMessageActionDelegate
+import com.tomtruyen.automation.features.actions.delegate.ShowNotificationActionDelegate
 import com.tomtruyen.automation.features.actions.delegate.ActionDelegate
 import com.tomtruyen.automation.features.actions.ActionExecutor
 import com.tomtruyen.automation.features.actions.config.ActionConfig
@@ -22,6 +24,7 @@ import com.tomtruyen.automation.features.triggers.delegate.TriggerDelegate
 import com.tomtruyen.automation.features.triggers.TriggerMatcher
 import com.tomtruyen.automation.features.triggers.config.TriggerConfig
 import com.tomtruyen.automation.features.triggers.delegate.ChargeStateTriggerDelegate
+import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 val automationModule = module {
@@ -55,7 +58,7 @@ val automationModule = module {
     // Runtime Service
     single { TriggerMatcher() }
     single { ConstraintEvaluator() }
-    single { ActionExecutor() }
+    single { ActionExecutor(androidContext()) }
 
     single<AutomationRuntimeService> {
         AutomationRuntimeService(

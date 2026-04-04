@@ -1,5 +1,6 @@
 package com.tomtruyen.automation.features.actions
 
+import android.content.Context
 import com.tomtruyen.automation.core.event.AutomationEvent
 import com.tomtruyen.automation.features.actions.config.ActionConfig
 import com.tomtruyen.automation.features.actions.delegate.ActionDelegate
@@ -7,9 +8,10 @@ import com.tomtruyen.automation.features.actions.delegate.LogMessageActionDelega
 import com.tomtruyen.automation.features.actions.delegate.ShowNotificationActionDelegate
 
 class ActionExecutor(
+    context: Context,
     delegates: List<ActionDelegate<out ActionConfig>> = listOf(
-        ShowNotificationActionDelegate(),
-        LogMessageActionDelegate()
+        LogMessageActionDelegate(),
+        ShowNotificationActionDelegate(context)
     )
 ) {
     private val delegatesByType = delegates.associateBy { it.type }
