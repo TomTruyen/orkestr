@@ -1,0 +1,27 @@
+package com.tomtruyen.orkestr.features.automation.navigation
+
+import androidx.navigation3.runtime.NavKey
+import com.tomtruyen.orkestr.features.automation.state.RuleSection
+import kotlinx.serialization.Serializable
+
+@Serializable
+data object AutomationGraphRoute : NavKey
+
+@Serializable
+data object AutomationRulesRoute : NavKey
+
+@Serializable
+data object AutomationRuleEditorRoute : NavKey
+
+@Serializable
+data class AutomationDefinitionSelectionRoute(
+    val section: RuleSection,
+    val editingIndex: Int? = null
+) : NavKey
+
+@Serializable
+data class AutomationDefinitionConfigurationRoute(
+    val section: RuleSection,
+    val typeKey: String,
+    val editingIndex: Int? = null
+) : NavKey

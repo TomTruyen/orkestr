@@ -30,11 +30,17 @@ data class AutomationFieldDefinition(
     val options: List<AutomationOption> = emptyList()
 )
 
-interface TriggerDefinition {
-    val type: TriggerType
+interface AutomationNodeDefinition {
+    val key: String
     val title: String
     val description: String
     val fields: List<AutomationFieldDefinition>
+}
+
+interface TriggerDefinition : AutomationNodeDefinition {
+    val type: TriggerType
+    override val key: String
+        get() = type.name
 
     fun createConfig(values: Map<String, String>): TriggerConfig
     fun valuesOf(config: TriggerConfig): Map<String, String>
@@ -46,11 +52,10 @@ interface TriggerDefinition {
     }
 }
 
-interface ConstraintDefinition {
+interface ConstraintDefinition : AutomationNodeDefinition {
     val type: ConstraintType
-    val title: String
-    val description: String
-    val fields: List<AutomationFieldDefinition>
+    override val key: String
+        get() = type.name
 
     fun createConfig(values: Map<String, String>): ConstraintConfig
     fun valuesOf(config: ConstraintConfig): Map<String, String>
@@ -62,11 +67,10 @@ interface ConstraintDefinition {
     }
 }
 
-interface ActionDefinition {
+interface ActionDefinition : AutomationNodeDefinition {
     val type: ActionType
-    val title: String
-    val description: String
-    val fields: List<AutomationFieldDefinition>
+    override val key: String
+        get() = type.name
 
     fun createConfig(values: Map<String, String>): ActionConfig
     fun valuesOf(config: ActionConfig): Map<String, String>
