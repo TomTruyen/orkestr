@@ -43,10 +43,12 @@ fun AutomationCardColumn(
 @Composable
 fun AutomationTintedColumn(
     tint: Color,
+    contentColor: Color,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Surface(
         color = tint,
+        contentColor = contentColor,
         shape = CardDefaults.outlinedShape
     ) {
         AutomationCardColumn(content = content)

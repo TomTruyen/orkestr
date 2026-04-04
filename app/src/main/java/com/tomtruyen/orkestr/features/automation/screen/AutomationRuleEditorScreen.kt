@@ -31,9 +31,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tomtruyen.orkestr.R
+import com.tomtruyen.orkestr.common.permission.AutomationPermissionManager
 import com.tomtruyen.orkestr.features.automation.component.AutomationCardColumn
 import com.tomtruyen.orkestr.features.automation.component.AutomationTintedColumn
 import com.tomtruyen.orkestr.features.automation.component.AutomationTitleRow
@@ -51,6 +53,7 @@ fun AutomationRuleEditorScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val state = uiState.editorState ?: return
+    val permissionManager = AutomationPermissionManager.remember(LocalContext.current)
     var nodeDialog by rememberSaveable { mutableStateOf<NodeActionDialogState?>(null) }
 
     Scaffold(
@@ -110,9 +113,14 @@ fun AutomationRuleEditorScreen(
                     section = RuleSection.TRIGGERS,
                     entries = state.triggers.map(viewModel::summarizeTrigger),
                     tint = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                     onAddNode = { viewModel.onAction(AutomationEditorAction.AddNodeClicked(RuleSection.TRIGGERS)) },
                     onNodeClick = {
-                        viewModel.onAction(AutomationEditorAction.EditNodeClicked(RuleSection.TRIGGERS, it))
+                        permissionManager.request(
+                            permissions = viewModel.requiredPermissionsForNode(RuleSection.TRIGGERS, it)
+                        ) {
+                            viewModel.onAction(AutomationEditorAction.EditNodeClicked(RuleSection.TRIGGERS, it))
+                        }
                     },
                     onNodeLongClick = { index, entry ->
                         nodeDialog = NodeActionDialogState(RuleSection.TRIGGERS, index, entry)
@@ -124,9 +132,14 @@ fun AutomationRuleEditorScreen(
                     section = RuleSection.CONSTRAINTS,
                     entries = state.constraints.map(viewModel::summarizeConstraint),
                     tint = MaterialTheme.colorScheme.tertiaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
                     onAddNode = { viewModel.onAction(AutomationEditorAction.AddNodeClicked(RuleSection.CONSTRAINTS)) },
                     onNodeClick = {
-                        viewModel.onAction(AutomationEditorAction.EditNodeClicked(RuleSection.CONSTRAINTS, it))
+                        permissionManager.request(
+                            permissions = viewModel.requiredPermissionsForNode(RuleSection.CONSTRAINTS, it)
+                        ) {
+                            viewModel.onAction(AutomationEditorAction.EditNodeClicked(RuleSection.CONSTRAINTS, it))
+                        }
                     },
                     onNodeLongClick = { index, entry ->
                         nodeDialog = NodeActionDialogState(RuleSection.CONSTRAINTS, index, entry)
@@ -138,9 +151,14 @@ fun AutomationRuleEditorScreen(
                     section = RuleSection.ACTIONS,
                     entries = state.actions.map(viewModel::summarizeAction),
                     tint = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                     onAddNode = { viewModel.onAction(AutomationEditorAction.AddNodeClicked(RuleSection.ACTIONS)) },
                     onNodeClick = {
-                        viewModel.onAction(AutomationEditorAction.EditNodeClicked(RuleSection.ACTIONS, it))
+                        permissionManager.request(
+                            permissions = viewModel.requiredPermissionsForNode(RuleSection.ACTIONS, it)
+                        ) {
+                            viewModel.onAction(AutomationEditorAction.EditNodeClicked(RuleSection.ACTIONS, it))
+                        }
                     },
                     onNodeLongClick = { index, entry ->
                         nodeDialog = NodeActionDialogState(RuleSection.ACTIONS, index, entry)
@@ -155,7 +173,11 @@ fun AutomationRuleEditorScreen(
             state = dialog,
             onDismiss = { nodeDialog = null },
             onConfigure = {
-                viewModel.onAction(AutomationEditorAction.EditNodeClicked(dialog.section, dialog.index))
+                permissionManager.request(
+                    permissions = viewModel.requiredPermissionsForNode(dialog.section, dialog.index)
+                ) {
+                    viewModel.onAction(AutomationEditorAction.EditNodeClicked(dialog.section, dialog.index))
+                }
                 nodeDialog = null
             },
             onDelete = {
@@ -164,6 +186,8 @@ fun AutomationRuleEditorScreen(
             }
         )
     }
+
+    permissionManager.RenderDialogs()
 }
 
 private data class NodeActionDialogState(
@@ -177,11 +201,15 @@ private fun RuleSectionEditorCard(
     section: RuleSection,
     entries: List<String>,
     tint: androidx.compose.ui.graphics.Color,
+    contentColor: androidx.compose.ui.graphics.Color,
     onAddNode: () -> Unit,
     onNodeClick: (Int) -> Unit,
     onNodeLongClick: (Int, String) -> Unit
 ) {
-    AutomationTintedColumn(tint = tint) {
+    AutomationTintedColumn(
+        tint = tint,
+        contentColor = contentColor
+    ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             Column(
                 modifier = Modifier
@@ -193,7 +221,7 @@ private fun RuleSectionEditorCard(
                 Text(
                     text = stringResource(section.helperRes),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = contentColor.copy(alpha = 0.8f)
                 )
             }
             IconButton(onClick = onAddNode, modifier = Modifier.align(Alignment.CenterEnd)) {

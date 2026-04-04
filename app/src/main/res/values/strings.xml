@@ -16,6 +16,9 @@
     <string name="automation_action_add_node">Add %1$s</string>
     <string name="automation_action_save_changes">Save Changes</string>
     <string name="automation_action_close">Close</string>
+    <string name="automation_permission_action_continue">Continue</string>
+    <string name="automation_permission_action_retry">Retry</string>
+    <string name="automation_permission_action_open_settings">Open Settings</string>
     <string name="automation_label_rule_name">Rule name</string>
     <string name="automation_rule_name_placeholder">Pause notifications while charging</string>
     <string name="automation_label_rule_enabled">Rule enabled</string>

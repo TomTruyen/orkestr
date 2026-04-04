@@ -1,7 +1,7 @@
 package com.tomtruyen.orkestr.features.automation.viewmodel
 
-import android.content.Context
 import com.tomtruyen.automation.core.AutomationRule
+import com.tomtruyen.automation.core.permission.AutomationPermission
 import com.tomtruyen.automation.data.definition.AutomationDefinitionRegistry
 import com.tomtruyen.automation.data.definition.AutomationNodeDefinition
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
@@ -13,6 +13,7 @@ import com.tomtruyen.automation.features.triggers.TriggerType
 import com.tomtruyen.automation.features.triggers.config.TriggerConfig
 import com.tomtruyen.orkestr.R
 import com.tomtruyen.orkestr.common.BaseViewModel
+import com.tomtruyen.orkestr.common.StringResolver
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorAction
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorEvent
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorUiState
@@ -24,7 +25,7 @@ import com.tomtruyen.orkestr.features.automation.state.RuleValidationState
 import java.util.UUID
 
 class AutomationRuleEditorViewModel(
-    private val context: Context,
+    private val stringResolver: StringResolver,
     private val repository: AutomationRuleRepository,
     private val definitions: AutomationDefinitionRegistry
 ) : BaseViewModel<AutomationEditorUiState, AutomationEditorEvent, AutomationEditorAction>(
@@ -43,8 +44,7 @@ class AutomationRuleEditorViewModel(
             }
 
             AutomationEditorAction.BackToPickerSelectionClicked -> {
-                backToPickerList()
-                triggerEvent(AutomationEditorEvent.PopToDefinitionSelection)
+                navigateBackFromConfiguration()
             }
 
             is AutomationEditorAction.RuleNameChanged -> {
@@ -67,7 +67,7 @@ class AutomationRuleEditorViewModel(
             AutomationEditorAction.SaveRuleClicked -> saveRule()
 
             is AutomationEditorAction.AddNodeClicked -> {
-                startSelection(action.section, null)
+                startSelection(action.section, null, launchedFromSelection = true)
                 triggerEvent(
                     AutomationEditorEvent.NavigateToDefinitionSelection(
                         section = action.section,
@@ -77,16 +77,10 @@ class AutomationRuleEditorViewModel(
             }
 
             is AutomationEditorAction.EditNodeClicked -> {
-                startSelection(action.section, action.index)
+                startSelection(action.section, action.index, launchedFromSelection = false)
                 val typeKey = uiState.value.pickerState?.selectedTypeKey
                 if (typeKey != null) {
-                    triggerEvent(
-                        AutomationEditorEvent.NavigateToDefinitionConfiguration(
-                            section = action.section,
-                            typeKey = typeKey,
-                            editingIndex = action.index
-                        )
-                    )
+                    navigateToConfiguration(typeKey)
                 }
             }
 
@@ -100,15 +94,7 @@ class AutomationRuleEditorViewModel(
             }
 
             is AutomationEditorAction.DefinitionSelected -> {
-                openConfiguration(action.typeKey)
-                val picker = uiState.value.pickerState ?: return
-                triggerEvent(
-                    AutomationEditorEvent.NavigateToDefinitionConfiguration(
-                        section = picker.section,
-                        typeKey = action.typeKey,
-                        editingIndex = picker.editingIndex
-                    )
-                )
+                navigateToConfiguration(action.typeKey)
             }
 
             is AutomationEditorAction.PickerFieldChanged -> {
@@ -164,7 +150,8 @@ class AutomationRuleEditorViewModel(
                     key = definition.key,
                     title = definition.title,
                     description = definition.description,
-                    fields = definition.fields
+                    fields = definition.fields,
+                    permissions = definition.requiredPermissions
                 )
             }
 
@@ -180,6 +167,15 @@ class AutomationRuleEditorViewModel(
         definitions.action(config.type)?.summarize(definitions.action(config.type)?.valuesOf(config).orEmpty())
             ?: config.type.name
 
+    fun requiredPermissionsForNode(section: RuleSection, index: Int): List<AutomationPermission> {
+        val editor = uiState.value.editorState ?: return emptyList()
+        return when (section) {
+            RuleSection.TRIGGERS -> editor.triggers.getOrNull(index)?.requiredPermissions.orEmpty()
+            RuleSection.CONSTRAINTS -> editor.constraints.getOrNull(index)?.requiredPermissions.orEmpty()
+            RuleSection.ACTIONS -> editor.actions.getOrNull(index)?.requiredPermissions.orEmpty()
+        }
+    }
+
     private fun closeEditor() {
         updateState { it.copy(editorState = null, pickerState = null) }
     }
@@ -188,7 +184,7 @@ class AutomationRuleEditorViewModel(
         updateState { it.copy(pickerState = null) }
     }
 
-    private fun startSelection(section: RuleSection, editingIndex: Int?) {
+    private fun startSelection(section: RuleSection, editingIndex: Int?, launchedFromSelection: Boolean) {
         val current = uiState.value.editorState ?: return
         val existing = when (section) {
             RuleSection.TRIGGERS -> editingIndex?.let(current.triggers::getOrNull)
@@ -197,11 +193,16 @@ class AutomationRuleEditorViewModel(
         }
 
         val pickerState = if (existing == null) {
-            DefinitionPickerState(section = section, editingIndex = editingIndex)
+            DefinitionPickerState(
+                section = section,
+                editingIndex = editingIndex,
+                launchedFromSelection = launchedFromSelection
+            )
         } else {
             DefinitionPickerState(
                 section = section,
                 editingIndex = editingIndex,
+                launchedFromSelection = launchedFromSelection,
                 selectedTypeKey = definitionKeyOf(existing),
                 values = valuesOf(section, existing)
             )
@@ -224,6 +225,29 @@ class AutomationRuleEditorViewModel(
                     errors = emptyList()
                 )
             )
+        }
+    }
+
+    private fun navigateToConfiguration(typeKey: String) {
+        openConfiguration(typeKey)
+        val picker = uiState.value.pickerState ?: return
+        triggerEvent(
+            AutomationEditorEvent.NavigateToDefinitionConfiguration(
+                section = picker.section,
+                typeKey = typeKey,
+                editingIndex = picker.editingIndex
+            )
+        )
+    }
+
+    private fun navigateBackFromConfiguration() {
+        val picker = uiState.value.pickerState ?: return
+        if (picker.launchedFromSelection) {
+            backToPickerList()
+            triggerEvent(AutomationEditorEvent.PopToDefinitionSelection)
+        } else {
+            closePicker()
+            triggerEvent(AutomationEditorEvent.PopToEditor)
         }
     }
 
@@ -351,13 +375,13 @@ class AutomationRuleEditorViewModel(
         val errors = mutableListOf<String>()
 
         if (rule.name.isBlank()) {
-            errors += context.getString(R.string.automation_error_rule_name_required)
+            errors += stringResolver.resolve(R.string.automation_error_rule_name_required)
         }
         if (rule.triggers.isEmpty()) {
-            errors += context.getString(R.string.automation_error_trigger_required)
+            errors += stringResolver.resolve(R.string.automation_error_trigger_required)
         }
         if (rule.actions.isEmpty()) {
-            errors += context.getString(R.string.automation_error_action_required)
+            errors += stringResolver.resolve(R.string.automation_error_action_required)
         }
 
         rule.triggers.forEach { trigger ->

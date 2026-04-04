@@ -1,6 +1,7 @@
 package com.tomtruyen.automation.data.definition
 
 import com.tomtruyen.automation.core.model.BatteryChargeState
+import com.tomtruyen.automation.core.permission.AutomationPermissions
 import com.tomtruyen.automation.core.utils.ComparisonOperator
 import com.tomtruyen.automation.features.actions.ActionType
 import com.tomtruyen.automation.features.actions.config.LogMessageActionConfig
@@ -146,6 +147,7 @@ object ShowNotificationActionDefinition : ActionDefinition {
     override val type = ActionType.SHOW_NOTIFICATION
     override val title = "Show Notification"
     override val description = "Posts a simple notification when the rule finishes."
+    override val requiredPermissions = listOf(AutomationPermissions.postNotifications)
     override val fields = listOf(
         AutomationFieldDefinition(
             id = "title",

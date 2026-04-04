@@ -1,5 +1,6 @@
 package com.tomtruyen.automation.data.definition
 
+import com.tomtruyen.automation.core.permission.AutomationPermission
 import com.tomtruyen.automation.features.actions.ActionType
 import com.tomtruyen.automation.features.actions.config.ActionConfig
 import com.tomtruyen.automation.features.constraints.ConstraintType
@@ -35,6 +36,8 @@ interface AutomationNodeDefinition {
     val title: String
     val description: String
     val fields: List<AutomationFieldDefinition>
+    val requiredPermissions: List<AutomationPermission>
+        get() = emptyList()
 }
 
 interface TriggerDefinition : AutomationNodeDefinition {

@@ -2,6 +2,7 @@ package com.tomtruyen.orkestr.features.automation.state
 
 import androidx.annotation.StringRes
 import com.tomtruyen.automation.core.AutomationRule
+import com.tomtruyen.automation.core.permission.AutomationPermission
 import com.tomtruyen.automation.data.definition.AutomationFieldDefinition
 import com.tomtruyen.automation.features.actions.config.ActionConfig
 import com.tomtruyen.automation.features.constraints.config.ConstraintConfig
@@ -48,13 +49,15 @@ data class DefinitionListItem(
     val key: String,
     val title: String,
     val description: String,
-    val fields: List<AutomationFieldDefinition>
+    val fields: List<AutomationFieldDefinition>,
+    val permissions: List<AutomationPermission> = emptyList()
 )
 
 data class DefinitionPickerState(
     val section: RuleSection,
     val editingIndex: Int? = null,
     val query: String = "",
+    val launchedFromSelection: Boolean = true,
     val selectedTypeKey: String? = null,
     val values: Map<String, String> = emptyMap(),
     val errors: List<String> = emptyList()

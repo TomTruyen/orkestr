@@ -19,10 +19,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.tomtruyen.orkestr.R
+import com.tomtruyen.orkestr.common.permission.AutomationPermissionManager
 import com.tomtruyen.orkestr.features.automation.component.AutomationCardColumn
 import com.tomtruyen.orkestr.features.automation.component.AutomationFieldForm
 import com.tomtruyen.orkestr.features.automation.component.AutomationSectionHeader
@@ -40,6 +42,7 @@ fun AutomationDefinitionSelectionScreen(
     val uiState by viewModel.uiState.collectAsState()
     val pickerState = uiState.pickerState ?: return
     val items = viewModel.definitionItems(pickerState.section, pickerState.query)
+    val permissionManager = AutomationPermissionManager.remember(LocalContext.current)
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -77,7 +80,11 @@ fun AutomationDefinitionSelectionScreen(
             OutlinedCard(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { viewModel.onAction(AutomationEditorAction.DefinitionSelected(item.key)) }
+                    .clickable {
+                        permissionManager.request(item.permissions) {
+                            viewModel.onAction(AutomationEditorAction.DefinitionSelected(item.key))
+                        }
+                    }
             ) {
                 AutomationCardColumn {
                     Text(text = item.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
@@ -91,6 +98,8 @@ fun AutomationDefinitionSelectionScreen(
             }
         }
     }
+
+    permissionManager.RenderDialogs()
 }
 
 @Composable
@@ -140,13 +149,15 @@ fun AutomationDefinitionConfigurationScreen(
                 OutlinedCard {
                     AutomationCardColumn {
                         AutomationSectionHeader(title = definition.title, description = definition.description)
-                        Button(onClick = { viewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked) }) {
-                            Text(
-                                stringResource(
-                                    R.string.automation_action_choose_different,
-                                    stringResource(pickerState.section.singularTitleRes)
+                        if (pickerState.launchedFromSelection) {
+                            Button(onClick = { viewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked) }) {
+                                Text(
+                                    stringResource(
+                                        R.string.automation_action_choose_different,
+                                        stringResource(pickerState.section.singularTitleRes)
+                                    )
                                 )
-                            )
+                            }
                         }
                     }
                 }
