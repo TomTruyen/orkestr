@@ -8,6 +8,8 @@ import androidx.core.content.ContextCompat
 import com.tomtruyen.automation.core.AutomationLogger
 import com.tomtruyen.automation.core.AutomationRuntimeService
 import com.tomtruyen.automation.core.event.BatteryChangedEvent
+import com.tomtruyen.automation.core.model.BatteryChargeState
+import com.tomtruyen.automation.core.model.BatteryPlugStatus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -19,26 +21,33 @@ class BatteryChangedReceiver(
     override fun onReceive(context: Context, intent: Intent) {
         if(intent.action != Intent.ACTION_BATTERY_CHANGED) return
 
+        val level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+        val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
+        val rawStatus = intent.getIntExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_UNKNOWN)
+        val rawPlugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0)
+
+        val chargeState = BatteryChargeState.fromBatteryManagerState(rawStatus)
+        val plugStatus = BatteryPlugStatus.fromBatteryManagerPluggedStatus(rawPlugged)
+
         logger.log(
             """
                 Received battery change event: 
-                level=${intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)}
-                scale=${intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)}
-                status=${intent.getIntExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_UNKNOWN)}
-                plugged=${intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0)}
+                level=$level
+                scale=$scale
+                chargeState=$chargeState
+                plugStatus=$plugStatus
+                rawStatus=$rawStatus
+                rawPlugged=$rawPlugged
             """.trimIndent()
         )
 
         scope.launch {
             service.handleEvent(
                 BatteryChangedEvent(
-                    level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1),
-                    scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1),
-                    status = intent.getIntExtra(
-                        BatteryManager.EXTRA_STATUS,
-                        BatteryManager.BATTERY_STATUS_UNKNOWN
-                    ),
-                    plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0),
+                    level = level,
+                    scale = scale,
+                    chargeState = chargeState,
+                    plugStatus = plugStatus,
                 )
             )
         }

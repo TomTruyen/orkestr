@@ -4,44 +4,28 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.activity.viewModels
+import com.tomtruyen.orkestr.ui.automation.AutomationRulesRoute
+import com.tomtruyen.orkestr.ui.automation.AutomationRulesViewModel
 import com.tomtruyen.orkestr.ui.theme.OrkestrTheme
+import org.koin.core.context.GlobalContext
 
 class MainActivity : ComponentActivity() {
+    private val viewModel by viewModels<AutomationRulesViewModel> {
+        AutomationRulesViewModel.factory(
+            repository = GlobalContext.get().get(),
+            definitions = GlobalContext.get().get()
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             OrkestrTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                AutomationRulesRoute(viewModel = viewModel)
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    OrkestrTheme {
-        Greeting("Android")
     }
 }

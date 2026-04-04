@@ -1,9 +1,11 @@
 package com.tomtruyen.automation.core.event
 
+import com.tomtruyen.automation.core.model.BatteryChargeState
+import com.tomtruyen.automation.core.model.BatteryPlugStatus
+
 data class BatteryChangedEvent(
     val level: Int,
     val scale: Int,
-    val status: Int,
-    val plugged: Int,
-): AutomationEvent() {
-}
+    val chargeState: BatteryChargeState,
+    val plugStatus: BatteryPlugStatus,
+): AutomationEvent()
