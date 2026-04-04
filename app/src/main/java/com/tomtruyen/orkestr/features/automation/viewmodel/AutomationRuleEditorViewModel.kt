@@ -1,11 +1,6 @@
 package com.tomtruyen.orkestr.features.automation.viewmodel
 
 import android.content.Context
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.tomtruyen.automation.core.AutomationRule
 import com.tomtruyen.automation.data.definition.AutomationDefinitionRegistry
 import com.tomtruyen.automation.data.definition.AutomationNodeDefinition
@@ -17,202 +12,142 @@ import com.tomtruyen.automation.features.constraints.config.ConstraintConfig
 import com.tomtruyen.automation.features.triggers.TriggerType
 import com.tomtruyen.automation.features.triggers.config.TriggerConfig
 import com.tomtruyen.orkestr.R
+import com.tomtruyen.orkestr.common.BaseViewModel
+import com.tomtruyen.orkestr.features.automation.state.AutomationEditorAction
+import com.tomtruyen.orkestr.features.automation.state.AutomationEditorEvent
+import com.tomtruyen.orkestr.features.automation.state.AutomationEditorUiState
 import com.tomtruyen.orkestr.features.automation.state.DefinitionListItem
 import com.tomtruyen.orkestr.features.automation.state.DefinitionPickerState
 import com.tomtruyen.orkestr.features.automation.state.RuleEditorState
 import com.tomtruyen.orkestr.features.automation.state.RuleSection
 import com.tomtruyen.orkestr.features.automation.state.RuleValidationState
 import java.util.UUID
-import kotlinx.coroutines.launch
 
 class AutomationRuleEditorViewModel(
     private val context: Context,
     private val repository: AutomationRuleRepository,
     private val definitions: AutomationDefinitionRegistry
-) : ViewModel() {
-    var editorState by mutableStateOf<RuleEditorState?>(null)
-        private set
+) : BaseViewModel<AutomationEditorUiState, AutomationEditorEvent, AutomationEditorAction>(
+    initialState = AutomationEditorUiState()
+) {
+    override fun onAction(action: AutomationEditorAction) {
+        when (action) {
+            AutomationEditorAction.CloseEditorClicked -> {
+                closeEditor()
+                triggerEvent(AutomationEditorEvent.NavigateBackToRules)
+            }
 
-    var pickerState by mutableStateOf<DefinitionPickerState?>(null)
-        private set
+            AutomationEditorAction.ClosePickerClicked -> {
+                closePicker()
+                triggerEvent(AutomationEditorEvent.PopToEditor)
+            }
 
-    fun createRule() {
-        editorState = RuleEditorState(id = UUID.randomUUID().toString())
-        pickerState = null
-    }
+            AutomationEditorAction.BackToPickerSelectionClicked -> {
+                backToPickerList()
+                triggerEvent(AutomationEditorEvent.PopToDefinitionSelection)
+            }
 
-    fun editRule(rule: AutomationRule) {
-        editorState = RuleEditorState(
-            id = rule.id,
-            name = rule.name,
-            enabled = rule.enabled,
-            triggers = rule.triggers,
-            constraints = rule.constraints,
-            actions = rule.actions
-        )
-        pickerState = null
-    }
-
-    fun closeEditor() {
-        editorState = null
-        pickerState = null
-    }
-
-    fun closePicker() {
-        pickerState = null
-    }
-
-    fun updateRuleName(name: String) {
-        editorState = editorState?.copy(name = name, validation = RuleValidationState())
-    }
-
-    fun updateRuleEnabled(enabled: Boolean) {
-        editorState = editorState?.copy(enabled = enabled)
-    }
-
-    fun saveRule(onSaved: () -> Unit) {
-        val current = editorState ?: return
-        val errors = validateRule(current)
-        if (errors.isNotEmpty()) {
-            editorState = current.copy(validation = RuleValidationState(errors))
-            return
-        }
-
-        viewModelScope.launch {
-            repository.upsertRule(
-                AutomationRule(
-                    id = current.id,
-                    name = current.name.trim(),
-                    enabled = current.enabled,
-                    triggers = current.triggers,
-                    constraints = current.constraints,
-                    actions = current.actions
-                )
-            )
-            closeEditor()
-            onSaved()
-        }
-    }
-
-    fun startSelection(section: RuleSection, editingIndex: Int? = null) {
-        val current = editorState ?: return
-        val existing = when (section) {
-            RuleSection.TRIGGERS -> editingIndex?.let(current.triggers::getOrNull)
-            RuleSection.CONSTRAINTS -> editingIndex?.let(current.constraints::getOrNull)
-            RuleSection.ACTIONS -> editingIndex?.let(current.actions::getOrNull)
-        }
-
-        pickerState = if (existing == null) {
-            DefinitionPickerState(section = section, editingIndex = editingIndex)
-        } else {
-            DefinitionPickerState(
-                section = section,
-                editingIndex = editingIndex,
-                selectedTypeKey = definitionKeyOf(existing),
-                values = valuesOf(section, existing)
-            )
-        }
-    }
-
-    fun openConfiguration(typeKey: String) {
-        val state = pickerState ?: return
-        pickerState = state.copy(
-            selectedTypeKey = typeKey,
-            values = if (state.selectedTypeKey == typeKey && state.values.isNotEmpty()) {
-                state.values
-            } else {
-                defaultValues(state.section, typeKey)
-            },
-            errors = emptyList()
-        )
-    }
-
-    fun updatePickerQuery(query: String) {
-        pickerState = pickerState?.copy(query = query)
-    }
-
-    fun backToPickerList() {
-        val state = pickerState ?: return
-        pickerState = state.copy(
-            selectedTypeKey = null,
-            values = emptyMap(),
-            errors = emptyList()
-        )
-    }
-
-    fun updatePickerField(fieldId: String, value: String) {
-        val state = pickerState ?: return
-        pickerState = state.copy(
-            values = state.values + (fieldId to value),
-            errors = emptyList()
-        )
-    }
-
-    fun savePickerSelection() {
-        val picker = pickerState ?: return
-        val editor = editorState ?: return
-        val typeKey = picker.selectedTypeKey ?: return
-
-        when (picker.section) {
-            RuleSection.TRIGGERS -> {
-                val definition = definitions.trigger(TriggerType.valueOf(typeKey)) ?: return
-                val errors = definition.validate(picker.values)
-                if (errors.isNotEmpty()) {
-                    pickerState = picker.copy(errors = errors)
-                    return
+            is AutomationEditorAction.RuleNameChanged -> {
+                val editor = uiState.value.editorState ?: return
+                updateState {
+                    it.copy(
+                        editorState = editor.copy(
+                            name = action.name,
+                            validation = RuleValidationState()
+                        )
+                    )
                 }
-                editorState = editor.copy(
-                    triggers = replaceAt(editor.triggers, picker.editingIndex, definition.createConfig(picker.values)),
-                    validation = RuleValidationState()
+            }
+
+            is AutomationEditorAction.RuleEnabledChanged -> {
+                val editor = uiState.value.editorState ?: return
+                updateState { it.copy(editorState = editor.copy(enabled = action.enabled)) }
+            }
+
+            AutomationEditorAction.SaveRuleClicked -> saveRule()
+
+            is AutomationEditorAction.AddNodeClicked -> {
+                startSelection(action.section, null)
+                triggerEvent(
+                    AutomationEditorEvent.NavigateToDefinitionSelection(
+                        section = action.section,
+                        editingIndex = null
+                    )
                 )
             }
 
-            RuleSection.CONSTRAINTS -> {
-                val definition = definitions.constraint(ConstraintType.valueOf(typeKey)) ?: return
-                val errors = definition.validate(picker.values)
-                if (errors.isNotEmpty()) {
-                    pickerState = picker.copy(errors = errors)
-                    return
+            is AutomationEditorAction.EditNodeClicked -> {
+                startSelection(action.section, action.index)
+                val typeKey = uiState.value.pickerState?.selectedTypeKey
+                if (typeKey != null) {
+                    triggerEvent(
+                        AutomationEditorEvent.NavigateToDefinitionConfiguration(
+                            section = action.section,
+                            typeKey = typeKey,
+                            editingIndex = action.index
+                        )
+                    )
                 }
-                editorState = editor.copy(
-                    constraints = replaceAt(editor.constraints, picker.editingIndex, definition.createConfig(picker.values)),
-                    validation = RuleValidationState()
+            }
+
+            is AutomationEditorAction.DeleteNodeClicked -> {
+                deleteNode(action.section, action.index)
+            }
+
+            is AutomationEditorAction.PickerQueryChanged -> {
+                val picker = uiState.value.pickerState ?: return
+                updateState { it.copy(pickerState = picker.copy(query = action.query)) }
+            }
+
+            is AutomationEditorAction.DefinitionSelected -> {
+                openConfiguration(action.typeKey)
+                val picker = uiState.value.pickerState ?: return
+                triggerEvent(
+                    AutomationEditorEvent.NavigateToDefinitionConfiguration(
+                        section = picker.section,
+                        typeKey = action.typeKey,
+                        editingIndex = picker.editingIndex
+                    )
                 )
             }
 
-            RuleSection.ACTIONS -> {
-                val definition = definitions.action(ActionType.valueOf(typeKey)) ?: return
-                val errors = definition.validate(picker.values)
-                if (errors.isNotEmpty()) {
-                    pickerState = picker.copy(errors = errors)
-                    return
+            is AutomationEditorAction.PickerFieldChanged -> {
+                val picker = uiState.value.pickerState ?: return
+                updateState {
+                    it.copy(
+                        pickerState = picker.copy(
+                            values = picker.values + (action.fieldId to action.value),
+                            errors = emptyList()
+                        )
+                    )
                 }
-                editorState = editor.copy(
-                    actions = replaceAt(editor.actions, picker.editingIndex, definition.createConfig(picker.values)),
-                    validation = RuleValidationState()
-                )
             }
+
+            AutomationEditorAction.SavePickerClicked -> savePickerSelection()
         }
-
-        closePicker()
     }
 
-    fun deleteNode(section: RuleSection, index: Int) {
-        val current = editorState ?: return
-        editorState = when (section) {
-            RuleSection.TRIGGERS -> current.copy(
-                triggers = current.triggers.toMutableList().also { it.removeAt(index) },
-                validation = RuleValidationState()
+    fun setCreateRule() {
+        updateState {
+            it.copy(
+                editorState = RuleEditorState(id = UUID.randomUUID().toString()),
+                pickerState = null
             )
+        }
+    }
 
-            RuleSection.CONSTRAINTS -> current.copy(
-                constraints = current.constraints.toMutableList().also { it.removeAt(index) },
-                validation = RuleValidationState()
-            )
-
-            RuleSection.ACTIONS -> current.copy(
-                actions = current.actions.toMutableList().also { it.removeAt(index) },
-                validation = RuleValidationState()
+    fun setEditRule(rule: AutomationRule) {
+        updateState {
+            it.copy(
+                editorState = RuleEditorState(
+                    id = rule.id,
+                    name = rule.name,
+                    enabled = rule.enabled,
+                    triggers = rule.triggers,
+                    constraints = rule.constraints,
+                    actions = rule.actions
+                ),
+                pickerState = null
             )
         }
     }
@@ -244,6 +179,173 @@ class AutomationRuleEditorViewModel(
     fun summarizeAction(config: ActionConfig): String =
         definitions.action(config.type)?.summarize(definitions.action(config.type)?.valuesOf(config).orEmpty())
             ?: config.type.name
+
+    private fun closeEditor() {
+        updateState { it.copy(editorState = null, pickerState = null) }
+    }
+
+    private fun closePicker() {
+        updateState { it.copy(pickerState = null) }
+    }
+
+    private fun startSelection(section: RuleSection, editingIndex: Int?) {
+        val current = uiState.value.editorState ?: return
+        val existing = when (section) {
+            RuleSection.TRIGGERS -> editingIndex?.let(current.triggers::getOrNull)
+            RuleSection.CONSTRAINTS -> editingIndex?.let(current.constraints::getOrNull)
+            RuleSection.ACTIONS -> editingIndex?.let(current.actions::getOrNull)
+        }
+
+        val pickerState = if (existing == null) {
+            DefinitionPickerState(section = section, editingIndex = editingIndex)
+        } else {
+            DefinitionPickerState(
+                section = section,
+                editingIndex = editingIndex,
+                selectedTypeKey = definitionKeyOf(existing),
+                values = valuesOf(section, existing)
+            )
+        }
+
+        updateState { it.copy(pickerState = pickerState) }
+    }
+
+    private fun openConfiguration(typeKey: String) {
+        val picker = uiState.value.pickerState ?: return
+        updateState {
+            it.copy(
+                pickerState = picker.copy(
+                    selectedTypeKey = typeKey,
+                    values = if (picker.selectedTypeKey == typeKey && picker.values.isNotEmpty()) {
+                        picker.values
+                    } else {
+                        defaultValues(picker.section, typeKey)
+                    },
+                    errors = emptyList()
+                )
+            )
+        }
+    }
+
+    private fun backToPickerList() {
+        val picker = uiState.value.pickerState ?: return
+        updateState {
+            it.copy(
+                pickerState = picker.copy(
+                    selectedTypeKey = null,
+                    values = emptyMap(),
+                    errors = emptyList()
+                )
+            )
+        }
+    }
+
+    private fun saveRule() {
+        val current = uiState.value.editorState ?: return
+        val errors = validateRule(current)
+        if (errors.isNotEmpty()) {
+            updateState { it.copy(editorState = current.copy(validation = RuleValidationState(errors))) }
+            return
+        }
+
+        launch {
+            repository.upsertRule(
+                AutomationRule(
+                    id = current.id,
+                    name = current.name.trim(),
+                    enabled = current.enabled,
+                    triggers = current.triggers,
+                    constraints = current.constraints,
+                    actions = current.actions
+                )
+            )
+            closeEditor()
+            triggerEvent(AutomationEditorEvent.NavigateBackToRules)
+        }
+    }
+
+    private fun savePickerSelection() {
+        val picker = uiState.value.pickerState ?: return
+        val editor = uiState.value.editorState ?: return
+        val typeKey = picker.selectedTypeKey ?: return
+
+        when (picker.section) {
+            RuleSection.TRIGGERS -> {
+                val definition = definitions.trigger(TriggerType.valueOf(typeKey)) ?: return
+                val errors = definition.validate(picker.values)
+                if (errors.isNotEmpty()) {
+                    updateState { it.copy(pickerState = picker.copy(errors = errors)) }
+                    return
+                }
+                updateState {
+                    it.copy(
+                        editorState = editor.copy(
+                            triggers = replaceAt(editor.triggers, picker.editingIndex, definition.createConfig(picker.values)),
+                            validation = RuleValidationState()
+                        ),
+                        pickerState = null
+                    )
+                }
+            }
+
+            RuleSection.CONSTRAINTS -> {
+                val definition = definitions.constraint(ConstraintType.valueOf(typeKey)) ?: return
+                val errors = definition.validate(picker.values)
+                if (errors.isNotEmpty()) {
+                    updateState { it.copy(pickerState = picker.copy(errors = errors)) }
+                    return
+                }
+                updateState {
+                    it.copy(
+                        editorState = editor.copy(
+                            constraints = replaceAt(editor.constraints, picker.editingIndex, definition.createConfig(picker.values)),
+                            validation = RuleValidationState()
+                        ),
+                        pickerState = null
+                    )
+                }
+            }
+
+            RuleSection.ACTIONS -> {
+                val definition = definitions.action(ActionType.valueOf(typeKey)) ?: return
+                val errors = definition.validate(picker.values)
+                if (errors.isNotEmpty()) {
+                    updateState { it.copy(pickerState = picker.copy(errors = errors)) }
+                    return
+                }
+                updateState {
+                    it.copy(
+                        editorState = editor.copy(
+                            actions = replaceAt(editor.actions, picker.editingIndex, definition.createConfig(picker.values)),
+                            validation = RuleValidationState()
+                        ),
+                        pickerState = null
+                    )
+                }
+            }
+        }
+
+        triggerEvent(AutomationEditorEvent.PopToEditor)
+    }
+
+    private fun deleteNode(section: RuleSection, index: Int) {
+        val current = uiState.value.editorState ?: return
+        val updated = when (section) {
+            RuleSection.TRIGGERS -> current.copy(
+                triggers = current.triggers.toMutableList().also { it.removeAt(index) },
+                validation = RuleValidationState()
+            )
+            RuleSection.CONSTRAINTS -> current.copy(
+                constraints = current.constraints.toMutableList().also { it.removeAt(index) },
+                validation = RuleValidationState()
+            )
+            RuleSection.ACTIONS -> current.copy(
+                actions = current.actions.toMutableList().also { it.removeAt(index) },
+                validation = RuleValidationState()
+            )
+        }
+        updateState { it.copy(editorState = updated) }
+    }
 
     private fun validateRule(rule: RuleEditorState): List<String> {
         val errors = mutableListOf<String>()

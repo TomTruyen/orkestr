@@ -1,32 +1,48 @@
 package com.tomtruyen.orkestr.features.automation.viewmodel
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tomtruyen.automation.core.AutomationRule
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
+import com.tomtruyen.orkestr.common.BaseViewModel
+import com.tomtruyen.orkestr.features.automation.state.AutomationRulesAction
+import com.tomtruyen.orkestr.features.automation.state.AutomationRulesEvent
+import com.tomtruyen.orkestr.features.automation.state.AutomationRulesUiState
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 class AutomationRulesViewModel(
     private val repository: AutomationRuleRepository
-) : ViewModel() {
-    val rules: StateFlow<List<AutomationRule>> = repository.observeRules().stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = emptyList()
-    )
-
-    fun toggleRuleEnabled(rule: AutomationRule, enabled: Boolean) {
-        viewModelScope.launch {
-            repository.updateEnabled(rule.id, enabled)
-        }
+) : BaseViewModel<AutomationRulesUiState, AutomationRulesEvent, AutomationRulesAction>(
+    initialState = AutomationRulesUiState()
+) {
+    init {
+        repository.observeRules()
+            .onEach { rules ->
+                updateState { it.copy(rules = rules) }
+            }
+            .launchIn(viewModelScope)
     }
 
-    fun deleteRule(rule: AutomationRule) {
-        viewModelScope.launch {
-            repository.deleteRule(rule.id)
+    override fun onAction(action: AutomationRulesAction) {
+        when (action) {
+            AutomationRulesAction.CreateRuleClicked -> {
+                triggerEvent(AutomationRulesEvent.NavigateToCreateRule)
+            }
+
+            is AutomationRulesAction.EditRuleClicked -> {
+                triggerEvent(AutomationRulesEvent.NavigateToEditRule(action.rule))
+            }
+
+            is AutomationRulesAction.DeleteRuleClicked -> {
+                launch {
+                    repository.deleteRule(action.rule.id)
+                }
+            }
+
+            is AutomationRulesAction.ToggleRuleEnabled -> {
+                launch {
+                    repository.updateEnabled(action.rule.id, action.enabled)
+                }
+            }
         }
     }
 }

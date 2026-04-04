@@ -10,8 +10,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.padding
@@ -25,8 +24,12 @@ import com.tomtruyen.orkestr.features.automation.screen.AutomationDefinitionConf
 import com.tomtruyen.orkestr.features.automation.screen.AutomationDefinitionSelectionScreen
 import com.tomtruyen.orkestr.features.automation.screen.AutomationHomeScreen
 import com.tomtruyen.orkestr.features.automation.screen.AutomationRuleEditorScreen
+import com.tomtruyen.orkestr.features.automation.state.AutomationEditorAction
+import com.tomtruyen.orkestr.features.automation.state.AutomationEditorEvent
+import com.tomtruyen.orkestr.features.automation.state.AutomationRulesEvent
 import com.tomtruyen.orkestr.features.automation.viewmodel.AutomationRuleEditorViewModel
 import com.tomtruyen.orkestr.features.automation.viewmodel.AutomationRulesViewModel
+import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -34,13 +37,75 @@ fun AutomationNavGraph(
     rulesViewModel: AutomationRulesViewModel = koinViewModel(),
     editorViewModel: AutomationRuleEditorViewModel = koinViewModel()
 ) {
-    val rules by rulesViewModel.rules.collectAsState()
-    val editorState = editorViewModel.editorState
-    val pickerState = editorViewModel.pickerState
     val backStack = rememberNavBackStack(AutomationRulesRoute)
 
+    LaunchedEffect(rulesViewModel) {
+        rulesViewModel.eventFlow.collectLatest { event ->
+            when (event) {
+                AutomationRulesEvent.NavigateToCreateRule -> {
+                    editorViewModel.setCreateRule()
+                    backStack.add(AutomationRuleEditorRoute)
+                }
+
+                is AutomationRulesEvent.NavigateToEditRule -> {
+                    editorViewModel.setEditRule(event.rule)
+                    backStack.add(AutomationRuleEditorRoute)
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(editorViewModel) {
+        editorViewModel.eventFlow.collectLatest { event ->
+            when (event) {
+                AutomationEditorEvent.NavigateBackToRules -> {
+                    popBackStackUntil<AutomationRulesRoute>(backStack)
+                }
+
+                is AutomationEditorEvent.NavigateToDefinitionSelection -> {
+                    backStack.add(
+                        AutomationDefinitionSelectionRoute(
+                            section = event.section,
+                            editingIndex = event.editingIndex
+                        )
+                    )
+                }
+
+                is AutomationEditorEvent.NavigateToDefinitionConfiguration -> {
+                    backStack.add(
+                        AutomationDefinitionConfigurationRoute(
+                            section = event.section,
+                            typeKey = event.typeKey,
+                            editingIndex = event.editingIndex
+                        )
+                    )
+                }
+
+                AutomationEditorEvent.PopToDefinitionSelection -> {
+                    popBackStackUntil<AutomationDefinitionSelectionRoute>(backStack)
+                }
+
+                AutomationEditorEvent.PopToEditor -> {
+                    popBackStackUntil<AutomationRuleEditorRoute>(backStack)
+                }
+            }
+        }
+    }
+
     BackHandler(enabled = backStack.size > 1) {
-        handleBack(backStack, editorViewModel)
+        when (backStack.lastOrNull()) {
+            is AutomationDefinitionConfigurationRoute -> {
+                editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
+            }
+
+            is AutomationDefinitionSelectionRoute -> {
+                editorViewModel.onAction(AutomationEditorAction.ClosePickerClicked)
+            }
+
+            is AutomationRuleEditorRoute -> {
+                editorViewModel.onAction(AutomationEditorAction.CloseEditorClicked)
+            }
+        }
     }
 
     val provider = entryProvider {
@@ -51,17 +116,7 @@ fun AutomationNavGraph(
                 onNavigateBack = null
             ) { modifier ->
                 AutomationHomeScreen(
-                    rules = rules,
-                    onCreateRule = {
-                        editorViewModel.createRule()
-                        backStack.add(AutomationRuleEditorRoute)
-                    },
-                    onEditRule = { rule ->
-                        editorViewModel.editRule(rule)
-                        backStack.add(AutomationRuleEditorRoute)
-                    },
-                    onDeleteRule = rulesViewModel::deleteRule,
-                    onToggleRuleEnabled = rulesViewModel::toggleRuleEnabled,
+                    viewModel = rulesViewModel,
                     summarizeTrigger = editorViewModel::summarizeTrigger,
                     summarizeConstraint = editorViewModel::summarizeConstraint,
                     summarizeAction = editorViewModel::summarizeAction,
@@ -71,50 +126,21 @@ fun AutomationNavGraph(
         }
 
         entry<AutomationRuleEditorRoute> {
-            val state = editorState ?: return@entry
             AutomationScaffold(
                 title = stringResource(R.string.automation_title_rule_editor),
                 canNavigateBack = true,
                 onNavigateBack = {
-                    editorViewModel.closeEditor()
-                    popBackStack(backStack)
+                    editorViewModel.onAction(AutomationEditorAction.CloseEditorClicked)
                 }
             ) { modifier ->
                 AutomationRuleEditorScreen(
-                    state = state,
-                    onRuleNameChanged = editorViewModel::updateRuleName,
-                    onRuleEnabledChanged = editorViewModel::updateRuleEnabled,
-                    onSaveRule = {
-                        editorViewModel.saveRule {
-                            popToRules(backStack)
-                        }
-                    },
-                    onOpenPicker = { section, index ->
-                        editorViewModel.startSelection(section, index)
-                        val selectedTypeKey = editorViewModel.pickerState?.selectedTypeKey
-                        if (index != null && selectedTypeKey != null) {
-                            backStack.add(
-                                AutomationDefinitionConfigurationRoute(
-                                    section = section,
-                                    typeKey = selectedTypeKey,
-                                    editingIndex = index
-                                )
-                            )
-                        } else {
-                            backStack.add(AutomationDefinitionSelectionRoute(section, index))
-                        }
-                    },
-                    onDeleteNode = editorViewModel::deleteNode,
-                    summarizeTrigger = editorViewModel::summarizeTrigger,
-                    summarizeConstraint = editorViewModel::summarizeConstraint,
-                    summarizeAction = editorViewModel::summarizeAction,
+                    viewModel = editorViewModel,
                     modifier = modifier
                 )
             }
         }
 
         entry<AutomationDefinitionSelectionRoute> { route ->
-            val state = pickerState ?: return@entry
             AutomationScaffold(
                 title = stringResource(
                     R.string.automation_title_select_node,
@@ -122,35 +148,17 @@ fun AutomationNavGraph(
                 ),
                 canNavigateBack = true,
                 onNavigateBack = {
-                    editorViewModel.closePicker()
-                    popBackStack(backStack)
+                    editorViewModel.onAction(AutomationEditorAction.ClosePickerClicked)
                 }
             ) { modifier ->
                 AutomationDefinitionSelectionScreen(
-                    state = state,
-                    items = editorViewModel.definitionItems(route.section, state.query),
-                    onQueryChanged = editorViewModel::updatePickerQuery,
-                    onSelectDefinition = { typeKey ->
-                        editorViewModel.openConfiguration(typeKey)
-                        backStack.add(
-                            AutomationDefinitionConfigurationRoute(
-                                section = route.section,
-                                typeKey = typeKey,
-                                editingIndex = route.editingIndex
-                            )
-                        )
-                    },
+                    viewModel = editorViewModel,
                     modifier = modifier
                 )
             }
         }
 
         entry<AutomationDefinitionConfigurationRoute> { route ->
-            val state = pickerState ?: return@entry
-            val definition = editorViewModel.definitionItems(route.section, "")
-                .firstOrNull { it.key == route.typeKey }
-                ?: return@entry
-
             AutomationScaffold(
                 title = stringResource(
                     R.string.automation_title_configure_node,
@@ -158,23 +166,11 @@ fun AutomationNavGraph(
                 ),
                 canNavigateBack = true,
                 onNavigateBack = {
-                    editorViewModel.backToPickerList()
-                    popBackStack(backStack)
+                    editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
                 }
             ) { modifier ->
                 AutomationDefinitionConfigurationScreen(
-                    state = state,
-                    definition = definition,
-                    onBackToList = {
-                        editorViewModel.backToPickerList()
-                        popBackStack(backStack)
-                    },
-                    onFieldChanged = editorViewModel::updatePickerField,
-                    onSave = {
-                        editorViewModel.savePickerSelection()
-                        popBackStack(backStack)
-                        popBackStack(backStack)
-                    },
+                    viewModel = editorViewModel,
                     modifier = modifier
                 )
             }
@@ -216,36 +212,8 @@ private fun AutomationScaffold(
     }
 }
 
-private fun handleBack(
-    backStack: NavBackStack<NavKey>,
-    editorViewModel: AutomationRuleEditorViewModel
-) {
-    when (backStack.lastOrNull()) {
-        is AutomationDefinitionConfigurationRoute -> {
-            editorViewModel.backToPickerList()
-            popBackStack(backStack)
-        }
-
-        is AutomationDefinitionSelectionRoute -> {
-            editorViewModel.closePicker()
-            popBackStack(backStack)
-        }
-
-        is AutomationRuleEditorRoute -> {
-            editorViewModel.closeEditor()
-            popBackStack(backStack)
-        }
-    }
-}
-
-private fun popBackStack(backStack: NavBackStack<NavKey>) {
-    if (backStack.size > 1) {
-        backStack.removeAt(backStack.lastIndex)
-    }
-}
-
-private fun popToRules(backStack: NavBackStack<NavKey>) {
-    while (backStack.size > 1) {
+private inline fun <reified T : NavKey> popBackStackUntil(backStack: NavBackStack<NavKey>) {
+    while (backStack.size > 1 && backStack.lastOrNull() !is T) {
         backStack.removeAt(backStack.lastIndex)
     }
 }

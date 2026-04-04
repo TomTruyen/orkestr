@@ -16,6 +16,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -27,17 +29,18 @@ import com.tomtruyen.orkestr.features.automation.component.AutomationSectionHead
 import com.tomtruyen.orkestr.features.automation.component.DefinitionFieldPreview
 import com.tomtruyen.orkestr.features.automation.component.EmptyStateCard
 import com.tomtruyen.orkestr.features.automation.component.ValidationCard
-import com.tomtruyen.orkestr.features.automation.state.DefinitionListItem
-import com.tomtruyen.orkestr.features.automation.state.DefinitionPickerState
+import com.tomtruyen.orkestr.features.automation.state.AutomationEditorAction
+import com.tomtruyen.orkestr.features.automation.viewmodel.AutomationRuleEditorViewModel
 
 @Composable
 fun AutomationDefinitionSelectionScreen(
-    state: DefinitionPickerState,
-    items: List<DefinitionListItem>,
-    onQueryChanged: (String) -> Unit,
-    onSelectDefinition: (String) -> Unit,
+    viewModel: AutomationRuleEditorViewModel,
     modifier: Modifier = Modifier
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+    val pickerState = uiState.pickerState ?: return
+    val items = viewModel.definitionItems(pickerState.section, pickerState.query)
+
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(20.dp),
@@ -45,15 +48,15 @@ fun AutomationDefinitionSelectionScreen(
     ) {
         item {
             OutlinedTextField(
-                value = state.query,
-                onValueChange = onQueryChanged,
+                value = pickerState.query,
+                onValueChange = { viewModel.onAction(AutomationEditorAction.PickerQueryChanged(it)) },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.automation_search_label, stringResource(state.section.titleRes))) },
+                label = { Text(stringResource(R.string.automation_search_label, stringResource(pickerState.section.titleRes))) },
                 placeholder = {
                     Text(
                         stringResource(
                             R.string.automation_search_placeholder,
-                            stringResource(state.section.singularTitleRes).lowercase()
+                            stringResource(pickerState.section.singularTitleRes).lowercase()
                         )
                     )
                 },
@@ -74,7 +77,7 @@ fun AutomationDefinitionSelectionScreen(
             OutlinedCard(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onSelectDefinition(item.key) }
+                    .clickable { viewModel.onAction(AutomationEditorAction.DefinitionSelected(item.key)) }
             ) {
                 AutomationCardColumn {
                     Text(text = item.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
@@ -92,28 +95,31 @@ fun AutomationDefinitionSelectionScreen(
 
 @Composable
 fun AutomationDefinitionConfigurationScreen(
-    state: DefinitionPickerState,
-    definition: DefinitionListItem,
-    onBackToList: () -> Unit,
-    onFieldChanged: (String, String) -> Unit,
-    onSave: () -> Unit,
+    viewModel: AutomationRuleEditorViewModel,
     modifier: Modifier = Modifier
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+    val pickerState = uiState.pickerState ?: return
+    val typeKey = pickerState.selectedTypeKey ?: return
+    val definition = viewModel.definitionItems(pickerState.section, "")
+        .firstOrNull { it.key == typeKey }
+        ?: return
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         bottomBar = {
             Card {
                 Button(
-                    onClick = onSave,
+                    onClick = { viewModel.onAction(AutomationEditorAction.SavePickerClicked) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
                 ) {
                     Text(
-                        if (state.editingIndex == null) {
+                        if (pickerState.editingIndex == null) {
                             stringResource(
                                 R.string.automation_action_add_node,
-                                stringResource(state.section.singularTitleRes)
+                                stringResource(pickerState.section.singularTitleRes)
                             )
                         } else {
                             stringResource(R.string.automation_action_save_changes)
@@ -134,11 +140,11 @@ fun AutomationDefinitionConfigurationScreen(
                 OutlinedCard {
                     AutomationCardColumn {
                         AutomationSectionHeader(title = definition.title, description = definition.description)
-                        Button(onClick = onBackToList) {
+                        Button(onClick = { viewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked) }) {
                             Text(
                                 stringResource(
                                     R.string.automation_action_choose_different,
-                                    stringResource(state.section.singularTitleRes)
+                                    stringResource(pickerState.section.singularTitleRes)
                                 )
                             )
                         }
@@ -151,11 +157,13 @@ fun AutomationDefinitionConfigurationScreen(
                     AutomationCardColumn {
                         AutomationFieldForm(
                             fields = definition.fields,
-                            values = state.values,
-                            onFieldChanged = onFieldChanged
+                            values = pickerState.values,
+                            onFieldChanged = { fieldId, value ->
+                                viewModel.onAction(AutomationEditorAction.PickerFieldChanged(fieldId, value))
+                            }
                         )
-                        if (state.errors.isNotEmpty()) {
-                            ValidationCard(errors = state.errors)
+                        if (pickerState.errors.isNotEmpty()) {
+                            ValidationCard(errors = pickerState.errors)
                         }
                     }
                 }

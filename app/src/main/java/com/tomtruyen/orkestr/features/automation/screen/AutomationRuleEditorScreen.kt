@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -39,22 +40,17 @@ import com.tomtruyen.orkestr.features.automation.component.AutomationTitleRow
 import com.tomtruyen.orkestr.features.automation.component.EmptyStateCard
 import com.tomtruyen.orkestr.features.automation.component.NodeListItem
 import com.tomtruyen.orkestr.features.automation.component.ValidationCard
-import com.tomtruyen.orkestr.features.automation.state.RuleEditorState
+import com.tomtruyen.orkestr.features.automation.state.AutomationEditorAction
 import com.tomtruyen.orkestr.features.automation.state.RuleSection
+import com.tomtruyen.orkestr.features.automation.viewmodel.AutomationRuleEditorViewModel
 
 @Composable
 fun AutomationRuleEditorScreen(
-    state: RuleEditorState,
-    onRuleNameChanged: (String) -> Unit,
-    onRuleEnabledChanged: (Boolean) -> Unit,
-    onSaveRule: () -> Unit,
-    onOpenPicker: (RuleSection, Int?) -> Unit,
-    onDeleteNode: (RuleSection, Int) -> Unit,
-    summarizeTrigger: (com.tomtruyen.automation.features.triggers.config.TriggerConfig) -> String,
-    summarizeConstraint: (com.tomtruyen.automation.features.constraints.config.ConstraintConfig) -> String,
-    summarizeAction: (com.tomtruyen.automation.features.actions.config.ActionConfig) -> String,
+    viewModel: AutomationRuleEditorViewModel,
     modifier: Modifier = Modifier
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+    val state = uiState.editorState ?: return
     var nodeDialog by rememberSaveable { mutableStateOf<NodeActionDialogState?>(null) }
 
     Scaffold(
@@ -62,7 +58,7 @@ fun AutomationRuleEditorScreen(
         bottomBar = {
             Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                 Button(
-                    onClick = onSaveRule,
+                    onClick = { viewModel.onAction(AutomationEditorAction.SaveRuleClicked) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
@@ -84,7 +80,7 @@ fun AutomationRuleEditorScreen(
                     AutomationCardColumn {
                         OutlinedTextField(
                             value = state.name,
-                            onValueChange = onRuleNameChanged,
+                            onValueChange = { viewModel.onAction(AutomationEditorAction.RuleNameChanged(it)) },
                             modifier = Modifier.fillMaxWidth(),
                             label = { Text(stringResource(R.string.automation_label_rule_name)) },
                             placeholder = { Text(stringResource(R.string.automation_rule_name_placeholder)) },
@@ -94,7 +90,12 @@ fun AutomationRuleEditorScreen(
                             title = stringResource(R.string.automation_label_rule_enabled),
                             subtitle = stringResource(R.string.automation_rule_enabled_helper),
                             trailing = {
-                                Switch(checked = state.enabled, onCheckedChange = onRuleEnabledChanged)
+                                Switch(
+                                    checked = state.enabled,
+                                    onCheckedChange = {
+                                        viewModel.onAction(AutomationEditorAction.RuleEnabledChanged(it))
+                                    }
+                                )
                             }
                         )
                         if (state.validation.errors.isNotEmpty()) {
@@ -107,31 +108,43 @@ fun AutomationRuleEditorScreen(
             item {
                 RuleSectionEditorCard(
                     section = RuleSection.TRIGGERS,
-                    entries = state.triggers.map(summarizeTrigger),
+                    entries = state.triggers.map(viewModel::summarizeTrigger),
                     tint = MaterialTheme.colorScheme.primaryContainer,
-                    onAddNode = { onOpenPicker(RuleSection.TRIGGERS, null) },
-                    onNodeClick = { onOpenPicker(RuleSection.TRIGGERS, it) },
-                    onNodeLongClick = { index, entry -> nodeDialog = NodeActionDialogState(RuleSection.TRIGGERS, index, entry) }
+                    onAddNode = { viewModel.onAction(AutomationEditorAction.AddNodeClicked(RuleSection.TRIGGERS)) },
+                    onNodeClick = {
+                        viewModel.onAction(AutomationEditorAction.EditNodeClicked(RuleSection.TRIGGERS, it))
+                    },
+                    onNodeLongClick = { index, entry ->
+                        nodeDialog = NodeActionDialogState(RuleSection.TRIGGERS, index, entry)
+                    }
                 )
             }
             item {
                 RuleSectionEditorCard(
                     section = RuleSection.CONSTRAINTS,
-                    entries = state.constraints.map(summarizeConstraint),
+                    entries = state.constraints.map(viewModel::summarizeConstraint),
                     tint = MaterialTheme.colorScheme.tertiaryContainer,
-                    onAddNode = { onOpenPicker(RuleSection.CONSTRAINTS, null) },
-                    onNodeClick = { onOpenPicker(RuleSection.CONSTRAINTS, it) },
-                    onNodeLongClick = { index, entry -> nodeDialog = NodeActionDialogState(RuleSection.CONSTRAINTS, index, entry) }
+                    onAddNode = { viewModel.onAction(AutomationEditorAction.AddNodeClicked(RuleSection.CONSTRAINTS)) },
+                    onNodeClick = {
+                        viewModel.onAction(AutomationEditorAction.EditNodeClicked(RuleSection.CONSTRAINTS, it))
+                    },
+                    onNodeLongClick = { index, entry ->
+                        nodeDialog = NodeActionDialogState(RuleSection.CONSTRAINTS, index, entry)
+                    }
                 )
             }
             item {
                 RuleSectionEditorCard(
                     section = RuleSection.ACTIONS,
-                    entries = state.actions.map(summarizeAction),
+                    entries = state.actions.map(viewModel::summarizeAction),
                     tint = MaterialTheme.colorScheme.secondaryContainer,
-                    onAddNode = { onOpenPicker(RuleSection.ACTIONS, null) },
-                    onNodeClick = { onOpenPicker(RuleSection.ACTIONS, it) },
-                    onNodeLongClick = { index, entry -> nodeDialog = NodeActionDialogState(RuleSection.ACTIONS, index, entry) }
+                    onAddNode = { viewModel.onAction(AutomationEditorAction.AddNodeClicked(RuleSection.ACTIONS)) },
+                    onNodeClick = {
+                        viewModel.onAction(AutomationEditorAction.EditNodeClicked(RuleSection.ACTIONS, it))
+                    },
+                    onNodeLongClick = { index, entry ->
+                        nodeDialog = NodeActionDialogState(RuleSection.ACTIONS, index, entry)
+                    }
                 )
             }
         }
@@ -142,11 +155,11 @@ fun AutomationRuleEditorScreen(
             state = dialog,
             onDismiss = { nodeDialog = null },
             onConfigure = {
-                onOpenPicker(dialog.section, dialog.index)
+                viewModel.onAction(AutomationEditorAction.EditNodeClicked(dialog.section, dialog.index))
                 nodeDialog = null
             },
             onDelete = {
-                onDeleteNode(dialog.section, dialog.index)
+                viewModel.onAction(AutomationEditorAction.DeleteNodeClicked(dialog.section, dialog.index))
                 nodeDialog = null
             }
         )

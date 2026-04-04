@@ -1,6 +1,7 @@
 package com.tomtruyen.orkestr.features.automation.state
 
 import androidx.annotation.StringRes
+import com.tomtruyen.automation.core.AutomationRule
 import com.tomtruyen.automation.data.definition.AutomationFieldDefinition
 import com.tomtruyen.automation.features.actions.config.ActionConfig
 import com.tomtruyen.automation.features.constraints.config.ConstraintConfig
@@ -60,4 +61,58 @@ data class DefinitionPickerState(
 ) {
     val isConfiguring: Boolean
         get() = selectedTypeKey != null
+}
+
+data class AutomationRulesUiState(
+    val rules: List<AutomationRule> = emptyList()
+)
+
+data class AutomationEditorUiState(
+    val editorState: RuleEditorState? = null,
+    val pickerState: DefinitionPickerState? = null
+)
+
+sealed interface AutomationRulesAction {
+    data object CreateRuleClicked : AutomationRulesAction
+    data class EditRuleClicked(val rule: AutomationRule) : AutomationRulesAction
+    data class DeleteRuleClicked(val rule: AutomationRule) : AutomationRulesAction
+    data class ToggleRuleEnabled(val rule: AutomationRule, val enabled: Boolean) : AutomationRulesAction
+}
+
+sealed interface AutomationRulesEvent {
+    data object NavigateToCreateRule : AutomationRulesEvent
+    data class NavigateToEditRule(val rule: AutomationRule) : AutomationRulesEvent
+}
+
+sealed interface AutomationEditorAction {
+    data object CloseEditorClicked : AutomationEditorAction
+    data object ClosePickerClicked : AutomationEditorAction
+    data object BackToPickerSelectionClicked : AutomationEditorAction
+    data class RuleNameChanged(val name: String) : AutomationEditorAction
+    data class RuleEnabledChanged(val enabled: Boolean) : AutomationEditorAction
+    data object SaveRuleClicked : AutomationEditorAction
+    data class AddNodeClicked(val section: RuleSection) : AutomationEditorAction
+    data class EditNodeClicked(val section: RuleSection, val index: Int) : AutomationEditorAction
+    data class DeleteNodeClicked(val section: RuleSection, val index: Int) : AutomationEditorAction
+    data class PickerQueryChanged(val query: String) : AutomationEditorAction
+    data class DefinitionSelected(val typeKey: String) : AutomationEditorAction
+    data class PickerFieldChanged(val fieldId: String, val value: String) : AutomationEditorAction
+    data object SavePickerClicked : AutomationEditorAction
+}
+
+sealed interface AutomationEditorEvent {
+    data object NavigateBackToRules : AutomationEditorEvent
+    data class NavigateToDefinitionSelection(
+        val section: RuleSection,
+        val editingIndex: Int?
+    ) : AutomationEditorEvent
+
+    data class NavigateToDefinitionConfiguration(
+        val section: RuleSection,
+        val typeKey: String,
+        val editingIndex: Int?
+    ) : AutomationEditorEvent
+
+    data object PopToDefinitionSelection : AutomationEditorEvent
+    data object PopToEditor : AutomationEditorEvent
 }
