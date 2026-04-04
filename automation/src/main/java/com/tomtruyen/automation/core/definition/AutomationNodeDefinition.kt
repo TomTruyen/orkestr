@@ -55,18 +55,3 @@ interface AutomationNodeDefinition<C : AutomationConfig<T>, T : Enum<T>> {
         return summarize(typedConfig, resolver)
     }
 }
-
-abstract class TriggerDefinition<C : TriggerConfig>(
-    final override val configClass: KClass<C>,
-    final override val defaultConfig: C
-) : AutomationNodeDefinition<C, TriggerType>
-
-abstract class ConstraintDefinition<C : ConstraintConfig>(
-    final override val configClass: KClass<C>,
-    final override val defaultConfig: C
-) : AutomationNodeDefinition<C, ConstraintType>
-
-abstract class ActionDefinition<C : ActionConfig>(
-    final override val configClass: KClass<C>,
-    final override val defaultConfig: C
-) : AutomationNodeDefinition<C, ActionType>

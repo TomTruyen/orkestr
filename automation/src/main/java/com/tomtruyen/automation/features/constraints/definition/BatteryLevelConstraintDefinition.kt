@@ -5,7 +5,6 @@ import com.tomtruyen.automation.core.utils.ComparisonOperator
 import com.tomtruyen.automation.core.definition.AutomationFieldType
 import com.tomtruyen.automation.core.definition.AutomationOption
 import com.tomtruyen.automation.core.definition.AutomationTextResolver
-import com.tomtruyen.automation.core.definition.ConstraintDefinition
 import com.tomtruyen.automation.core.definition.TypedAutomationFieldDefinition
 import com.tomtruyen.automation.features.constraints.config.BatteryLevelConstraintConfig
 

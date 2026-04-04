@@ -1,8 +1,11 @@
 package com.tomtruyen.automation.core.definition
 
 import com.tomtruyen.automation.features.actions.ActionType
+import com.tomtruyen.automation.features.actions.definition.ActionDefinition
 import com.tomtruyen.automation.features.constraints.ConstraintType
+import com.tomtruyen.automation.features.constraints.definition.ConstraintDefinition
 import com.tomtruyen.automation.features.triggers.TriggerType
+import com.tomtruyen.automation.features.triggers.definition.TriggerDefinition
 
 class AutomationDefinitionRegistry(
     val triggers: List<TriggerDefinition<*>>,

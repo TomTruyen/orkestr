@@ -1,7 +1,6 @@
 package com.tomtruyen.automation.features.actions.definition
 
 import com.tomtruyen.automation.R
-import com.tomtruyen.automation.core.definition.ActionDefinition
 import com.tomtruyen.automation.core.definition.AutomationFieldType
 import com.tomtruyen.automation.core.definition.AutomationTextResolver
 import com.tomtruyen.automation.core.definition.TypedAutomationFieldDefinition
