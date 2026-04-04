@@ -105,7 +105,6 @@ class AutomationRuleEditorViewModel(
                 updateState {
                     it.copy(
                         pickerState = picker.copy(
-                            fieldInputs = picker.fieldInputs + (action.fieldId to action.value),
                             draftConfig = definition.updateFieldAny(
                                 config = picker.draftConfig,
                                 fieldId = action.fieldId,
@@ -188,13 +187,6 @@ class AutomationRuleEditorViewModel(
         )
     }
 
-    fun currentPickerFieldValues(): Map<String, String> {
-        val picker = uiState.value.pickerState ?: return emptyMap()
-        val typeKey = picker.selectedTypeKey ?: return emptyMap()
-        val definition = definitionFor(picker.section, typeKey) ?: return emptyMap()
-        return definition.valuesOfAny(picker.draftConfig) + picker.fieldInputs
-    }
-
     fun requiredPermissionsForNode(section: RuleSection, index: Int): List<AutomationPermission> {
         val editor = uiState.value.editorState ?: return emptyList()
         return when (section) {
@@ -232,8 +224,7 @@ class AutomationRuleEditorViewModel(
                 editingIndex = editingIndex,
                 launchedFromSelection = launchedFromSelection,
                 selectedTypeKey = definitionKeyOf(existing),
-                draftConfig = existing,
-                fieldInputs = valuesOf(section, existing)
+                draftConfig = existing
             )
         }
 
@@ -250,11 +241,6 @@ class AutomationRuleEditorViewModel(
                         picker.draftConfig
                     } else {
                         defaultConfig(picker.section, typeKey)
-                    },
-                    fieldInputs = if (picker.selectedTypeKey == typeKey && picker.fieldInputs.isNotEmpty()) {
-                        picker.fieldInputs
-                    } else {
-                        defaultValues(picker.section, typeKey)
                     },
                     errors = emptyList()
                 )
@@ -292,7 +278,6 @@ class AutomationRuleEditorViewModel(
                 pickerState = picker.copy(
                     selectedTypeKey = null,
                     draftConfig = null,
-                    fieldInputs = emptyMap(),
                     errors = emptyList()
                 )
             )
@@ -331,7 +316,7 @@ class AutomationRuleEditorViewModel(
         when (picker.section) {
             RuleSection.TRIGGERS -> {
                 val definition = definitions.trigger(TriggerType.valueOf(typeKey)) ?: return
-                val errors = definition.validateValuesAny(currentPickerFieldValues(), stringResolver)
+                val errors = definition.validateAny(picker.draftConfig, stringResolver)
                 if (errors.isNotEmpty()) {
                     updateState { it.copy(pickerState = picker.copy(errors = errors)) }
                     return
@@ -350,7 +335,7 @@ class AutomationRuleEditorViewModel(
 
             RuleSection.CONSTRAINTS -> {
                 val definition = definitions.constraint(ConstraintType.valueOf(typeKey)) ?: return
-                val errors = definition.validateValuesAny(currentPickerFieldValues(), stringResolver)
+                val errors = definition.validateAny(picker.draftConfig, stringResolver)
                 if (errors.isNotEmpty()) {
                     updateState { it.copy(pickerState = picker.copy(errors = errors)) }
                     return
@@ -369,7 +354,7 @@ class AutomationRuleEditorViewModel(
 
             RuleSection.ACTIONS -> {
                 val definition = definitions.action(ActionType.valueOf(typeKey)) ?: return
-                val errors = definition.validateValuesAny(currentPickerFieldValues(), stringResolver)
+                val errors = definition.validateAny(picker.draftConfig, stringResolver)
                 if (errors.isNotEmpty()) {
                     updateState { it.copy(pickerState = picker.copy(errors = errors)) }
                     return
@@ -444,15 +429,6 @@ class AutomationRuleEditorViewModel(
 
     private fun defaultConfig(section: RuleSection, typeKey: String): AutomationConfig<*>? =
         definitionFor(section, typeKey)?.initialConfig()
-
-    private fun valuesOf(section: RuleSection, config: Any): Map<String, String> = when (section) {
-        RuleSection.TRIGGERS -> definitions.trigger((config as TriggerConfig).type)?.valuesOfAny(config).orEmpty()
-        RuleSection.CONSTRAINTS -> definitions.constraint((config as ConstraintConfig).type)?.valuesOfAny(config).orEmpty()
-        RuleSection.ACTIONS -> definitions.action((config as ActionConfig).type)?.valuesOfAny(config).orEmpty()
-    }
-
-    private fun defaultValues(section: RuleSection, typeKey: String): Map<String, String> =
-        definitionFor(section, typeKey)?.valuesOfAny(defaultConfig(section, typeKey)).orEmpty()
 
     private fun definitionFor(section: RuleSection, typeKey: String): AutomationNodeDefinition<*, *>? = when (section) {
         RuleSection.TRIGGERS -> definitions.trigger(TriggerType.valueOf(typeKey))

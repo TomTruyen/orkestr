@@ -28,15 +28,7 @@ interface AutomationNodeDefinition<C : AutomationConfig<T>, T : Enum<T>> {
     val descriptionRes: Int
 
     val fields: List<AutomationFieldDefinition>
-
-    fun updateField(config: C, fieldId: String, value: String): C
-    fun valuesOf(config: C): Map<String, String>
     fun summarize(config: C, resolver: AutomationTextResolver): String
-    fun validateValues(values: Map<String, String>, resolver: AutomationTextResolver): List<String> =
-        validateFields(fields, values, resolver)
-
-    fun validate(config: C, resolver: AutomationTextResolver): List<String> =
-        validateValues(valuesOf(config), resolver)
 
     fun cast(config: AutomationConfig<*>?): C? {
         if (config == null || !configClass.isInstance(config)) return null
@@ -46,27 +38,22 @@ interface AutomationNodeDefinition<C : AutomationConfig<T>, T : Enum<T>> {
     fun initialConfig(): C = defaultConfig
 
     fun updateFieldAny(config: AutomationConfig<*>?, fieldId: String, value: String): C {
-        val typedConfig = cast(config) ?: defaultConfig
-        return updateField(typedConfig, fieldId, value)
+        val updated = fields.firstOrNull { it.id == fieldId }?.updateValue(config, value)
+        return cast(updated) ?: cast(config) ?: defaultConfig
     }
 
-    fun valuesOfAny(config: AutomationConfig<*>?): Map<String, String> {
-        val typedConfig = cast(config) ?: defaultConfig
-        return valuesOf(typedConfig)
-    }
-
-    fun summarizeAny(config: AutomationConfig<*>?, resolver: AutomationTextResolver): String {
-        val typedConfig = cast(config) ?: defaultConfig
-        return summarize(typedConfig, resolver)
-    }
+    fun validate(config: C, resolver: AutomationTextResolver): List<String> =
+        fields.flatMap { field -> field.validateInput(field.readValue(config), resolver) }
 
     fun validateAny(config: AutomationConfig<*>?, resolver: AutomationTextResolver): List<String> {
         val typedConfig = cast(config) ?: defaultConfig
         return validate(typedConfig, resolver)
     }
 
-    fun validateValuesAny(values: Map<String, String>, resolver: AutomationTextResolver): List<String> =
-        validateValues(values, resolver)
+    fun summarizeAny(config: AutomationConfig<*>?, resolver: AutomationTextResolver): String {
+        val typedConfig = cast(config) ?: defaultConfig
+        return summarize(typedConfig, resolver)
+    }
 }
 
 abstract class TriggerDefinition<C : TriggerConfig>(

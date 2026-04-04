@@ -37,6 +37,5 @@ data class DefinitionPickerState(
     val launchedFromSelection: Boolean = true,
     val selectedTypeKey: String? = null,
     val draftConfig: AutomationConfig<*>? = null,
-    val fieldInputs: Map<String, String> = emptyMap(),
     val errors: List<String> = emptyList()
 )

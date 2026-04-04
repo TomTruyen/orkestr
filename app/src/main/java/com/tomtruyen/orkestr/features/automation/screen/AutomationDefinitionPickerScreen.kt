@@ -115,7 +115,7 @@ fun AutomationDefinitionConfigurationScreen(
     val pickerState = uiState.pickerState ?: return
     pickerState.selectedTypeKey ?: return
     val definition = viewModel.selectedDefinitionItem() ?: return
-    val fieldValues = viewModel.currentPickerFieldValues()
+    val draftConfig = pickerState.draftConfig
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -174,7 +174,7 @@ fun AutomationDefinitionConfigurationScreen(
                     AutomationCardColumn {
                         AutomationFieldForm(
                             fields = definition.fields,
-                            values = fieldValues,
+                            config = draftConfig,
                             onFieldChanged = { fieldId, value ->
                                 viewModel.onAction(AutomationEditorAction.PickerFieldChanged(fieldId, value))
                             }

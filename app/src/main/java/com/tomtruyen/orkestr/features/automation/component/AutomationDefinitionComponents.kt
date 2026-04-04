@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.tomtruyen.automation.core.AutomationConfig
 import com.tomtruyen.automation.data.definition.AutomationFieldDefinition
 import com.tomtruyen.automation.data.definition.AutomationFieldType
 
@@ -38,14 +39,14 @@ fun DefinitionFieldPreview(fields: List<AutomationFieldDefinition>) {
 @Composable
 fun AutomationFieldForm(
     fields: List<AutomationFieldDefinition>,
-    values: Map<String, String>,
+    config: AutomationConfig<*>?,
     onFieldChanged: (String, String) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         fields.forEach { field ->
             when (field.type) {
                 AutomationFieldType.BOOLEAN -> {
-                    val selected = values[field.id].orEmpty().ifBlank { field.defaultValue } == "true"
+                    val selected = field.readValue(config).ifBlank { field.defaultValue } == "true"
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
@@ -82,7 +83,7 @@ fun AutomationFieldForm(
                         ) {
                             field.options.forEach { option ->
                                 FilterChip(
-                                    selected = values[field.id].orEmpty().ifBlank { field.defaultValue } == option.value,
+                                    selected = field.readValue(config).ifBlank { field.defaultValue } == option.value,
                                     onClick = { onFieldChanged(field.id, option.value) },
                                     label = { Text(stringResource(option.labelRes)) }
                                 )
@@ -92,9 +93,14 @@ fun AutomationFieldForm(
                 }
 
                 else -> {
+                    val value = field.readValue(config)
                     OutlinedTextField(
-                        value = values[field.id].orEmpty(),
-                        onValueChange = { onFieldChanged(field.id, it) },
+                        value = value,
+                        onValueChange = {
+                            if (field.type != AutomationFieldType.NUMBER || it.all(Char::isDigit)) {
+                                onFieldChanged(field.id, it)
+                            }
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         label = { Text(stringResource(field.labelRes)) },
                         placeholder = {

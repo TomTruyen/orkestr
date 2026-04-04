@@ -11,7 +11,9 @@ object ChargeStateTriggerDefinition : TriggerDefinition<BatteryChangedTriggerCon
     override val titleRes = R.string.automation_definition_trigger_charge_state_title
     override val descriptionRes = R.string.automation_definition_trigger_charge_state_description
     override val fields = listOf(
-        AutomationFieldDefinition(
+        TypedAutomationFieldDefinition(
+            configClass = BatteryChangedTriggerConfig::class,
+            defaultConfig = defaultConfig,
             id = FIELD_STATE,
             labelRes = R.string.automation_definition_trigger_charge_state_field_state_label,
             type = AutomationFieldType.SINGLE_CHOICE,
@@ -22,18 +24,10 @@ object ChargeStateTriggerDefinition : TriggerDefinition<BatteryChangedTriggerCon
                 AutomationOption(VALUE_DISCHARGING, R.string.automation_definition_trigger_charge_state_option_discharging),
                 AutomationOption(VALUE_FULL, R.string.automation_definition_trigger_charge_state_option_full),
                 AutomationOption(VALUE_NOT_CHARGING, R.string.automation_definition_trigger_charge_state_option_not_charging)
-            )
+            ),
+            reader = { it.state.toFieldValue() },
+            updater = { config, value -> config.copy(state = value.toChargeState()) }
         )
-    )
-
-    override fun updateField(config: BatteryChangedTriggerConfig, fieldId: String, value: String): BatteryChangedTriggerConfig =
-        when (fieldId) {
-            FIELD_STATE -> config.copy(state = value.toChargeState())
-            else -> config
-        }
-
-    override fun valuesOf(config: BatteryChangedTriggerConfig): Map<String, String> = mapOf(
-        FIELD_STATE to config.state.toFieldValue()
     )
 
     override fun summarize(config: BatteryChangedTriggerConfig, resolver: AutomationTextResolver): String =

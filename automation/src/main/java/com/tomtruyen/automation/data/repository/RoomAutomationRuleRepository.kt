@@ -3,7 +3,6 @@ package com.tomtruyen.automation.data.repository
 import com.tomtruyen.automation.core.AutomationRule
 import com.tomtruyen.automation.data.dao.AutomationRuleDao
 import com.tomtruyen.automation.data.entity.AutomationRuleEntity
-import com.tomtruyen.automation.data.local.AutomationJson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -39,17 +38,17 @@ private fun AutomationRuleEntity.toDomain(): AutomationRule = AutomationRule(
     id = id,
     name = name,
     enabled = enabled,
-    triggers = AutomationJson.decodeTriggers(triggersJson),
-    constraints = AutomationJson.decodeConstraints(constraintsJson),
-    actions = AutomationJson.decodeActions(actionsJson)
+    triggers = triggers,
+    constraints = constraints,
+    actions = actions
 )
 
 private fun AutomationRule.toEntity(): AutomationRuleEntity = AutomationRuleEntity(
     id = id,
     name = name,
     enabled = enabled,
-    triggersJson = AutomationJson.encodeTriggers(triggers),
-    constraintsJson = AutomationJson.encodeConstraints(constraints),
-    actionsJson = AutomationJson.encodeActions(actions),
+    triggers = triggers,
+    constraints = constraints,
+    actions = actions,
     updatedAtEpochMillis = System.currentTimeMillis()
 )

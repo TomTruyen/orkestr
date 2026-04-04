@@ -11,7 +11,9 @@ object BatteryLevelConstraintDefinition : ConstraintDefinition<BatteryLevelConst
     override val titleRes = R.string.automation_definition_constraint_battery_level_title
     override val descriptionRes = R.string.automation_definition_constraint_battery_level_description
     override val fields = listOf(
-        AutomationFieldDefinition(
+        TypedAutomationFieldDefinition(
+            configClass = BatteryLevelConstraintConfig::class,
+            defaultConfig = defaultConfig,
             id = FIELD_OPERATOR,
             labelRes = R.string.automation_definition_constraint_battery_level_field_operator_label,
             type = AutomationFieldType.SINGLE_CHOICE,
@@ -24,28 +26,36 @@ object BatteryLevelConstraintDefinition : ConstraintDefinition<BatteryLevelConst
                 AutomationOption(VALUE_LTE, R.string.automation_definition_constraint_battery_level_option_lte),
                 AutomationOption(VALUE_EQ, R.string.automation_definition_constraint_battery_level_option_eq),
                 AutomationOption(VALUE_NEQ, R.string.automation_definition_constraint_battery_level_option_neq)
-            )
+            ),
+            reader = { it.operator.toFieldValue() },
+            updater = { config, value -> config.copy(operator = value.toOperator()) }
         ),
-        AutomationFieldDefinition(
+        TypedAutomationFieldDefinition(
+            configClass = BatteryLevelConstraintConfig::class,
+            defaultConfig = defaultConfig,
             id = FIELD_VALUE,
             labelRes = R.string.automation_definition_constraint_battery_level_field_value_label,
             type = AutomationFieldType.NUMBER,
             descriptionRes = R.string.automation_definition_constraint_battery_level_field_value_description,
             defaultValue = DEFAULT_BATTERY_VALUE,
-            placeholderRes = R.string.automation_definition_constraint_battery_level_field_value_placeholder
+            placeholderRes = R.string.automation_definition_constraint_battery_level_field_value_placeholder,
+            reader = { it.value.toString() },
+            updater = { config, value ->
+                if (value.isBlank()) {
+                    config.copy(value = DEFAULT_BATTERY_VALUE.toInt())
+                } else {
+                    value.toIntOrNull()?.let { parsed -> config.copy(value = parsed) } ?: config
+                }
+            },
+            inputValidator = { input, resolver ->
+                val value = input.toIntOrNull()
+                if (value != null && value !in 0..100) {
+                    listOf(resolver.resolve(R.string.automation_definition_constraint_battery_level_error_range))
+                } else {
+                    emptyList()
+                }
+            }
         )
-    )
-
-    override fun updateField(config: BatteryLevelConstraintConfig, fieldId: String, value: String): BatteryLevelConstraintConfig =
-        when (fieldId) {
-            FIELD_OPERATOR -> config.copy(operator = value.toOperator())
-            FIELD_VALUE -> config.copy(value = value.toIntOrNull() ?: config.value)
-            else -> config
-        }
-
-    override fun valuesOf(config: BatteryLevelConstraintConfig): Map<String, String> = mapOf(
-        FIELD_OPERATOR to config.operator.toFieldValue(),
-        FIELD_VALUE to config.value.toString()
     )
 
     override fun summarize(config: BatteryLevelConstraintConfig, resolver: AutomationTextResolver): String =
@@ -56,15 +66,6 @@ object BatteryLevelConstraintDefinition : ConstraintDefinition<BatteryLevelConst
                 config.value
             )
         )
-
-    override fun validateValues(values: Map<String, String>, resolver: AutomationTextResolver): List<String> {
-        val errors = super.validateValues(values, resolver).toMutableList()
-        val value = values[FIELD_VALUE].orEmpty().ifBlank { DEFAULT_BATTERY_VALUE }.toIntOrNull()
-        if (value != null && value !in 0..100) {
-            errors += resolver.resolve(R.string.automation_definition_constraint_battery_level_error_range)
-        }
-        return errors
-    }
 
     private fun String.toOperator(): ComparisonOperator = when (this) {
         VALUE_GT -> ComparisonOperator.GREATER_THAN

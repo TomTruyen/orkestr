@@ -11,7 +11,9 @@ object DoNotDisturbActionDefinition : ActionDefinition<DoNotDisturbActionConfig>
     override val titleRes = R.string.automation_definition_action_do_not_disturb_title
     override val descriptionRes = R.string.automation_definition_action_do_not_disturb_description
     override val fields = listOf(
-        AutomationFieldDefinition(
+        TypedAutomationFieldDefinition(
+            configClass = DoNotDisturbActionConfig::class,
+            defaultConfig = defaultConfig,
             id = FIELD_MODE,
             labelRes = R.string.automation_definition_action_do_not_disturb_field_mode_label,
             type = AutomationFieldType.SINGLE_CHOICE,
@@ -22,18 +24,10 @@ object DoNotDisturbActionDefinition : ActionDefinition<DoNotDisturbActionConfig>
                 AutomationOption(VALUE_ALARMS_ONLY, R.string.automation_definition_action_do_not_disturb_option_alarms_only),
                 AutomationOption(VALUE_TOTAL_SILENCE, R.string.automation_definition_action_do_not_disturb_option_total_silence),
                 AutomationOption(VALUE_OFF, R.string.automation_definition_action_do_not_disturb_option_off)
-            )
+            ),
+            reader = { it.mode.toFieldValue() },
+            updater = { config, value -> config.copy(mode = value.toMode()) }
         )
-    )
-
-    override fun updateField(config: DoNotDisturbActionConfig, fieldId: String, value: String): DoNotDisturbActionConfig =
-        when (fieldId) {
-            FIELD_MODE -> config.copy(mode = value.toMode())
-            else -> config
-        }
-
-    override fun valuesOf(config: DoNotDisturbActionConfig): Map<String, String> = mapOf(
-        FIELD_MODE to config.mode.toFieldValue()
     )
 
     override fun summarize(config: DoNotDisturbActionConfig, resolver: AutomationTextResolver): String =
