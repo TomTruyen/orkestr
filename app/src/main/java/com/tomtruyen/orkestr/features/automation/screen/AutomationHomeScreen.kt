@@ -74,7 +74,7 @@ fun AutomationHomeScreen(
         }
 
         itemsIndexed(state.rules, key = { _, rule -> rule.id }) { _, rule ->
-            OutlinedCard {
+            OutlinedCard(modifier = Modifier.fillMaxWidth()) {
                 AutomationCardColumn {
                     AutomationTitleRow(
                         title = rule.name,

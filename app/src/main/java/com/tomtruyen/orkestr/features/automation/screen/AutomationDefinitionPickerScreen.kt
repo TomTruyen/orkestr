@@ -146,7 +146,7 @@ fun AutomationDefinitionConfigurationScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                OutlinedCard {
+                OutlinedCard(modifier = Modifier.fillMaxWidth()) {
                     AutomationCardColumn {
                         AutomationSectionHeader(title = definition.title, description = definition.description)
                         if (pickerState.launchedFromSelection) {
@@ -164,7 +164,7 @@ fun AutomationDefinitionConfigurationScreen(
             }
 
             item {
-                OutlinedCard {
+                OutlinedCard(modifier = Modifier.fillMaxWidth()) {
                     AutomationCardColumn {
                         AutomationFieldForm(
                             fields = definition.fields,
