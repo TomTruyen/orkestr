@@ -5,7 +5,6 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.tomtruyen.automation.data.dao.AutomationRuleDao
 import com.tomtruyen.automation.data.entity.AutomationRuleEntity
-import com.tomtruyen.automation.data.local.AutomationRuleTypeConverters
 
 @Database(
     entities = [AutomationRuleEntity::class],

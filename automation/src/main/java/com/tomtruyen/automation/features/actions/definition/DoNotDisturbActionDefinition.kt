@@ -1,7 +1,12 @@
-package com.tomtruyen.automation.data.definition
+package com.tomtruyen.automation.features.actions.definition
 
 import com.tomtruyen.automation.R
 import com.tomtruyen.automation.core.model.DoNotDisturbMode
+import com.tomtruyen.automation.data.definition.ActionDefinition
+import com.tomtruyen.automation.data.definition.AutomationFieldType
+import com.tomtruyen.automation.data.definition.AutomationOption
+import com.tomtruyen.automation.data.definition.AutomationTextResolver
+import com.tomtruyen.automation.data.definition.TypedAutomationFieldDefinition
 import com.tomtruyen.automation.features.actions.config.DoNotDisturbActionConfig
 
 object DoNotDisturbActionDefinition : ActionDefinition<DoNotDisturbActionConfig>(
@@ -20,10 +25,22 @@ object DoNotDisturbActionDefinition : ActionDefinition<DoNotDisturbActionConfig>
             descriptionRes = R.string.automation_definition_action_do_not_disturb_field_mode_description,
             defaultValue = VALUE_PRIORITY_ONLY,
             options = listOf(
-                AutomationOption(VALUE_PRIORITY_ONLY, R.string.automation_definition_action_do_not_disturb_option_priority_only),
-                AutomationOption(VALUE_ALARMS_ONLY, R.string.automation_definition_action_do_not_disturb_option_alarms_only),
-                AutomationOption(VALUE_TOTAL_SILENCE, R.string.automation_definition_action_do_not_disturb_option_total_silence),
-                AutomationOption(VALUE_OFF, R.string.automation_definition_action_do_not_disturb_option_off)
+                AutomationOption(
+                    VALUE_PRIORITY_ONLY,
+                    R.string.automation_definition_action_do_not_disturb_option_priority_only
+                ),
+                AutomationOption(
+                    VALUE_ALARMS_ONLY,
+                    R.string.automation_definition_action_do_not_disturb_option_alarms_only
+                ),
+                AutomationOption(
+                    VALUE_TOTAL_SILENCE,
+                    R.string.automation_definition_action_do_not_disturb_option_total_silence
+                ),
+                AutomationOption(
+                    VALUE_OFF,
+                    R.string.automation_definition_action_do_not_disturb_option_off
+                )
             ),
             reader = { it.mode.toFieldValue() },
             updater = { config, value -> config.copy(mode = value.toMode()) }

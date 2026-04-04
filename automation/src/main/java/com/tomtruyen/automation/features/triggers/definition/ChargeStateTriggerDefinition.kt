@@ -1,7 +1,12 @@
-package com.tomtruyen.automation.data.definition
+package com.tomtruyen.automation.features.triggers.definition
 
 import com.tomtruyen.automation.R
 import com.tomtruyen.automation.core.model.BatteryChargeState
+import com.tomtruyen.automation.data.definition.AutomationFieldType
+import com.tomtruyen.automation.data.definition.AutomationOption
+import com.tomtruyen.automation.data.definition.AutomationTextResolver
+import com.tomtruyen.automation.data.definition.TriggerDefinition
+import com.tomtruyen.automation.data.definition.TypedAutomationFieldDefinition
 import com.tomtruyen.automation.features.triggers.config.BatteryChangedTriggerConfig
 
 object ChargeStateTriggerDefinition : TriggerDefinition<BatteryChangedTriggerConfig>(
@@ -20,10 +25,22 @@ object ChargeStateTriggerDefinition : TriggerDefinition<BatteryChangedTriggerCon
             descriptionRes = R.string.automation_definition_trigger_charge_state_field_state_description,
             defaultValue = VALUE_CHARGING,
             options = listOf(
-                AutomationOption(VALUE_CHARGING, R.string.automation_definition_trigger_charge_state_option_charging),
-                AutomationOption(VALUE_DISCHARGING, R.string.automation_definition_trigger_charge_state_option_discharging),
-                AutomationOption(VALUE_FULL, R.string.automation_definition_trigger_charge_state_option_full),
-                AutomationOption(VALUE_NOT_CHARGING, R.string.automation_definition_trigger_charge_state_option_not_charging)
+                AutomationOption(
+                    VALUE_CHARGING,
+                    R.string.automation_definition_trigger_charge_state_option_charging
+                ),
+                AutomationOption(
+                    VALUE_DISCHARGING,
+                    R.string.automation_definition_trigger_charge_state_option_discharging
+                ),
+                AutomationOption(
+                    VALUE_FULL,
+                    R.string.automation_definition_trigger_charge_state_option_full
+                ),
+                AutomationOption(
+                    VALUE_NOT_CHARGING,
+                    R.string.automation_definition_trigger_charge_state_option_not_charging
+                )
             ),
             reader = { it.state.toFieldValue() },
             updater = { config, value -> config.copy(state = value.toChargeState()) }

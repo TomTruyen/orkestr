@@ -1,4 +1,4 @@
-package com.tomtruyen.automation.data.local
+package com.tomtruyen.automation.data
 
 import androidx.room.TypeConverter
 import com.tomtruyen.automation.features.actions.config.ActionConfig
@@ -6,8 +6,6 @@ import com.tomtruyen.automation.features.constraints.config.ConstraintConfig
 import com.tomtruyen.automation.features.triggers.config.TriggerConfig
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.builtins.ListSerializer
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 
 class AutomationRuleTypeConverters {
     @TypeConverter

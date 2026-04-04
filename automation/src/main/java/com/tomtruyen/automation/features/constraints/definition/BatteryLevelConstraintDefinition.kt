@@ -1,7 +1,12 @@
-package com.tomtruyen.automation.data.definition
+package com.tomtruyen.automation.features.constraints.definition
 
 import com.tomtruyen.automation.R
 import com.tomtruyen.automation.core.utils.ComparisonOperator
+import com.tomtruyen.automation.data.definition.AutomationFieldType
+import com.tomtruyen.automation.data.definition.AutomationOption
+import com.tomtruyen.automation.data.definition.AutomationTextResolver
+import com.tomtruyen.automation.data.definition.ConstraintDefinition
+import com.tomtruyen.automation.data.definition.TypedAutomationFieldDefinition
 import com.tomtruyen.automation.features.constraints.config.BatteryLevelConstraintConfig
 
 object BatteryLevelConstraintDefinition : ConstraintDefinition<BatteryLevelConstraintConfig>(
@@ -20,12 +25,30 @@ object BatteryLevelConstraintDefinition : ConstraintDefinition<BatteryLevelConst
             descriptionRes = R.string.automation_definition_constraint_battery_level_field_operator_description,
             defaultValue = VALUE_GTE,
             options = listOf(
-                AutomationOption(VALUE_GT, R.string.automation_definition_constraint_battery_level_option_gt),
-                AutomationOption(VALUE_GTE, R.string.automation_definition_constraint_battery_level_option_gte),
-                AutomationOption(VALUE_LT, R.string.automation_definition_constraint_battery_level_option_lt),
-                AutomationOption(VALUE_LTE, R.string.automation_definition_constraint_battery_level_option_lte),
-                AutomationOption(VALUE_EQ, R.string.automation_definition_constraint_battery_level_option_eq),
-                AutomationOption(VALUE_NEQ, R.string.automation_definition_constraint_battery_level_option_neq)
+                AutomationOption(
+                    VALUE_GT,
+                    R.string.automation_definition_constraint_battery_level_option_gt
+                ),
+                AutomationOption(
+                    VALUE_GTE,
+                    R.string.automation_definition_constraint_battery_level_option_gte
+                ),
+                AutomationOption(
+                    VALUE_LT,
+                    R.string.automation_definition_constraint_battery_level_option_lt
+                ),
+                AutomationOption(
+                    VALUE_LTE,
+                    R.string.automation_definition_constraint_battery_level_option_lte
+                ),
+                AutomationOption(
+                    VALUE_EQ,
+                    R.string.automation_definition_constraint_battery_level_option_eq
+                ),
+                AutomationOption(
+                    VALUE_NEQ,
+                    R.string.automation_definition_constraint_battery_level_option_neq
+                )
             ),
             reader = { it.operator.toFieldValue() },
             updater = { config, value -> config.copy(operator = value.toOperator()) }

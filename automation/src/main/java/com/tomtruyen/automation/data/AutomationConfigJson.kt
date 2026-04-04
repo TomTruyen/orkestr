@@ -1,4 +1,4 @@
-package com.tomtruyen.automation.data.local
+package com.tomtruyen.automation.data
 
 import kotlinx.serialization.json.Json
 

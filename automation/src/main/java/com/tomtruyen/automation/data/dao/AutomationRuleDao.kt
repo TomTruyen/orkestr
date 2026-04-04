@@ -18,7 +18,7 @@ interface AutomationRuleDao {
     @Query("SELECT * FROM automation_rules WHERE enabled = 1")
     suspend fun getEnabled(): List<AutomationRuleEntity>
 
-    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(rule: AutomationRuleEntity)
 
     @Query("DELETE FROM automation_rules WHERE id = :id")

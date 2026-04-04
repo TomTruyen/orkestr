@@ -6,13 +6,13 @@ import com.tomtruyen.automation.core.AutomationRuntimeService
 import com.tomtruyen.automation.core.LogcatAutomationLogger
 import com.tomtruyen.automation.data.AutomationDatabase
 import com.tomtruyen.automation.data.definition.AutomationDefinitionRegistry
-import com.tomtruyen.automation.data.definition.BatteryLevelConstraintDefinition
-import com.tomtruyen.automation.data.definition.ChargeStateTriggerDefinition
-import com.tomtruyen.automation.data.definition.DoNotDisturbActionDefinition
-import com.tomtruyen.automation.data.definition.LogMessageActionDefinition
-import com.tomtruyen.automation.data.definition.ShowNotificationActionDefinition
+import com.tomtruyen.automation.features.constraints.definition.BatteryLevelConstraintDefinition
+import com.tomtruyen.automation.features.triggers.definition.ChargeStateTriggerDefinition
+import com.tomtruyen.automation.features.actions.definition.DoNotDisturbActionDefinition
+import com.tomtruyen.automation.features.actions.definition.LogMessageActionDefinition
+import com.tomtruyen.automation.features.actions.definition.ShowNotificationActionDefinition
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
-import com.tomtruyen.automation.data.repository.RoomAutomationRuleRepository
+import com.tomtruyen.automation.data.repository.AutomationRuleRepositoryImpl
 import com.tomtruyen.automation.features.actions.ActionExecutor
 import com.tomtruyen.automation.features.constraints.ConstraintEvaluator
 import com.tomtruyen.automation.features.triggers.TriggerMatcher
@@ -33,7 +33,7 @@ val automationModule = module {
     single { get<AutomationDatabase>().automationRuleDao() }
 
     // Repository
-    single<AutomationRuleRepository> { RoomAutomationRuleRepository(get()) }
+    single<AutomationRuleRepository> { AutomationRuleRepositoryImpl(get()) }
 
     // Definitions
     single {
