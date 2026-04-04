@@ -87,9 +87,13 @@ fun AutomationDefinitionSelectionScreen(
                     }
             ) {
                 AutomationCardColumn {
-                    Text(text = item.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                     Text(
-                        text = item.description,
+                        text = stringResource(item.titleRes),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        text = stringResource(item.descriptionRes),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -109,10 +113,9 @@ fun AutomationDefinitionConfigurationScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val pickerState = uiState.pickerState ?: return
-    val typeKey = pickerState.selectedTypeKey ?: return
-    val definition = viewModel.definitionItems(pickerState.section, "")
-        .firstOrNull { it.key == typeKey }
-        ?: return
+    pickerState.selectedTypeKey ?: return
+    val definition = viewModel.selectedDefinitionItem() ?: return
+    val fieldValues = viewModel.currentPickerFieldValues()
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -148,7 +151,10 @@ fun AutomationDefinitionConfigurationScreen(
             item {
                 OutlinedCard(modifier = Modifier.fillMaxWidth()) {
                     AutomationCardColumn {
-                        AutomationSectionHeader(title = definition.title, description = definition.description)
+                        AutomationSectionHeader(
+                            title = stringResource(definition.titleRes),
+                            description = stringResource(definition.descriptionRes)
+                        )
                         if (pickerState.launchedFromSelection) {
                             Button(onClick = { viewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked) }) {
                                 Text(
@@ -168,7 +174,7 @@ fun AutomationDefinitionConfigurationScreen(
                     AutomationCardColumn {
                         AutomationFieldForm(
                             fields = definition.fields,
-                            values = pickerState.values,
+                            values = fieldValues,
                             onFieldChanged = { fieldId, value ->
                                 viewModel.onAction(AutomationEditorAction.PickerFieldChanged(fieldId, value))
                             }

@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tomtruyen.automation.data.definition.AutomationFieldDefinition
 import com.tomtruyen.automation.data.definition.AutomationFieldType
@@ -24,7 +25,12 @@ fun DefinitionFieldPreview(fields: List<AutomationFieldDefinition>) {
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         fields.forEach { field ->
-            FilterChip(selected = false, onClick = {}, label = { Text(field.label) }, enabled = false)
+            FilterChip(
+                selected = false,
+                onClick = {},
+                label = { Text(stringResource(field.labelRes)) },
+                enabled = false
+            )
         }
     }
 }
@@ -48,9 +54,9 @@ fun AutomationFieldForm(
                             modifier = Modifier.weight(1f),
                             verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            Text(text = field.label, style = MaterialTheme.typography.titleMedium)
+                            Text(text = stringResource(field.labelRes), style = MaterialTheme.typography.titleMedium)
                             Text(
-                                text = field.description,
+                                text = stringResource(field.descriptionRes),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -64,9 +70,9 @@ fun AutomationFieldForm(
 
                 AutomationFieldType.SINGLE_CHOICE -> {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(text = field.label, style = MaterialTheme.typography.titleMedium)
+                        Text(text = stringResource(field.labelRes), style = MaterialTheme.typography.titleMedium)
                         Text(
-                            text = field.description,
+                            text = stringResource(field.descriptionRes),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -78,7 +84,7 @@ fun AutomationFieldForm(
                                 FilterChip(
                                     selected = values[field.id].orEmpty().ifBlank { field.defaultValue } == option.value,
                                     onClick = { onFieldChanged(field.id, option.value) },
-                                    label = { Text(option.label) }
+                                    label = { Text(stringResource(option.labelRes)) }
                                 )
                             }
                         }
@@ -90,9 +96,11 @@ fun AutomationFieldForm(
                         value = values[field.id].orEmpty(),
                         onValueChange = { onFieldChanged(field.id, it) },
                         modifier = Modifier.fillMaxWidth(),
-                        label = { Text(field.label) },
-                        placeholder = { Text(field.placeholder.ifBlank { field.defaultValue }) },
-                        supportingText = { Text(field.description) },
+                        label = { Text(stringResource(field.labelRes)) },
+                        placeholder = {
+                            Text(field.placeholderRes?.let { stringResource(it) } ?: field.defaultValue)
+                        },
+                        supportingText = { Text(stringResource(field.descriptionRes)) },
                         singleLine = field.type != AutomationFieldType.TEXT
                     )
                 }

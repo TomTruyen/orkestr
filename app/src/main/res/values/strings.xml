@@ -1,9 +1,14 @@
 <resources>
+    <!-- App -->
     <string name="app_name">orkestr</string>
+
+    <!-- Automation navigation -->
     <string name="automation_title_rules">Automation Rules</string>
     <string name="automation_title_rule_editor">Rule Editor</string>
     <string name="automation_title_select_node">Select %1$s</string>
     <string name="automation_title_configure_node">Configure %1$s</string>
+
+    <!-- Automation actions -->
     <string name="automation_action_back">Back</string>
     <string name="automation_action_new_rule">New Rule</string>
     <string name="automation_action_create_rule">Create Rule</string>
@@ -16,15 +21,23 @@
     <string name="automation_action_add_node">Add %1$s</string>
     <string name="automation_action_save_changes">Save Changes</string>
     <string name="automation_action_close">Close</string>
+
+    <!-- Automation permission UI -->
     <string name="automation_permission_action_continue">Continue</string>
     <string name="automation_permission_action_retry">Retry</string>
     <string name="automation_permission_action_open_settings">Open Settings</string>
+
+    <!-- Automation rule editor -->
     <string name="automation_label_rule_name">Rule name</string>
     <string name="automation_rule_name_placeholder">Pause notifications while charging</string>
     <string name="automation_label_rule_enabled">Rule enabled</string>
     <string name="automation_rule_enabled_helper">Disabled rules stay in the database but will not run.</string>
+
+    <!-- Automation search -->
     <string name="automation_search_label">Search %1$s</string>
     <string name="automation_search_placeholder">Find a %1$s</string>
+
+    <!-- Automation empty and intro states -->
     <string name="automation_rules_intro_title">Build clear automations</string>
     <string name="automation_rules_intro_description">Create and manage your automation rules.</string>
     <string name="automation_empty_rules_title">No rules yet</string>
@@ -35,17 +48,23 @@
     <string name="automation_empty_triggers_description">At least one trigger is required.</string>
     <string name="automation_empty_constraints_description">Constraints are optional.</string>
     <string name="automation_empty_actions_description">At least one action is required.</string>
+
+    <!-- Automation validation -->
     <string name="automation_validation_title">Rule needs attention</string>
     <string name="automation_none_configured">None configured</string>
+    <string name="automation_error_rule_name_required">Rule name is required.</string>
+    <string name="automation_error_trigger_required">At least one trigger is required.</string>
+    <string name="automation_error_action_required">At least one action is required.</string>
+
+    <!-- Automation summaries -->
     <string name="automation_node_actions_title">%1$s options</string>
     <string name="automation_rule_counts">%1$d triggers • %2$d constraints • %3$d actions</string>
     <string name="automation_rule_flow_summary">%1$s  •  %2$s</string>
     <string name="automation_summary_when">When</string>
     <string name="automation_summary_only_if">Only If</string>
     <string name="automation_summary_then">Then</string>
-    <string name="automation_error_rule_name_required">Rule name is required.</string>
-    <string name="automation_error_trigger_required">At least one trigger is required.</string>
-    <string name="automation_error_action_required">At least one action is required.</string>
+
+    <!-- Automation sections -->
     <string name="automation_section_triggers_title">When</string>
     <string name="automation_section_triggers_helper">Add one or more triggers that start the rule.</string>
     <string name="automation_section_constraints_title">Only If</string>

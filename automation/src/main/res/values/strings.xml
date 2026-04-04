@@ -1,4 +1,65 @@
 <resources>
+    <!-- Definition validation -->
+    <string name="automation_definition_error_required">%1$s is required.</string>
+    <string name="automation_definition_error_number">%1$s must be a number.</string>
+
+    <!-- Trigger definitions -->
+    <string name="automation_definition_trigger_charge_state_title">Charge State</string>
+    <string name="automation_definition_trigger_charge_state_description">Runs when the device enters a matching charging state.</string>
+    <string name="automation_definition_trigger_charge_state_field_state_label">Charge state</string>
+    <string name="automation_definition_trigger_charge_state_field_state_description">The charging state that should trigger the rule.</string>
+    <string name="automation_definition_trigger_charge_state_option_charging">Charging</string>
+    <string name="automation_definition_trigger_charge_state_option_discharging">Discharging</string>
+    <string name="automation_definition_trigger_charge_state_option_full">Full</string>
+    <string name="automation_definition_trigger_charge_state_option_not_charging">Not charging</string>
+    <string name="automation_definition_trigger_charge_state_summary">When charge state becomes %1$s</string>
+
+    <!-- Constraint definitions -->
+    <string name="automation_definition_constraint_battery_level_title">Battery Level</string>
+    <string name="automation_definition_constraint_battery_level_description">Only allows the rule to continue when the battery percentage matches.</string>
+    <string name="automation_definition_constraint_battery_level_field_operator_label">Operator</string>
+    <string name="automation_definition_constraint_battery_level_field_operator_description">How the current battery percentage should be compared.</string>
+    <string name="automation_definition_constraint_battery_level_field_value_label">Battery %%</string>
+    <string name="automation_definition_constraint_battery_level_field_value_description">Battery percentage to compare against.</string>
+    <string name="automation_definition_constraint_battery_level_field_value_placeholder">80</string>
+    <string name="automation_definition_constraint_battery_level_option_gt">Greater than</string>
+    <string name="automation_definition_constraint_battery_level_option_gte">At least</string>
+    <string name="automation_definition_constraint_battery_level_option_lt">Less than</string>
+    <string name="automation_definition_constraint_battery_level_option_lte">At most</string>
+    <string name="automation_definition_constraint_battery_level_option_eq">Exactly</string>
+    <string name="automation_definition_constraint_battery_level_option_neq">Not equal</string>
+    <string name="automation_definition_constraint_battery_level_summary">Only if battery %1$s %2$d%%</string>
+    <string name="automation_definition_constraint_battery_level_error_range">Battery %% must be between 0 and 100.</string>
+
+    <!-- Action definitions -->
+    <string name="automation_definition_action_show_notification_title">Show Notification</string>
+    <string name="automation_definition_action_show_notification_description">Posts a simple notification when the rule finishes.</string>
+    <string name="automation_definition_action_show_notification_field_title_label">Title</string>
+    <string name="automation_definition_action_show_notification_field_title_description">Notification title.</string>
+    <string name="automation_definition_action_show_notification_field_title_placeholder">Automation started</string>
+    <string name="automation_definition_action_show_notification_field_message_label">Message</string>
+    <string name="automation_definition_action_show_notification_field_message_description">Notification body.</string>
+    <string name="automation_definition_action_show_notification_field_message_placeholder">Your rule was triggered.</string>
+    <string name="automation_definition_action_show_notification_summary">Show notification "%1$s"</string>
+
+    <string name="automation_definition_action_log_message_title">Log Message</string>
+    <string name="automation_definition_action_log_message_description">Writes a custom message to the automation log.</string>
+    <string name="automation_definition_action_log_message_field_message_label">Message</string>
+    <string name="automation_definition_action_log_message_field_message_description">Message written to the automation log.</string>
+    <string name="automation_definition_action_log_message_field_message_placeholder">Rule executed</string>
+    <string name="automation_definition_action_log_message_summary">Log "%1$s"</string>
+
+    <string name="automation_definition_action_do_not_disturb_title">Do Not Disturb</string>
+    <string name="automation_definition_action_do_not_disturb_description">Changes the device Do Not Disturb mode.</string>
+    <string name="automation_definition_action_do_not_disturb_field_mode_label">Mode</string>
+    <string name="automation_definition_action_do_not_disturb_field_mode_description">The Do Not Disturb mode to apply.</string>
+    <string name="automation_definition_action_do_not_disturb_option_priority_only">Priority only</string>
+    <string name="automation_definition_action_do_not_disturb_option_alarms_only">Alarms only</string>
+    <string name="automation_definition_action_do_not_disturb_option_total_silence">Total silence</string>
+    <string name="automation_definition_action_do_not_disturb_option_off">Off</string>
+    <string name="automation_definition_action_do_not_disturb_summary">Set Do Not Disturb to %1$s</string>
+
+    <!-- Permission copy -->
     <string name="automation_permission_notifications_rationale_title">Allow notifications</string>
     <string name="automation_permission_notifications_rationale_message">This action posts a notification when the rule runs, so notification permission is required before you can configure it.</string>
     <string name="automation_permission_notifications_denied_title">Notification permission denied</string>

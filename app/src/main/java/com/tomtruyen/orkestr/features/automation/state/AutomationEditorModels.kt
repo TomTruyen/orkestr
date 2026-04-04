@@ -1,5 +1,7 @@
 package com.tomtruyen.orkestr.features.automation.state
 
+import androidx.annotation.StringRes
+import com.tomtruyen.automation.core.AutomationConfig
 import com.tomtruyen.automation.core.permission.AutomationPermission
 import com.tomtruyen.automation.data.definition.AutomationFieldDefinition
 import com.tomtruyen.automation.features.actions.config.ActionConfig
@@ -22,8 +24,8 @@ data class RuleEditorState(
 
 data class DefinitionListItem(
     val key: String,
-    val title: String,
-    val description: String,
+    @param:StringRes val titleRes: Int,
+    @param:StringRes val descriptionRes: Int,
     val fields: List<AutomationFieldDefinition>,
     val permissions: List<AutomationPermission> = emptyList()
 )
@@ -34,6 +36,7 @@ data class DefinitionPickerState(
     val query: String = "",
     val launchedFromSelection: Boolean = true,
     val selectedTypeKey: String? = null,
-    val values: Map<String, String> = emptyMap(),
+    val draftConfig: AutomationConfig<*>? = null,
+    val fieldInputs: Map<String, String> = emptyMap(),
     val errors: List<String> = emptyList()
 )
