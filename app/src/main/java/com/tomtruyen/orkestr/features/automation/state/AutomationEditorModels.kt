@@ -3,7 +3,7 @@ package com.tomtruyen.orkestr.features.automation.state
 import androidx.annotation.StringRes
 import com.tomtruyen.automation.core.AutomationConfig
 import com.tomtruyen.automation.core.permission.AutomationPermission
-import com.tomtruyen.automation.data.definition.AutomationFieldDefinition
+import com.tomtruyen.automation.core.definition.AutomationFieldDefinition
 import com.tomtruyen.automation.features.actions.config.ActionConfig
 import com.tomtruyen.automation.features.constraints.config.ConstraintConfig
 import com.tomtruyen.automation.features.triggers.config.TriggerConfig

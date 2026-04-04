@@ -2,7 +2,7 @@ package com.tomtruyen.orkestr.common
 
 import android.content.Context
 import androidx.annotation.StringRes
-import com.tomtruyen.automation.data.definition.AutomationTextResolver
+import com.tomtruyen.automation.core.definition.AutomationTextResolver
 
 interface StringResolver : AutomationTextResolver {
     fun resolve(@StringRes stringRes: Int, vararg formatArgs: Any): String

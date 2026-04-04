@@ -3,8 +3,8 @@ package com.tomtruyen.orkestr.features.automation.viewmodel
 import com.tomtruyen.automation.core.AutomationRule
 import com.tomtruyen.automation.core.AutomationConfig
 import com.tomtruyen.automation.core.permission.AutomationPermission
-import com.tomtruyen.automation.data.definition.AutomationDefinitionRegistry
-import com.tomtruyen.automation.data.definition.AutomationNodeDefinition
+import com.tomtruyen.automation.core.definition.AutomationDefinitionRegistry
+import com.tomtruyen.automation.core.definition.AutomationNodeDefinition
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
 import com.tomtruyen.automation.features.actions.ActionType
 import com.tomtruyen.automation.features.actions.config.ActionConfig

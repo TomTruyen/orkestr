@@ -1,4 +1,4 @@
-package com.tomtruyen.automation.data.definition
+package com.tomtruyen.automation.core.definition
 
 enum class AutomationFieldType {
     TEXT,

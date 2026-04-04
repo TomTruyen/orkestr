@@ -2,11 +2,11 @@ package com.tomtruyen.automation.features.triggers.definition
 
 import com.tomtruyen.automation.R
 import com.tomtruyen.automation.core.model.BatteryChargeState
-import com.tomtruyen.automation.data.definition.AutomationFieldType
-import com.tomtruyen.automation.data.definition.AutomationOption
-import com.tomtruyen.automation.data.definition.AutomationTextResolver
-import com.tomtruyen.automation.data.definition.TriggerDefinition
-import com.tomtruyen.automation.data.definition.TypedAutomationFieldDefinition
+import com.tomtruyen.automation.core.definition.AutomationFieldType
+import com.tomtruyen.automation.core.definition.AutomationOption
+import com.tomtruyen.automation.core.definition.AutomationTextResolver
+import com.tomtruyen.automation.core.definition.TriggerDefinition
+import com.tomtruyen.automation.core.definition.TypedAutomationFieldDefinition
 import com.tomtruyen.automation.features.triggers.config.BatteryChangedTriggerConfig
 
 object ChargeStateTriggerDefinition : TriggerDefinition<BatteryChangedTriggerConfig>(

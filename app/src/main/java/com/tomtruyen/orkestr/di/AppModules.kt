@@ -1,6 +1,6 @@
 package com.tomtruyen.orkestr.di
 
-import com.tomtruyen.automation.data.definition.AutomationDefinitionRegistry
+import com.tomtruyen.automation.core.definition.AutomationDefinitionRegistry
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
 import com.tomtruyen.orkestr.common.AndroidStringResolver
 import com.tomtruyen.orkestr.common.StringResolver

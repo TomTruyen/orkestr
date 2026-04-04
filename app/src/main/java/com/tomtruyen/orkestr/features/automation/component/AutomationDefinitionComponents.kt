@@ -16,8 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tomtruyen.automation.core.AutomationConfig
-import com.tomtruyen.automation.data.definition.AutomationFieldDefinition
-import com.tomtruyen.automation.data.definition.AutomationFieldType
+import com.tomtruyen.automation.core.definition.AutomationFieldDefinition
+import com.tomtruyen.automation.core.definition.AutomationFieldType
 
 @Composable
 fun DefinitionFieldPreview(fields: List<AutomationFieldDefinition>) {

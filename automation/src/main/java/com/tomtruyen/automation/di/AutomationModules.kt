@@ -5,7 +5,7 @@ import com.tomtruyen.automation.core.AutomationLogger
 import com.tomtruyen.automation.core.AutomationRuntimeService
 import com.tomtruyen.automation.core.LogcatAutomationLogger
 import com.tomtruyen.automation.data.AutomationDatabase
-import com.tomtruyen.automation.data.definition.AutomationDefinitionRegistry
+import com.tomtruyen.automation.core.definition.AutomationDefinitionRegistry
 import com.tomtruyen.automation.features.constraints.definition.BatteryLevelConstraintDefinition
 import com.tomtruyen.automation.features.triggers.definition.ChargeStateTriggerDefinition
 import com.tomtruyen.automation.features.actions.definition.DoNotDisturbActionDefinition

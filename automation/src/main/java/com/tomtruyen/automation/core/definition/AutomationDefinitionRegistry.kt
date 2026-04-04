@@ -1,4 +1,4 @@
-package com.tomtruyen.automation.data.definition
+package com.tomtruyen.automation.core.definition
 
 import com.tomtruyen.automation.features.actions.ActionType
 import com.tomtruyen.automation.features.constraints.ConstraintType
