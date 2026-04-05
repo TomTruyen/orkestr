@@ -1,8 +1,8 @@
 package com.tomtruyen.orkestr.features.automation.state
 
 import androidx.annotation.StringRes
-import com.tomtruyen.automation.core.config.AutomationConfig
 import com.tomtruyen.automation.core.config.AutomationCategory
+import com.tomtruyen.automation.core.config.AutomationConfig
 import com.tomtruyen.automation.core.definition.AutomationFieldDefinition
 import com.tomtruyen.automation.core.permission.AutomationPermission
 import com.tomtruyen.automation.features.actions.config.ActionConfig
@@ -30,10 +30,7 @@ data class DefinitionListItem(
     val permissions: List<AutomationPermission> = emptyList(),
 )
 
-data class DefinitionCategoryGroup(
-    val category: AutomationCategory,
-    val items: List<DefinitionListItem>,
-)
+data class DefinitionCategoryGroup(val category: AutomationCategory, val items: List<DefinitionListItem>)
 
 data class DefinitionPickerState(
     val section: RuleSection,

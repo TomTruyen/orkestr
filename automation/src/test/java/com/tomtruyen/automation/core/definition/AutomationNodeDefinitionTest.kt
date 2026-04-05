@@ -1,7 +1,7 @@
 package com.tomtruyen.automation.core.definition
 
-import com.tomtruyen.automation.core.config.AutomationConfig
 import com.tomtruyen.automation.core.config.AutomationCategory
+import com.tomtruyen.automation.core.config.AutomationConfig
 import com.tomtruyen.automation.core.permission.NotificationPolicyAccessPermission
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
