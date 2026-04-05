@@ -3,8 +3,11 @@ package com.tomtruyen.automation.core
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ActivityInfo
+import android.content.pm.ResolveInfo
 import com.tomtruyen.automation.core.AutomationForegroundService.Companion.start
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
+import com.tomtruyen.automation.features.triggers.config.BatteryChangedTriggerConfig
 import com.tomtruyen.automation.features.triggers.receiver.TriggerReceiver
 import com.tomtruyen.automation.features.triggers.receiver.TriggerReceiverKey
 import io.mockk.MockKAnnotations
@@ -16,7 +19,8 @@ import io.mockk.mockkStatic
 import io.mockk.runs
 import io.mockk.unmockkAll
 import io.mockk.verify
-import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import org.junit.Assert.assertNotNull
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -28,7 +32,9 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.runBlocking
 
 @RunWith(RobolectricTestRunner::class)
 internal class AutomationForegroundServiceTest {
@@ -48,12 +54,13 @@ internal class AutomationForegroundServiceTest {
     private lateinit var secondReceiver: TriggerReceiver
     private lateinit var firstFactory: TriggerReceiver.TriggerFactory
     private lateinit var secondFactory: TriggerReceiver.TriggerFactory
+    private lateinit var rulesFlow: MutableSharedFlow<List<AutomationRule>>
 
     @Before
     fun setUp() {
         MockKAnnotations.init(this)
-
-        every { repository.observeRules() } returns emptyFlow()
+        rulesFlow = MutableSharedFlow(replay = 1)
+        every { repository.observeRules() } returns rulesFlow
 
         firstReceiver = mockk(relaxed = true)
         secondReceiver = mockk(relaxed = true)
@@ -144,6 +151,59 @@ internal class AutomationForegroundServiceTest {
         assertTrue(registeredReceivers(service).isEmpty())
     }
 
+    @Test
+    fun onCreate_observesEnabledRulesAndRegistersRequiredReceivers() {
+        val service = Robolectric.buildService(AutomationForegroundService::class.java).create().get()
+
+        runBlocking {
+            rulesFlow.emit(
+                listOf(
+                    AutomationRule(
+                        id = "disabled",
+                        name = "Disabled rule",
+                        enabled = false,
+                        triggers = listOf(BatteryChangedTriggerConfig()),
+                        constraints = emptyList(),
+                        actions = emptyList()
+                    ),
+                    AutomationRule(
+                        id = "enabled",
+                        name = "Enabled rule",
+                        enabled = true,
+                        triggers = listOf(BatteryChangedTriggerConfig()),
+                        constraints = emptyList(),
+                        actions = emptyList()
+                    )
+                )
+            )
+        }
+
+        waitUntil { registeredReceivers(service).size == 2 }
+
+        assertEquals(2, registeredReceivers(service).size)
+    }
+
+    @Test
+    fun buildNotification_whenLaunchIntentExists_setsContentIntent() {
+        val controller = Robolectric.buildService(AutomationForegroundService::class.java)
+        val service = controller.get()
+        val launchProbeIntent = Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_LAUNCHER)
+            setPackage(service.packageName)
+        }
+        val resolveInfo = ResolveInfo().apply {
+            activityInfo = ActivityInfo().apply {
+                packageName = service.packageName
+                name = "com.tomtruyen.automation.TestLauncherActivity"
+            }
+        }
+        shadowOf(service.packageManager).addResolveInfoForIntent(launchProbeIntent, resolveInfo)
+
+        val notification = invokeBuildNotification(service)
+
+        assertNotNull(notification.contentIntent)
+    }
+
     private fun factory(receiver: TriggerReceiver): TriggerReceiver.TriggerFactory =
         object : TriggerReceiver.TriggerFactory {
             override val key: TriggerReceiverKey = TriggerReceiverKey.BATTERY_CHANGED
@@ -167,5 +227,19 @@ internal class AutomationForegroundServiceTest {
         val method = AutomationForegroundService::class.java.getDeclaredMethod("syncReceivers", Set::class.java)
         method.isAccessible = true
         method.invoke(service, keys)
+    }
+
+    private fun invokeBuildNotification(service: AutomationForegroundService): android.app.Notification {
+        val method = AutomationForegroundService::class.java.getDeclaredMethod("buildNotification")
+        method.isAccessible = true
+        return method.invoke(service) as android.app.Notification
+    }
+
+    private fun waitUntil(timeoutMs: Long = 2_000, condition: () -> Boolean) {
+        val deadline = System.currentTimeMillis() + timeoutMs
+        while (!condition() && System.currentTimeMillis() < deadline) {
+            Thread.sleep(10)
+        }
+        check(condition()) { "Condition was not met within ${timeoutMs}ms" }
     }
 }

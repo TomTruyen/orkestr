@@ -3,6 +3,7 @@ package com.tomtruyen.automation.features.triggers.receiver
 import android.content.Context
 import android.content.Intent
 import android.os.BatteryManager
+import androidx.core.content.ContextCompat
 import com.tomtruyen.automation.core.AutomationLogger
 import com.tomtruyen.automation.core.AutomationRuntimeService
 import com.tomtruyen.automation.core.event.BatteryChangedEvent
@@ -14,13 +15,16 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.just
+import io.mockk.mockkStatic
 import io.mockk.runs
+import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -43,6 +47,11 @@ internal class BatteryChangedReceiverTest {
         MockKAnnotations.init(this)
         coEvery { service.handleEvent(any()) } returns Unit
         every { logger.log(any()) } just runs
+    }
+
+    @After
+    fun tearDown() {
+        unmockkAll()
     }
 
     @Test
@@ -80,6 +89,31 @@ internal class BatteryChangedReceiverTest {
                     chargeState = BatteryChargeState.CHARGING,
                     plugStatus = BatteryPlugStatus.AC
                 )
+            )
+        }
+    }
+
+    @Test
+    fun factoryRegister_registersBatteryChangedReceiver() = runTest {
+        val scope = TestScope(StandardTestDispatcher(testScheduler))
+        mockkStatic(ContextCompat::class)
+        every {
+            ContextCompat.registerReceiver(
+                context,
+                any(),
+                any(),
+                ContextCompat.RECEIVER_NOT_EXPORTED
+            )
+        } returns null
+
+        val receiver = BatteryChangedReceiver.Factory.register(context, service, scope, logger)
+
+        verify {
+            ContextCompat.registerReceiver(
+                context,
+                receiver,
+                match { it.hasAction(Intent.ACTION_BATTERY_CHANGED) },
+                ContextCompat.RECEIVER_NOT_EXPORTED
             )
         }
     }

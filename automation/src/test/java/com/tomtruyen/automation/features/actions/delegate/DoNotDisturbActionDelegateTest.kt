@@ -60,6 +60,42 @@ internal class DoNotDisturbActionDelegateTest {
     }
 
     @Test
+    fun execute_whenModeIsPriorityOnly_setsPriorityFilter() = runTest {
+        every { NotificationPolicyAccessPermission.isGranted(context) } returns true
+
+        delegate.execute(
+            DoNotDisturbActionConfig(mode = DoNotDisturbMode.PRIORITY_ONLY),
+            batteryChangedEvent()
+        )
+
+        verify { notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY) }
+    }
+
+    @Test
+    fun execute_whenModeIsTotalSilence_setsNoneFilter() = runTest {
+        every { NotificationPolicyAccessPermission.isGranted(context) } returns true
+
+        delegate.execute(
+            DoNotDisturbActionConfig(mode = DoNotDisturbMode.TOTAL_SILENCE),
+            batteryChangedEvent()
+        )
+
+        verify { notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE) }
+    }
+
+    @Test
+    fun execute_whenModeIsOff_setsAllFilter() = runTest {
+        every { NotificationPolicyAccessPermission.isGranted(context) } returns true
+
+        delegate.execute(
+            DoNotDisturbActionConfig(mode = DoNotDisturbMode.OFF),
+            batteryChangedEvent()
+        )
+
+        verify { notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL) }
+    }
+
+    @Test
     fun execute_whenPermissionIsDenied_doesNothing() = runTest {
         every { NotificationPolicyAccessPermission.isGranted(context) } returns false
 
