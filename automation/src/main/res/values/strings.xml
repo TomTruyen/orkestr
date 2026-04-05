@@ -24,11 +24,16 @@
     <string name="automation_definition_trigger_geofence_description">Runs when you enter or exit one of your saved geofences.</string>
     <string name="automation_definition_trigger_geofence_field_transition_label">Trigger on</string>
     <string name="automation_definition_trigger_geofence_field_transition_description">Choose whether the rule runs when you enter or leave the selected geofence.</string>
+    <string name="automation_definition_trigger_geofence_field_update_rate_label">Update rate</string>
+    <string name="automation_definition_trigger_geofence_field_update_rate_description">Controls how quickly geofence transitions should be reported. Faster updates can use more battery.</string>
     <string name="automation_definition_trigger_geofence_option_enter">Enter</string>
     <string name="automation_definition_trigger_geofence_option_exit">Exit</string>
+    <string name="automation_definition_trigger_geofence_option_update_rate_fast">Fast</string>
+    <string name="automation_definition_trigger_geofence_option_update_rate_balanced">Balanced</string>
+    <string name="automation_definition_trigger_geofence_option_update_rate_relaxed">Relaxed</string>
     <string name="automation_definition_trigger_geofence_transition_enter">entering</string>
     <string name="automation_definition_trigger_geofence_transition_exit">exiting</string>
-    <string name="automation_definition_trigger_geofence_summary">When %1$s %2$s</string>
+    <string name="automation_definition_trigger_geofence_summary">When %1$s %2$s (%3$s)</string>
     <string name="automation_definition_trigger_geofence_unselected">a saved geofence</string>
     <string name="automation_definition_trigger_geofence_error_missing_geofence">Select a geofence before saving this trigger.</string>
 

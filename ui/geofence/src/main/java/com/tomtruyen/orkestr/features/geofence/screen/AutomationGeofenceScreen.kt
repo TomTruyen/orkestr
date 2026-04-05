@@ -168,24 +168,6 @@ fun AutomationGeofenceEditorScreen(viewModel: GeofenceTriggerViewModel, modifier
             item {
                 OutlinedCard(modifier = Modifier.fillMaxWidth()) {
                     AutomationCardColumn {
-                        GoogleGeofenceMap(
-                            state = state,
-                            onMapClick = { latitude, longitude ->
-                                viewModel.onAction(GeofenceTriggerAction.GeofenceMapLocationSelected(latitude, longitude))
-                            },
-                        )
-                        Text(
-                            text = stringResource(R.string.geofence_map_hint),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-            }
-
-            item {
-                OutlinedCard(modifier = Modifier.fillMaxWidth()) {
-                    AutomationCardColumn {
                         OutlinedTextField(
                             value = state.name,
                             onValueChange = {
@@ -224,6 +206,16 @@ fun AutomationGeofenceEditorScreen(viewModel: GeofenceTriggerViewModel, modifier
                             label = { Text(stringResource(R.string.geofence_longitude_label)) },
                             singleLine = true,
                         )
+                        if (state.errors.isNotEmpty()) {
+                            ValidationCard(errors = state.errors)
+                        }
+                    }
+                }
+            }
+
+            item {
+                OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+                    AutomationCardColumn {
                         OutlinedTextField(
                             value = state.addressQuery,
                             onValueChange = {
@@ -250,9 +242,6 @@ fun AutomationGeofenceEditorScreen(viewModel: GeofenceTriggerViewModel, modifier
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
-                        if (state.errors.isNotEmpty()) {
-                            ValidationCard(errors = state.errors)
-                        }
                     }
                 }
             }
@@ -274,6 +263,24 @@ fun AutomationGeofenceEditorScreen(viewModel: GeofenceTriggerViewModel, modifier
                         result = result,
                         onClick = { viewModel.onAction(GeofenceTriggerAction.GeofenceSearchResultSelected(result)) },
                     )
+                }
+            }
+
+            item {
+                OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+                    AutomationCardColumn {
+                        GoogleGeofenceMap(
+                            state = state,
+                            onMapClick = { latitude, longitude ->
+                                viewModel.onAction(GeofenceTriggerAction.GeofenceMapLocationSelected(latitude, longitude))
+                            },
+                        )
+                        Text(
+                            text = stringResource(R.string.geofence_map_hint),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
             }
         }

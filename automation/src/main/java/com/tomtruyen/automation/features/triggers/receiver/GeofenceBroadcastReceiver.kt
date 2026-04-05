@@ -52,6 +52,8 @@ class GeofenceBroadcastReceiver : BroadcastReceiver(), KoinComponent {
             return
         }
 
+        logger.log("Received geofence transition ${transitionType.name}")
+
         event.triggeringGeofences.orEmpty().forEach { geofence ->
             logger.log("Received geofence transition ${transitionType.name} for ${geofence.requestId}")
             runtimeService.handleEvent(

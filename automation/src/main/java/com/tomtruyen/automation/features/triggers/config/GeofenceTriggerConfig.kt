@@ -2,6 +2,7 @@ package com.tomtruyen.automation.features.triggers.config
 
 import com.tomtruyen.automation.core.config.AutomationCategory
 import com.tomtruyen.automation.core.model.GeofenceTransitionType
+import com.tomtruyen.automation.core.model.GeofenceUpdateRate
 import com.tomtruyen.automation.core.permission.AutomationPermission
 import com.tomtruyen.automation.core.permission.BackgroundLocationPermission
 import com.tomtruyen.automation.core.permission.FineLocationPermission
@@ -17,6 +18,7 @@ data class GeofenceTriggerConfig(
     val geofenceId: String = "",
     val geofenceName: String = "",
     val transitionType: GeofenceTransitionType = GeofenceTransitionType.ENTER,
+    val updateRate: GeofenceUpdateRate = GeofenceUpdateRate.BALANCED,
 ) : TriggerConfig {
     override val type: TriggerType = TriggerType.GEOFENCE
     override val category: AutomationCategory = AutomationCategory.LOCATION

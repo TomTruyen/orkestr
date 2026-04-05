@@ -136,6 +136,7 @@ For an open source project, restrict the key in Google Cloud to:
 - The geofence editor lives entirely in [`ui/geofence`](/home/tom/Documents/GitHub/orkestr/ui/geofence).
 - Address search uses Android `Geocoder`, not Google Places, to avoid paid APIs.
 - The actual geofence trigger runtime, repository, DAO, Room entity, and receivers remain in [`automation`](/home/tom/Documents/GitHub/orkestr/automation).
+- On some devices, geofence delivery may not start working until Google Maps or core Google location services have been opened at least once on the device after setup.
 - Reliable testing should cover both precise location and background location flows on Android 10+.
 - Runtime geofence delivery also depends on device settings, Play services availability, and OEM background restrictions.
 

@@ -41,17 +41,7 @@ class GeofenceRegistrationReceiver(
                 ruleRepository.observeRules(),
                 geofenceRepository.observeGeofences(),
             ) { rules, geofences ->
-                val enabledGeofenceConfigs = rules
-                    .asSequence()
-                    .filter { it.enabled }
-                    .flatMap { rule -> rule.triggers.asSequence() }
-                    .filterIsInstance<GeofenceTriggerConfig>()
-                    .toList()
-
-                val geofenceMap = geofences.associateBy { it.id }
-                enabledGeofenceConfigs
-                    .mapNotNull { config -> geofenceMap[config.geofenceId] }
-                    .distinctBy { it.id }
+                geofencesToRegister(rules, geofences)
             }.distinctUntilChanged().collect(::syncGeofences)
         }
     }
@@ -65,8 +55,8 @@ class GeofenceRegistrationReceiver(
     }
 
     @SuppressLint("MissingPermission")
-    private fun syncGeofences(geofences: List<AutomationGeofence>) {
-        val targetIds = geofences.map { it.id }.toSet()
+    private fun syncGeofences(geofences: List<RegisteredGeofence>) {
+        val targetIds = geofences.map { it.geofence.id }.toSet()
         val staleIds = activeGeofenceIds - targetIds
 
         if (staleIds.isNotEmpty()) {
@@ -79,7 +69,7 @@ class GeofenceRegistrationReceiver(
         }
 
         val request = GeofencingRequest.Builder()
-            .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+            .setInitialTrigger(initialTriggerMask(geofences))
             .addGeofences(geofences.map { it.toGoogleGeofence() })
             .build()
 
@@ -87,7 +77,7 @@ class GeofenceRegistrationReceiver(
             geofencingClient.addGeofences(request, geofencePendingIntent(appContext))
                 .addOnSuccessListener {
                     activeGeofenceIds = targetIds
-                    logger.log("Registered ${targetIds.size} geofence(s) for action $ACTION_GEOFENCE_TRANSITION")
+                    logger.log("Registered ${targetIds.size} geofence(s) for action")
                 }
                 .addOnFailureListener { error ->
                     logger.log("Failed to register geofences: ${error.message}")
@@ -95,22 +85,19 @@ class GeofenceRegistrationReceiver(
         }
     }
 
-    private fun AutomationGeofence.toGoogleGeofence(): Geofence = Geofence.Builder()
-        .setRequestId(id)
-        .setCircularRegion(latitude, longitude, radiusMeters)
-        .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
+    private fun RegisteredGeofence.toGoogleGeofence(): Geofence = Geofence.Builder()
+        .setRequestId(geofence.id)
+        .setCircularRegion(geofence.latitude, geofence.longitude, geofence.radiusMeters)
+        .setTransitionTypes(transitionMask)
+        .setNotificationResponsiveness(notificationResponsivenessMillis)
         .setExpirationDuration(Geofence.NEVER_EXPIRE)
         .build()
 
     @GenerateReceiverFactory
     companion object Factory : TriggerFactory {
         override val key: TriggerReceiverKey = TriggerReceiverKey.GEOFENCE
-        private const val ACTION_GEOFENCE_TRANSITION = "com.tomtruyen.automation.action.GEOFENCE_TRANSITION"
-
         private fun geofencePendingIntent(context: Context): PendingIntent {
-            val intent = Intent(context, GeofenceBroadcastReceiver::class.java)
-                .setAction(ACTION_GEOFENCE_TRANSITION)
-                .setPackage(context.packageName)
+            val intent = Intent(context, GeofenceBroadcastReceiver::class.java).setPackage(context.packageName)
             val flags = PendingIntent.FLAG_UPDATE_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 PendingIntent.FLAG_MUTABLE
             } else {
@@ -131,4 +118,54 @@ class GeofenceRegistrationReceiver(
             logger: AutomationLogger,
         ): TriggerReceiver = GeofenceRegistrationReceiver(context, service, scope, logger)
     }
+}
+
+internal data class RegisteredGeofence(
+    val geofence: AutomationGeofence,
+    val transitionMask: Int,
+    val notificationResponsivenessMillis: Int,
+)
+
+internal fun geofencesToRegister(
+    rules: List<com.tomtruyen.automation.core.AutomationRule>,
+    geofences: List<AutomationGeofence>,
+): List<RegisteredGeofence> {
+    val geofenceMap = geofences.associateBy { it.id }
+    return rules
+        .asSequence()
+        .filter { it.enabled }
+        .flatMap { rule -> rule.triggers.asSequence() }
+        .filterIsInstance<GeofenceTriggerConfig>()
+        .mapNotNull { config ->
+            geofenceMap[config.geofenceId]?.let { geofence ->
+                RegisteredGeofence(
+                    geofence = geofence,
+                    transitionMask = config.transitionType.toGoogleTransition(),
+                    notificationResponsivenessMillis = config.updateRate.notificationResponsivenessMillis,
+                )
+            }
+        }
+        .groupBy { it.geofence.id }
+        .values
+        .map { registrations ->
+            registrations.reduce { acc, registration ->
+                acc.copy(
+                    transitionMask = acc.transitionMask or registration.transitionMask,
+                    notificationResponsivenessMillis = minOf(
+                        acc.notificationResponsivenessMillis,
+                        registration.notificationResponsivenessMillis,
+                    ),
+                )
+            }
+        }
+        .sortedBy { it.geofence.id }
+}
+
+internal fun initialTriggerMask(geofences: List<RegisteredGeofence>): Int {
+    val includesEnter = geofences.any { it.transitionMask and Geofence.GEOFENCE_TRANSITION_ENTER != 0 }
+    val includesExit = geofences.any { it.transitionMask and Geofence.GEOFENCE_TRANSITION_EXIT != 0 }
+    var mask = 0
+    if (includesEnter) mask = mask or GeofencingRequest.INITIAL_TRIGGER_ENTER
+    if (includesExit) mask = mask or GeofencingRequest.INITIAL_TRIGGER_EXIT
+    return mask
 }
