@@ -1,1 +1,6 @@
-com.tomtruyen.automation.codegen.AutomationProviderProcessorProvider
+com.tomtruyen.automation.codegen.TriggerProviderProcessorProvider
+com.tomtruyen.automation.codegen.ConstraintProviderProcessorProvider
+com.tomtruyen.automation.codegen.ActionProviderProcessorProvider
+com.tomtruyen.automation.codegen.ReceiverProviderProcessorProvider
+com.tomtruyen.automation.codegen.MigrationProviderProcessorProvider
+com.tomtruyen.automation.codegen.AutomationRegistryProviderProcessorProvider

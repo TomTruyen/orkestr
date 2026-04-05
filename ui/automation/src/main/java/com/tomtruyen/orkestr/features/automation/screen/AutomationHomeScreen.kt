@@ -1,0 +1,128 @@
+package com.tomtruyen.orkestr.features.automation.screen
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import com.tomtruyen.automation.features.actions.config.ActionConfig
+import com.tomtruyen.automation.features.constraints.config.ConstraintConfig
+import com.tomtruyen.automation.features.triggers.config.TriggerConfig
+import com.tomtruyen.orkestr.common.component.AutomationCardColumn
+import com.tomtruyen.orkestr.common.component.AutomationSectionHeader
+import com.tomtruyen.orkestr.common.component.AutomationTitleRow
+import com.tomtruyen.orkestr.common.component.EmptyStateCard
+import com.tomtruyen.orkestr.ui.automation.R
+import com.tomtruyen.orkestr.features.automation.state.AutomationRulesAction
+import com.tomtruyen.orkestr.features.automation.viewmodel.AutomationRulesViewModel
+
+@Composable
+fun AutomationHomeScreen(
+    viewModel: AutomationRulesViewModel,
+    summarizeTrigger: (TriggerConfig) -> String,
+    summarizeConstraint: (ConstraintConfig) -> String,
+    summarizeAction: (ActionConfig) -> String,
+    modifier: Modifier = Modifier,
+) {
+    val state by viewModel.uiState.collectAsState()
+
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(20.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+            ) {
+                AutomationCardColumn {
+                    AutomationSectionHeader(
+                        title = stringResource(R.string.automation_rules_intro_title),
+                        description = stringResource(R.string.automation_rules_intro_description),
+                    )
+                    Button(onClick = { viewModel.onAction(AutomationRulesAction.CreateRuleClicked) }) {
+                        Text(stringResource(R.string.automation_action_create_rule))
+                    }
+                }
+            }
+        }
+
+        if (state.rules.isEmpty()) {
+            item {
+                EmptyStateCard(
+                    title = stringResource(R.string.automation_empty_rules_title),
+                    description = stringResource(R.string.automation_empty_rules_description),
+                )
+            }
+        }
+
+        itemsIndexed(state.rules, key = { _, rule -> rule.id }) { _, rule ->
+            OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+                AutomationCardColumn {
+                    AutomationTitleRow(
+                        title = rule.name,
+                        subtitle = stringResource(
+                            R.string.automation_rule_counts,
+                            rule.triggers.size,
+                            rule.constraints.size,
+                            rule.actions.size,
+                        ),
+                        trailing = {
+                            Switch(
+                                checked = rule.enabled,
+                                onCheckedChange = {
+                                    viewModel.onAction(AutomationRulesAction.ToggleRuleEnabled(rule, it))
+                                },
+                            )
+                        },
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.automation_rule_flow_summary,
+                            rule.triggers.firstOrNull()?.let(summarizeTrigger)
+                                ?: stringResource(R.string.automation_none_configured),
+                            rule.actions.firstOrNull()?.let(summarizeAction)
+                                ?: stringResource(R.string.automation_none_configured),
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    if (rule.constraints.isNotEmpty()) {
+                        Text(
+                            text = summarizeConstraint(rule.constraints.first()),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(onClick = { viewModel.onAction(AutomationRulesAction.EditRuleClicked(rule)) }) {
+                            Text(stringResource(R.string.automation_action_edit))
+                        }
+                        OutlinedButton(
+                            onClick = { viewModel.onAction(AutomationRulesAction.DeleteRuleClicked(rule)) },
+                        ) {
+                            Text(stringResource(R.string.automation_action_delete))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

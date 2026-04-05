@@ -1,0 +1,34 @@
+<resources>
+    <string name="geofence_title_new_geofence">New Geofence</string>
+    <string name="geofence_action_create_geofence">Create Geofence</string>
+    <string name="geofence_action_search">Search</string>
+    <string name="geofence_action_save_trigger">Save Changes</string>
+
+    <string name="geofence_error_name_required">Geofence name is required.</string>
+    <string name="geofence_error_latitude_invalid">Latitude must be between -90 and 90.</string>
+    <string name="geofence_error_longitude_invalid">Longitude must be between -180 and 180.</string>
+    <string name="geofence_error_radius_invalid">Radius must be greater than 0 meters.</string>
+    <string name="geofence_error_geocoder_unavailable">Address search is not available on this device.</string>
+    <string name="geofence_error_geocoder_no_results">No address results found.</string>
+
+    <string name="geofence_saved_title">Saved geofences</string>
+    <string name="geofence_saved_description">Select one geofence for this trigger, then choose whether the rule runs on enter or exit.</string>
+    <string name="geofence_none_title">No geofences yet</string>
+    <string name="geofence_none_description">Create a geofence to use this trigger.</string>
+    <string name="geofence_transition_title">Trigger on</string>
+    <string name="geofence_transition_enter">Enter</string>
+    <string name="geofence_transition_exit">Exit</string>
+    <string name="geofence_create_title">Create geofence</string>
+    <string name="geofence_create_description">Pick a point on the map or enter coordinates manually. Address search uses the free Android geocoder when the device provides it.</string>
+    <string name="geofence_name_label">Name</string>
+    <string name="geofence_name_placeholder">Home</string>
+    <string name="geofence_radius_label">Radius (meters)</string>
+    <string name="geofence_radius_placeholder">150</string>
+    <string name="geofence_latitude_label">Latitude</string>
+    <string name="geofence_longitude_label">Longitude</string>
+    <string name="geofence_search_label">Address search</string>
+    <string name="geofence_search_placeholder">1600 Amphitheatre Parkway</string>
+    <string name="geofence_search_results_title">Search results</string>
+    <string name="geofence_selected_address">Selected address: %1$s</string>
+    <string name="geofence_map_hint">Tap the map to place the center point.</string>
+</resources>

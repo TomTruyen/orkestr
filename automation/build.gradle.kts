@@ -16,6 +16,10 @@ android {
     }
 }
 
+ksp {
+    arg("automation.migrations.dir", project.file("src/main/assets/migrations").absolutePath)
+}
+
 dependencies {
     implementation(project(":automation-ksp-annotations"))
     implementation(libs.androidx.core.ktx)

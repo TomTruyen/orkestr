@@ -11,6 +11,8 @@ abstract class TriggerReceiver : BroadcastReceiver() {
     protected abstract val scope: CoroutineScope
     protected abstract val logger: AutomationLogger
 
+    open fun onUnregister(context: Context) = Unit
+
     interface TriggerFactory {
         val key: TriggerReceiverKey
 

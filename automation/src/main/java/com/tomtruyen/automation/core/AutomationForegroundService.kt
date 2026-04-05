@@ -5,7 +5,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
@@ -120,7 +119,8 @@ class AutomationForegroundService :
         notificationManager.createNotificationChannel(channel)
     }
 
-    private fun unregisterReceiverSafely(receiver: BroadcastReceiver) {
+    private fun unregisterReceiverSafely(receiver: TriggerReceiver) {
+        receiver.onUnregister(this)
         runCatching { unregisterReceiver(receiver) }
     }
 

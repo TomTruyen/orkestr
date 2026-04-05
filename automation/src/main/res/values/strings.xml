@@ -5,6 +5,7 @@
 
     <!-- Definition categories -->
     <string name="automation_definition_category_battery_power">Battery/Power</string>
+    <string name="automation_definition_category_location">Location</string>
     <string name="automation_definition_category_notifications">Notifications</string>
     <string name="automation_definition_category_volume">Volume</string>
     <string name="automation_definition_category_utility">Utility</string>
@@ -19,6 +20,17 @@
     <string name="automation_definition_trigger_charge_state_option_full">Full</string>
     <string name="automation_definition_trigger_charge_state_option_not_charging">Not charging</string>
     <string name="automation_definition_trigger_charge_state_summary">When charge state becomes %1$s</string>
+    <string name="automation_definition_trigger_geofence_title">Geofence</string>
+    <string name="automation_definition_trigger_geofence_description">Runs when you enter or exit one of your saved geofences.</string>
+    <string name="automation_definition_trigger_geofence_field_transition_label">Trigger on</string>
+    <string name="automation_definition_trigger_geofence_field_transition_description">Choose whether the rule runs when you enter or leave the selected geofence.</string>
+    <string name="automation_definition_trigger_geofence_option_enter">Enter</string>
+    <string name="automation_definition_trigger_geofence_option_exit">Exit</string>
+    <string name="automation_definition_trigger_geofence_transition_enter">entering</string>
+    <string name="automation_definition_trigger_geofence_transition_exit">exiting</string>
+    <string name="automation_definition_trigger_geofence_summary">When %1$s %2$s</string>
+    <string name="automation_definition_trigger_geofence_unselected">a saved geofence</string>
+    <string name="automation_definition_trigger_geofence_error_missing_geofence">Select a geofence before saving this trigger.</string>
 
     <!-- Constraint definitions -->
     <string name="automation_definition_constraint_battery_level_title">Battery Level</string>
@@ -70,6 +82,14 @@
     <string name="automation_permission_notifications_rationale_message">This action posts a notification when the rule runs, so notification permission is required before you can configure it.</string>
     <string name="automation_permission_notifications_denied_title">Notification permission denied</string>
     <string name="automation_permission_notifications_denied_message">Notification permission is still missing, so this action cannot post anything until you allow it in system settings.</string>
+    <string name="automation_permission_fine_location_rationale_title">Allow precise location</string>
+    <string name="automation_permission_fine_location_rationale_message">Geofence triggers rely on precise device location, so location permission is required before you can configure them.</string>
+    <string name="automation_permission_fine_location_denied_title">Precise location denied</string>
+    <string name="automation_permission_fine_location_denied_message">Geofence triggers will not work until precise location access is allowed in system settings.</string>
+    <string name="automation_permission_background_location_rationale_title">Allow background location</string>
+    <string name="automation_permission_background_location_rationale_message">Geofence automations need background location access so enter and exit events can fire while Orkestr is not open.</string>
+    <string name="automation_permission_background_location_denied_title">Background location denied</string>
+    <string name="automation_permission_background_location_denied_message">Geofence automations will be unreliable until background location is allowed in system settings.</string>
     <string name="automation_permission_notification_policy_title">Allow Do Not Disturb access</string>
     <string name="automation_permission_notification_policy_message">This action changes the device Do Not Disturb mode, so notification policy access must be enabled in system settings first.</string>
 </resources>

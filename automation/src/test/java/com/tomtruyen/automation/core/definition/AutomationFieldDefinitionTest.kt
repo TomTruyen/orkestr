@@ -1,6 +1,7 @@
 package com.tomtruyen.automation.core.definition
 
 import com.tomtruyen.automation.R
+import com.tomtruyen.automation.core.config.AutomationCategory
 import com.tomtruyen.automation.core.config.AutomationConfig
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -108,10 +109,12 @@ internal class AutomationFieldDefinitionTest {
 
     private data class TestFieldConfig(val value: String = "default") : AutomationConfig<TestFieldType> {
         override val type: TestFieldType = TestFieldType.FIELD
+        override val category: AutomationCategory = AutomationCategory.UTILITY
     }
 
     private data object OtherFieldConfig : AutomationConfig<TestFieldType> {
         override val type: TestFieldType = TestFieldType.FIELD
+        override val category: AutomationCategory = AutomationCategory.BATTERY_POWER
     }
 
     private enum class TestFieldType {

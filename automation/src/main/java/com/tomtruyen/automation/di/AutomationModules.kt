@@ -7,6 +7,8 @@ import com.tomtruyen.automation.core.LogcatAutomationLogger
 import com.tomtruyen.automation.data.AutomationDatabase
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
 import com.tomtruyen.automation.data.repository.AutomationRuleRepositoryImpl
+import com.tomtruyen.automation.data.repository.GeofenceRepository
+import com.tomtruyen.automation.data.repository.GeofenceRepositoryImpl
 import com.tomtruyen.automation.features.actions.ActionExecutor
 import com.tomtruyen.automation.features.constraints.ConstraintEvaluator
 import com.tomtruyen.automation.features.triggers.TriggerMatcher
@@ -14,6 +16,7 @@ import com.tomtruyen.automation.features.triggers.receiver.TriggerReceiver
 import com.tomtruyen.automation.generated.GeneratedActionProvider
 import com.tomtruyen.automation.generated.GeneratedAutomationRegistryProvider
 import com.tomtruyen.automation.generated.GeneratedConstraintProvider
+import com.tomtruyen.automation.generated.GeneratedMigrationProvider
 import com.tomtruyen.automation.generated.GeneratedReceiverProvider
 import com.tomtruyen.automation.generated.GeneratedTriggerProvider
 import org.koin.android.ext.koin.androidContext
@@ -26,14 +29,16 @@ val automationModule = module {
             context = get(),
             klass = AutomationDatabase::class.java,
             name = "automation.db",
-        ).build()
+        ).addMigrations(*GeneratedMigrationProvider.migrations(androidContext())).build()
     }
 
     // Dao
     single { get<AutomationDatabase>().automationRuleDao() }
+    single { get<AutomationDatabase>().geofenceDao() }
 
     // Repository
     single<AutomationRuleRepository> { AutomationRuleRepositoryImpl(get()) }
+    single<GeofenceRepository> { GeofenceRepositoryImpl(get()) }
 
     // Definitions
     single {
