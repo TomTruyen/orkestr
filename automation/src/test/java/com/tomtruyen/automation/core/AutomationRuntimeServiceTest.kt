@@ -171,4 +171,22 @@ internal class AutomationRuntimeServiceTest {
         coVerify { actionExecutor.executeAll(actions1, event) }
         coVerify { actionExecutor.executeAll(actions2, event) }
     }
+
+    @Test
+    fun handleEvent_whenConstraintsAreEmpty_executesActions() = runTest(StandardTestDispatcher()) {
+        val event = mockk<AutomationEvent>()
+        val actions = listOf(mockk<ActionConfig>())
+        val rule = mockk<AutomationRule> {
+            every { this@mockk.actions } returns actions
+            every { this@mockk.constraints } returns emptyList()
+        }
+
+        coEvery { repository.getEnabledRules() } returns listOf(rule)
+        coEvery { triggerMatcher.matches(rule.triggers, event) } returns true
+        coEvery { constraintEvaluator.evaluateAll(emptyList(), event) } returns true
+
+        service.handleEvent(event)
+
+        coVerify { actionExecutor.executeAll(actions, event) }
+    }
 }

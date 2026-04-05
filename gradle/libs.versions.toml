@@ -11,6 +11,7 @@ composeBom = "2026.03.01"
 appcompat = "1.7.1"
 material = "1.13.0"
 mockk = "1.14.9"
+robolectric = "4.16.1"
 kotlinxCoroutines = "1.8.1"
 playServicesLocation = "21.3.0"
 koin = "4.1.0"
@@ -38,6 +39,8 @@ androidx-compose-material-icons-extended = { group = "androidx.compose.material"
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+androidx-test-core = { group = "androidx.test", name = "core", version = "1.7.0" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }

@@ -1,0 +1,171 @@
+package com.tomtruyen.automation.core
+
+import android.app.Service
+import android.content.Context
+import android.content.Intent
+import com.tomtruyen.automation.core.AutomationForegroundService.Companion.start
+import com.tomtruyen.automation.data.repository.AutomationRuleRepository
+import com.tomtruyen.automation.features.triggers.receiver.TriggerReceiver
+import com.tomtruyen.automation.features.triggers.receiver.TriggerReceiverKey
+import io.mockk.MockKAnnotations
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.runs
+import io.mockk.unmockkAll
+import io.mockk.verify
+import kotlinx.coroutines.flow.emptyFlow
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
+import org.koin.dsl.module
+import org.robolectric.Robolectric
+import org.robolectric.RobolectricTestRunner
+import androidx.core.content.ContextCompat
+
+@RunWith(RobolectricTestRunner::class)
+internal class AutomationForegroundServiceTest {
+    @MockK
+    private lateinit var runtimeService: AutomationRuntimeService
+
+    @MockK
+    private lateinit var repository: AutomationRuleRepository
+
+    @MockK
+    private lateinit var logger: AutomationLogger
+
+    @MockK
+    private lateinit var context: Context
+
+    private lateinit var firstReceiver: TriggerReceiver
+    private lateinit var secondReceiver: TriggerReceiver
+    private lateinit var firstFactory: TriggerReceiver.TriggerFactory
+    private lateinit var secondFactory: TriggerReceiver.TriggerFactory
+
+    @Before
+    fun setUp() {
+        MockKAnnotations.init(this)
+
+        every { repository.observeRules() } returns emptyFlow()
+
+        firstReceiver = mockk(relaxed = true)
+        secondReceiver = mockk(relaxed = true)
+        firstFactory = factory(firstReceiver)
+        secondFactory = factory(secondReceiver)
+
+        stopKoin()
+        startKoin {
+            modules(
+                module {
+                    single<AutomationRuntimeService> { this@AutomationForegroundServiceTest.runtimeService }
+                    single<AutomationRuleRepository> { this@AutomationForegroundServiceTest.repository }
+                    single<AutomationLogger> { this@AutomationForegroundServiceTest.logger }
+                    single<List<TriggerReceiver.TriggerFactory>> { listOf(firstFactory, secondFactory) }
+                }
+            )
+        }
+    }
+
+    @After
+    fun tearDown() {
+        stopKoin()
+        unmockkAll()
+    }
+
+    @Test
+    fun onStartCommand_whenStopActionIsReceived_returnsNotSticky() {
+        val service = Robolectric.buildService(AutomationForegroundService::class.java).create().get()
+
+        val result = service.onStartCommand(
+            Intent().apply {
+                action = "com.tomtruyen.automation.action.STOP_FOREGROUND_SERVICE"
+            },
+            0,
+            0
+        )
+
+        assertEquals(Service.START_NOT_STICKY, result)
+    }
+
+    @Test
+    fun onStartCommand_whenActionIsDifferent_returnsSticky() {
+        val service = Robolectric.buildService(AutomationForegroundService::class.java).create().get()
+
+        val result = service.onStartCommand(Intent("other"), 0, 0)
+
+        assertEquals(Service.START_STICKY, result)
+    }
+
+    @Test
+    fun start_buildsForegroundServiceIntent() {
+        mockkStatic(ContextCompat::class)
+        every { ContextCompat.startForegroundService(context, any()) } returns mockk()
+        every { context.packageName } returns "com.tomtruyen.automation.test"
+
+        start(context)
+
+        verify {
+            ContextCompat.startForegroundService(
+                context,
+                match {
+                    it.component?.className == AutomationForegroundService::class.java.name &&
+                        it.action == "com.tomtruyen.automation.action.START_FOREGROUND_SERVICE"
+                }
+            )
+        }
+    }
+
+    @Test
+    fun syncReceivers_registersAndUnregistersFactoriesBasedOnActiveKeys() {
+        val service = Robolectric.buildService(AutomationForegroundService::class.java).create().get()
+
+        invokeSyncReceivers(service, setOf(TriggerReceiverKey.BATTERY_CHANGED))
+        assertEquals(2, registeredReceivers(service).size)
+
+        invokeSyncReceivers(service, emptySet())
+
+        assertTrue(registeredReceivers(service).isEmpty())
+    }
+
+    @Test
+    fun onDestroy_clearsRegisteredReceivers() {
+        val service = Robolectric.buildService(AutomationForegroundService::class.java).create().get()
+        invokeSyncReceivers(service, setOf(TriggerReceiverKey.BATTERY_CHANGED))
+
+        service.onDestroy()
+
+        assertTrue(registeredReceivers(service).isEmpty())
+    }
+
+    private fun factory(receiver: TriggerReceiver): TriggerReceiver.TriggerFactory =
+        object : TriggerReceiver.TriggerFactory {
+            override val key: TriggerReceiverKey = TriggerReceiverKey.BATTERY_CHANGED
+
+            override fun register(
+                context: Context,
+                service: AutomationRuntimeService,
+                scope: kotlinx.coroutines.CoroutineScope,
+                logger: AutomationLogger
+            ): TriggerReceiver = receiver
+        }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun registeredReceivers(service: AutomationForegroundService): MutableMap<TriggerReceiver.TriggerFactory, TriggerReceiver> {
+        val field = AutomationForegroundService::class.java.getDeclaredField("registeredReceivers")
+        field.isAccessible = true
+        return field.get(service) as MutableMap<TriggerReceiver.TriggerFactory, TriggerReceiver>
+    }
+
+    private fun invokeSyncReceivers(service: AutomationForegroundService, keys: Set<TriggerReceiverKey>) {
+        val method = AutomationForegroundService::class.java.getDeclaredMethod("syncReceivers", Set::class.java)
+        method.isAccessible = true
+        method.invoke(service, keys)
+    }
+}
