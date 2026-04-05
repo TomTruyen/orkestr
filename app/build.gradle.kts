@@ -1,54 +1,20 @@
 plugins {
-    alias(libs.plugins.android.application)
+    id("orkestr.android.application")
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.detekt)
 }
 
 android {
     namespace = "com.tomtruyen.orkestr"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
 
     defaultConfig {
         applicationId = "com.tomtruyen.orkestr"
-        minSdk = 26
-        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
     }
     buildFeatures {
         compose = true
     }
-}
-
-detekt {
-    toolVersion = libs.versions.detekt.get()
-    config.setFrom(rootProject.file("detekt.yml"))
-    buildUponDefaultConfig = true
-    parallel = true
-    autoCorrect = true
-    ignoreFailures = false
-    basePath.set(rootDir)
 }
 
 dependencies {
@@ -75,17 +41,4 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-    detektPlugins(libs.detekt.formatting)
-}
-
-tasks.withType<dev.detekt.gradle.Detekt>().configureEach {
-    jvmTarget.set("11")
-    reports {
-        html.required.set(true)
-        sarif.required.set(true)
-    }
-}
-
-tasks.withType<dev.detekt.gradle.DetektCreateBaselineTask>().configureEach {
-    jvmTarget.set("11")
 }
