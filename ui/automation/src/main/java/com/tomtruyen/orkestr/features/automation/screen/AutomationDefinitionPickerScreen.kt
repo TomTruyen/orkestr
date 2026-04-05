@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -33,13 +34,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.tomtruyen.automation.features.triggers.definition.GeofenceTriggerDefinition
 import com.tomtruyen.orkestr.common.component.AutomationCardColumn
+import com.tomtruyen.orkestr.common.component.EmptyStateCard
+import com.tomtruyen.orkestr.common.component.ValidationCard
 import com.tomtruyen.orkestr.common.permission.AutomationPermissionManager
 import com.tomtruyen.orkestr.features.automation.component.AutomationFieldForm
 import com.tomtruyen.orkestr.features.automation.component.DefinitionFieldPreview
-import com.tomtruyen.orkestr.common.component.EmptyStateCard
-import com.tomtruyen.orkestr.common.component.ValidationCard
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorAction
 import com.tomtruyen.orkestr.features.automation.viewmodel.AutomationRuleEditorViewModel
 import com.tomtruyen.orkestr.ui.automation.R
@@ -186,6 +186,7 @@ fun AutomationDefinitionConfigurationScreen(viewModel: AutomationRuleEditorViewM
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             Card {
                 Button(

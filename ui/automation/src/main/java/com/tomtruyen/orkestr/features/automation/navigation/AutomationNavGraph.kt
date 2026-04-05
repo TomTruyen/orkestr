@@ -19,8 +19,6 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
-import com.tomtruyen.orkestr.ui.automation.R
-import com.tomtruyen.orkestr.ui.common.R as CommonR
 import com.tomtruyen.orkestr.features.automation.screen.AutomationDefinitionConfigurationScreen
 import com.tomtruyen.orkestr.features.automation.screen.AutomationDefinitionSelectionScreen
 import com.tomtruyen.orkestr.features.automation.screen.AutomationHomeScreen
@@ -37,8 +35,10 @@ import com.tomtruyen.orkestr.features.geofence.screen.AutomationGeofenceEditorSc
 import com.tomtruyen.orkestr.features.geofence.state.GeofenceTriggerAction
 import com.tomtruyen.orkestr.features.geofence.state.GeofenceTriggerEvent
 import com.tomtruyen.orkestr.features.geofence.viewmodel.GeofenceTriggerViewModel
+import com.tomtruyen.orkestr.ui.automation.R
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
+import com.tomtruyen.orkestr.ui.common.R as CommonR
 
 @Composable
 fun AutomationNavGraph(
@@ -222,7 +222,10 @@ fun AutomationNavGraph(
 
         entry<GeofenceTriggerConfigurationRoute> {
             AutomationScaffold(
-                title = stringResource(R.string.automation_title_configure_node, stringResource(R.string.automation_singular_trigger)),
+                title = stringResource(
+                    R.string.automation_title_configure_node,
+                    stringResource(R.string.automation_singular_trigger),
+                ),
                 canNavigateBack = true,
                 onNavigateBack = {
                     editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)

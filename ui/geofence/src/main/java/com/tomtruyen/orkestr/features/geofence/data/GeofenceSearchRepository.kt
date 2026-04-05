@@ -5,12 +5,12 @@ import android.location.Address
 import android.location.Geocoder
 import android.os.Build
 import com.tomtruyen.orkestr.features.geofence.state.GeofenceSearchResult
-import java.util.Locale
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import java.util.Locale
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 class GeofenceSearchRepository(private val context: Context) {
     fun isAvailable(): Boolean = Geocoder.isPresent()

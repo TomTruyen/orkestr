@@ -5,13 +5,12 @@ import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.ClassKind
-import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.validate
-import java.io.OutputStreamWriter
 import java.io.File
+import java.io.OutputStreamWriter
 
 internal fun CodeGenerator.writeGeneratedFile(
     fileName: String,
@@ -66,6 +65,7 @@ internal fun KSClassDeclaration.instantiationExpression(): String {
     val qualifiedName = objectReference()
     return when (classKind) {
         ClassKind.OBJECT -> qualifiedName
+
         ClassKind.CLASS -> {
             requireNoArgConstructor()
             "$qualifiedName()"
@@ -79,6 +79,7 @@ internal fun KSClassDeclaration.actionInstantiationExpression(): String {
     val qualifiedName = objectReference()
     return when (classKind) {
         ClassKind.OBJECT -> qualifiedName
+
         ClassKind.CLASS -> {
             val constructor = primaryConstructor
                 ?: constructors().singleOrNull()
@@ -88,7 +89,9 @@ internal fun KSClassDeclaration.actionInstantiationExpression(): String {
             }
             when (parameterTypes) {
                 emptyList<String>() -> "$qualifiedName()"
+
                 listOf(CONTEXT_TYPE) -> "$qualifiedName(context)"
+
                 else -> error(
                     "Action delegate $qualifiedName must have either a no-arg constructor or a single Context constructor.",
                 )
@@ -113,11 +116,7 @@ private fun KSClassDeclaration.constructors(): List<KSFunctionDeclaration> =
         it.simpleName.asString() == "<init>"
     }.toList()
 
-internal data class SqlMigrationSpec(
-    val startVersion: Int,
-    val endVersion: Int,
-    val assetPath: String,
-)
+internal data class SqlMigrationSpec(val startVersion: Int, val endVersion: Int, val assetPath: String)
 
 internal fun collectAnnotatedClasses(
     resolver: Resolver,
@@ -160,10 +159,7 @@ internal fun collectAnnotatedClasses(
     }.sortedBy { it.qualifiedName?.asString().orEmpty() }
 }
 
-internal fun loadMigrationSpecs(
-    options: Map<String, String>,
-    logger: KSPLogger,
-): List<SqlMigrationSpec> {
+internal fun loadMigrationSpecs(options: Map<String, String>, logger: KSPLogger): List<SqlMigrationSpec> {
     val migrationDir = options[MIGRATION_DIR_OPTION]?.takeIf(String::isNotBlank) ?: return emptyList()
     val directory = File(migrationDir)
     if (!directory.exists()) {
@@ -189,13 +185,12 @@ internal fun loadMigrationSpecs(
         .sortedWith(compareBy(SqlMigrationSpec::startVersion, SqlMigrationSpec::endVersion))
 }
 
-internal fun combinedSourceFiles(vararg groups: List<KSClassDeclaration>): Array<KSFile> =
-    groups.asSequence()
-        .flatMap(List<KSClassDeclaration>::asSequence)
-        .mapNotNull(KSClassDeclaration::containingFile)
-        .distinct()
-        .toList()
-        .toTypedArray()
+internal fun combinedSourceFiles(vararg groups: List<KSClassDeclaration>): Array<KSFile> = groups.asSequence()
+    .flatMap(List<KSClassDeclaration>::asSequence)
+    .mapNotNull(KSClassDeclaration::containingFile)
+    .distinct()
+    .toList()
+    .toTypedArray()
 
 internal fun migrationExpression(spec: SqlMigrationSpec): String =
     "SqlAssetMigration(context, ${spec.startVersion}, ${spec.endVersion}, \"${spec.assetPath}\")"

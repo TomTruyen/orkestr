@@ -13,7 +13,6 @@ import com.tomtruyen.automation.features.constraints.config.ConstraintConfig
 import com.tomtruyen.automation.features.triggers.TriggerType
 import com.tomtruyen.automation.features.triggers.config.GeofenceTriggerConfig
 import com.tomtruyen.automation.features.triggers.config.TriggerConfig
-import com.tomtruyen.orkestr.ui.automation.R
 import com.tomtruyen.orkestr.common.BaseViewModel
 import com.tomtruyen.orkestr.common.StringResolver
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorAction
@@ -25,6 +24,7 @@ import com.tomtruyen.orkestr.features.automation.state.DefinitionPickerState
 import com.tomtruyen.orkestr.features.automation.state.RuleEditorState
 import com.tomtruyen.orkestr.features.automation.state.RuleSection
 import com.tomtruyen.orkestr.features.automation.state.RuleValidationState
+import com.tomtruyen.orkestr.ui.automation.R
 import java.util.UUID
 
 class AutomationRuleEditorViewModel(
@@ -91,7 +91,7 @@ class AutomationRuleEditorViewModel(
                 category = definition.category,
                 fields = definition.fields,
                 permissions = definition.requiredPermissions,
-                isBeta = definition.isBeta
+                isBeta = definition.isBeta,
             )
         }
 

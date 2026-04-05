@@ -28,9 +28,9 @@ import com.tomtruyen.orkestr.common.component.AutomationCardColumn
 import com.tomtruyen.orkestr.common.component.AutomationSectionHeader
 import com.tomtruyen.orkestr.common.component.AutomationTitleRow
 import com.tomtruyen.orkestr.common.component.EmptyStateCard
-import com.tomtruyen.orkestr.ui.automation.R
 import com.tomtruyen.orkestr.features.automation.state.AutomationRulesAction
 import com.tomtruyen.orkestr.features.automation.viewmodel.AutomationRulesViewModel
+import com.tomtruyen.orkestr.ui.automation.R
 
 @Composable
 fun AutomationHomeScreen(

@@ -3,10 +3,13 @@ package com.tomtruyen.orkestr.features.geofence.viewmodel
 import com.tomtruyen.automation.data.repository.GeofenceRepository
 import com.tomtruyen.automation.features.triggers.config.GeofenceTriggerConfig
 import com.tomtruyen.orkestr.common.StringResolver
+import com.tomtruyen.orkestr.features.geofence.data.GeofenceLocation
+import com.tomtruyen.orkestr.features.geofence.data.GeofenceLocationRepository
 import com.tomtruyen.orkestr.features.geofence.data.GeofenceSearchRepository
 import com.tomtruyen.orkestr.features.geofence.state.GeofenceTriggerAction
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.coEvery
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -42,13 +45,50 @@ internal class GeofenceTriggerViewModelTest {
         assertTrue(viewModel.uiState.value.configErrors.isEmpty())
     }
 
+    @Test
+    fun createGeofenceClicked_withoutExistingGeofence_usesCurrentLocationAsDefault() {
+        val geofenceRepository = mockk<GeofenceRepository>()
+        every { geofenceRepository.observeGeofences() } returns MutableStateFlow(emptyList())
+        val geofenceLocationRepository = mockk<GeofenceLocationRepository>()
+        coEvery { geofenceLocationRepository.getCurrentLocationOrNull() } returns GeofenceLocation(
+            latitude = 51.219448,
+            longitude = 4.402464,
+        )
+        val viewModel = GeofenceTriggerViewModel(
+            stringResolver = resolver,
+            geofenceRepository = geofenceRepository,
+            geofenceLocationRepository = geofenceLocationRepository,
+            geofenceSearchRepository = mockk<GeofenceSearchRepository>(relaxed = true),
+        )
+
+        viewModel.onAction(GeofenceTriggerAction.CreateGeofenceClicked)
+        waitUntil {
+            viewModel.uiState.value.geofenceEditorState?.latitudeText == "51.219448" &&
+                viewModel.uiState.value.geofenceEditorState?.longitudeText == "4.402464"
+        }
+
+        assertEquals("51.219448", viewModel.uiState.value.geofenceEditorState?.latitudeText)
+        assertEquals("4.402464", viewModel.uiState.value.geofenceEditorState?.longitudeText)
+    }
+
     private fun viewModel(): GeofenceTriggerViewModel {
         val geofenceRepository = mockk<GeofenceRepository>()
         every { geofenceRepository.observeGeofences() } returns MutableStateFlow(emptyList())
+        val geofenceLocationRepository = mockk<GeofenceLocationRepository>()
+        coEvery { geofenceLocationRepository.getCurrentLocationOrNull() } returns null
         return GeofenceTriggerViewModel(
             stringResolver = resolver,
             geofenceRepository = geofenceRepository,
+            geofenceLocationRepository = geofenceLocationRepository,
             geofenceSearchRepository = mockk<GeofenceSearchRepository>(relaxed = true),
         )
+    }
+
+    private fun waitUntil(timeoutMs: Long = 2_000, condition: () -> Boolean) {
+        val deadline = System.currentTimeMillis() + timeoutMs
+        while (!condition() && System.currentTimeMillis() < deadline) {
+            Thread.sleep(10)
+        }
+        check(condition()) { "Condition was not met within ${timeoutMs}ms" }
     }
 }

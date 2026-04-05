@@ -1,10 +1,10 @@
 package com.tomtruyen.orkestr.features.automation.screen
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -40,12 +40,12 @@ import com.tomtruyen.orkestr.common.component.AutomationTitleRow
 import com.tomtruyen.orkestr.common.component.EmptyStateCard
 import com.tomtruyen.orkestr.common.component.ValidationCard
 import com.tomtruyen.orkestr.common.permission.AutomationPermissionManager
-import com.tomtruyen.orkestr.ui.common.R as CommonR
 import com.tomtruyen.orkestr.features.automation.component.NodeListItem
-import com.tomtruyen.orkestr.ui.automation.R
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorAction
 import com.tomtruyen.orkestr.features.automation.state.RuleSection
 import com.tomtruyen.orkestr.features.automation.viewmodel.AutomationRuleEditorViewModel
+import com.tomtruyen.orkestr.ui.automation.R
+import com.tomtruyen.orkestr.ui.common.R as CommonR
 
 @Composable
 fun AutomationRuleEditorScreen(viewModel: AutomationRuleEditorViewModel, modifier: Modifier = Modifier) {
@@ -56,6 +56,7 @@ fun AutomationRuleEditorScreen(viewModel: AutomationRuleEditorViewModel, modifie
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                 Button(
@@ -215,7 +216,7 @@ private fun RuleSectionEditorCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     text = stringResource(section.titleRes),

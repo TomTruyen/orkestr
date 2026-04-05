@@ -16,10 +16,8 @@ class ConstraintProviderProcessorProvider : SymbolProcessorProvider {
     )
 }
 
-private class ConstraintProviderProcessor(
-    private val codeGenerator: CodeGenerator,
-    private val logger: KSPLogger,
-) : SymbolProcessor {
+private class ConstraintProviderProcessor(private val codeGenerator: CodeGenerator, private val logger: KSPLogger) :
+    SymbolProcessor {
     private var generated = false
 
     override fun process(resolver: Resolver): List<KSAnnotated> {

@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -45,11 +46,11 @@ import com.tomtruyen.orkestr.common.component.AutomationCardColumn
 import com.tomtruyen.orkestr.common.component.AutomationSectionHeader
 import com.tomtruyen.orkestr.common.component.EmptyStateCard
 import com.tomtruyen.orkestr.common.component.ValidationCard
-import com.tomtruyen.orkestr.ui.geofence.R
 import com.tomtruyen.orkestr.features.geofence.state.GeofenceEditorState
 import com.tomtruyen.orkestr.features.geofence.state.GeofenceSearchResult
 import com.tomtruyen.orkestr.features.geofence.state.GeofenceTriggerAction
 import com.tomtruyen.orkestr.features.geofence.viewmodel.GeofenceTriggerViewModel
+import com.tomtruyen.orkestr.ui.geofence.R
 import java.util.Locale
 
 @Composable
@@ -59,6 +60,7 @@ fun AutomationGeofenceConfigurationScreen(viewModel: GeofenceTriggerViewModel, m
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             Card {
                 Button(
@@ -134,6 +136,7 @@ fun AutomationGeofenceEditorScreen(viewModel: GeofenceTriggerViewModel, modifier
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             Card {
                 Button(
@@ -242,27 +245,24 @@ fun AutomationGeofenceEditorScreen(viewModel: GeofenceTriggerViewModel, modifier
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
-                    }
-                }
-            }
-
-            if (state.searchResults.isNotEmpty()) {
-                item {
-                    OutlinedCard(modifier = Modifier.fillMaxWidth()) {
-                        AutomationCardColumn {
+                        if (state.searchResults.isNotEmpty()) {
                             Text(
                                 text = stringResource(R.string.geofence_search_results_title),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.SemiBold,
                             )
+                            state.searchResults.forEach { result ->
+                                GeofenceSearchResultCard(
+                                    result = result,
+                                    onClick = {
+                                        viewModel.onAction(
+                                            GeofenceTriggerAction.GeofenceSearchResultSelected(result),
+                                        )
+                                    },
+                                )
+                            }
                         }
                     }
-                }
-                items(state.searchResults, key = { it.title }) { result ->
-                    GeofenceSearchResultCard(
-                        result = result,
-                        onClick = { viewModel.onAction(GeofenceTriggerAction.GeofenceSearchResultSelected(result)) },
-                    )
                 }
             }
 
@@ -272,7 +272,9 @@ fun AutomationGeofenceEditorScreen(viewModel: GeofenceTriggerViewModel, modifier
                         GoogleGeofenceMap(
                             state = state,
                             onMapClick = { latitude, longitude ->
-                                viewModel.onAction(GeofenceTriggerAction.GeofenceMapLocationSelected(latitude, longitude))
+                                viewModel.onAction(
+                                    GeofenceTriggerAction.GeofenceMapLocationSelected(latitude, longitude),
+                                )
                             },
                         )
                         Text(
@@ -288,11 +290,7 @@ fun AutomationGeofenceEditorScreen(viewModel: GeofenceTriggerViewModel, modifier
 }
 
 @Composable
-private fun GeofenceSelectionCard(
-    geofence: AutomationGeofence,
-    selected: Boolean,
-    onClick: () -> Unit,
-) {
+private fun GeofenceSelectionCard(geofence: AutomationGeofence, selected: Boolean, onClick: () -> Unit) {
     OutlinedCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -353,10 +351,7 @@ private fun GeofenceSearchResultCard(result: GeofenceSearchResult, onClick: () -
 }
 
 @Composable
-private fun GoogleGeofenceMap(
-    state: GeofenceEditorState,
-    onMapClick: (Double, Double) -> Unit,
-) {
+private fun GoogleGeofenceMap(state: GeofenceEditorState, onMapClick: (Double, Double) -> Unit) {
     val selectedLatLng = LatLng(state.mapLatitude, state.mapLongitude)
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(selectedLatLng, 14f)
@@ -375,7 +370,11 @@ private fun GoogleGeofenceMap(
             .fillMaxWidth()
             .height(320.dp),
         cameraPositionState = cameraPositionState,
-        uiSettings = MapUiSettings(zoomControlsEnabled = false, myLocationButtonEnabled = false),
+        uiSettings = MapUiSettings(
+            zoomControlsEnabled = false,
+            myLocationButtonEnabled = false,
+            scrollGesturesEnabled = false,
+        ),
         onMapLoaded = { mapLoaded = true },
         onMapClick = { point -> onMapClick(point.latitude, point.longitude) },
     ) {

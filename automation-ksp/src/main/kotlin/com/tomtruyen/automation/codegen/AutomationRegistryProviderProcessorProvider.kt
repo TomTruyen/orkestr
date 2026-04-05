@@ -10,11 +10,10 @@ import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotated
 
 class AutomationRegistryProviderProcessorProvider : SymbolProcessorProvider {
-    override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor =
-        AutomationRegistryProviderProcessor(
-            codeGenerator = environment.codeGenerator,
-            logger = environment.logger,
-        )
+    override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor = AutomationRegistryProviderProcessor(
+        codeGenerator = environment.codeGenerator,
+        logger = environment.logger,
+    )
 }
 
 private class AutomationRegistryProviderProcessor(

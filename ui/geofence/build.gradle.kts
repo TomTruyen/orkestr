@@ -18,6 +18,7 @@ dependencies {
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.google.maps.compose)
+    implementation(libs.play.services.location)
     implementation(libs.kotlinx.serialization.json)
     testImplementation(libs.junit)
     testImplementation(libs.mockk)

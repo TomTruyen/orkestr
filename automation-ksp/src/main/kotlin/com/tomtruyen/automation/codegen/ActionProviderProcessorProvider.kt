@@ -16,10 +16,8 @@ class ActionProviderProcessorProvider : SymbolProcessorProvider {
     )
 }
 
-private class ActionProviderProcessor(
-    private val codeGenerator: CodeGenerator,
-    private val logger: KSPLogger,
-) : SymbolProcessor {
+private class ActionProviderProcessor(private val codeGenerator: CodeGenerator, private val logger: KSPLogger) :
+    SymbolProcessor {
     private var generated = false
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
