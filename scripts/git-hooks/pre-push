@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "Running Detekt before push..."
+GRADLE_USER_HOME="${GRADLE_USER_HOME:-/tmp/gradle}" ./gradlew detekt
