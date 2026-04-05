@@ -8,9 +8,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @SerialName(BatteryChangedTriggerConfig.DISCRIMINATOR)
-data class BatteryChangedTriggerConfig(
-    val state: BatteryChargeState = BatteryChargeState.CHARGING
-) : TriggerConfig {
+data class BatteryChangedTriggerConfig(val state: BatteryChargeState = BatteryChargeState.CHARGING) : TriggerConfig {
     override val type: TriggerType = TriggerType.CHARGE_STATE
     override val requiredReceiverKeys: Set<TriggerReceiverKey> = setOf(TriggerReceiverKey.BATTERY_CHANGED)
 

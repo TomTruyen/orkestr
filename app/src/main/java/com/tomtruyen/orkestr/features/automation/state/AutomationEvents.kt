@@ -9,15 +9,12 @@ sealed interface AutomationRulesEvent {
 
 sealed interface AutomationEditorEvent {
     data object NavigateBackToRules : AutomationEditorEvent
-    data class NavigateToDefinitionSelection(
-        val section: RuleSection,
-        val editingIndex: Int?
-    ) : AutomationEditorEvent
+    data class NavigateToDefinitionSelection(val section: RuleSection, val editingIndex: Int?) : AutomationEditorEvent
 
     data class NavigateToDefinitionConfiguration(
         val section: RuleSection,
         val typeKey: String,
-        val editingIndex: Int?
+        val editingIndex: Int?,
     ) : AutomationEditorEvent
 
     data object PopToDefinitionSelection : AutomationEditorEvent

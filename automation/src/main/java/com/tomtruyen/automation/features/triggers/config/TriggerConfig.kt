@@ -6,7 +6,7 @@ import com.tomtruyen.automation.features.triggers.receiver.TriggerReceiverKey
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed interface TriggerConfig: AutomationConfig<TriggerType> {
+sealed interface TriggerConfig : AutomationConfig<TriggerType> {
     val requiredReceiverKeys: Set<TriggerReceiverKey>
         get() = emptySet()
 }

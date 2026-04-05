@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 @SerialName(BatteryLevelConstraintConfig.DISCRIMINATOR)
 data class BatteryLevelConstraintConfig(
     val operator: ComparisonOperator = ComparisonOperator.GREATER_THAN_OR_EQUAL,
-    val value: Int = 80
+    val value: Int = 80,
 ) : ConstraintConfig {
     override val type: ConstraintType = ConstraintType.BATTERY_LEVEL
 

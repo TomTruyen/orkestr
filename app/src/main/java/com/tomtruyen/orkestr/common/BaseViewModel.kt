@@ -13,9 +13,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 
-abstract class BaseViewModel<UIState, UIEvent, UIAction>(
-    initialState: UIState
-): ViewModel() {
+abstract class BaseViewModel<UIState, UIEvent, UIAction>(initialState: UIState) : ViewModel() {
     private val vmScope = viewModelScope + Dispatchers.IO
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
@@ -25,8 +23,8 @@ abstract class BaseViewModel<UIState, UIEvent, UIAction>(
     private val _uiState = MutableStateFlow(initialState)
     val uiState = _uiState.asStateFlow()
 
-    private val _eventChannel = Channel<UIEvent>()
-    val eventFlow = _eventChannel.receiveAsFlow()
+    private val eventChannel = Channel<UIEvent>()
+    val eventFlow = eventChannel.receiveAsFlow()
 
     protected fun launch(block: suspend () -> Unit) = vmScope.launch(exceptionHandler) {
         block()
@@ -36,7 +34,7 @@ abstract class BaseViewModel<UIState, UIEvent, UIAction>(
         _uiState.update(block)
     }
 
-    protected fun triggerEvent(event: UIEvent) = _eventChannel.trySend(event)
+    protected fun triggerEvent(event: UIEvent) = eventChannel.trySend(event)
 
     abstract fun onAction(action: UIAction)
 }

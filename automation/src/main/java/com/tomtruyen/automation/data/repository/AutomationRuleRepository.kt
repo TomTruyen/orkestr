@@ -15,9 +15,7 @@ interface AutomationRuleRepository {
     suspend fun updateEnabled(id: String, enabled: Boolean)
 }
 
-class AutomationRuleRepositoryImpl(
-    private val dao: AutomationRuleDao
-) : AutomationRuleRepository {
+class AutomationRuleRepositoryImpl(private val dao: AutomationRuleDao) : AutomationRuleRepository {
     override fun observeRules(): Flow<List<AutomationRule>> = dao.observeAll().map { entities ->
         entities.map { it.toDomain() }
     }
@@ -38,7 +36,7 @@ class AutomationRuleRepositoryImpl(
         dao.updateEnabled(
             id = id,
             enabled = enabled,
-            updatedAtEpochMillis = System.currentTimeMillis()
+            updatedAtEpochMillis = System.currentTimeMillis(),
         )
     }
 }
@@ -49,7 +47,7 @@ private fun AutomationRuleEntity.toDomain(): AutomationRule = AutomationRule(
     enabled = enabled,
     triggers = triggers,
     constraints = constraints,
-    actions = actions
+    actions = actions,
 )
 
 private fun AutomationRule.toEntity(): AutomationRuleEntity = AutomationRuleEntity(
@@ -59,5 +57,5 @@ private fun AutomationRule.toEntity(): AutomationRuleEntity = AutomationRuleEnti
     triggers = triggers,
     constraints = constraints,
     actions = actions,
-    updatedAtEpochMillis = System.currentTimeMillis()
+    updatedAtEpochMillis = System.currentTimeMillis(),
 )

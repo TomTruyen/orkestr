@@ -15,7 +15,6 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.just
 import io.mockk.mockkObject
 import io.mockk.runs
-import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -53,7 +52,7 @@ internal class DoNotDisturbActionDelegateTest {
 
         delegate.execute(
             DoNotDisturbActionConfig(mode = DoNotDisturbMode.ALARMS_ONLY),
-            batteryChangedEvent()
+            batteryChangedEvent(),
         )
 
         verify { notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALARMS) }
@@ -65,7 +64,7 @@ internal class DoNotDisturbActionDelegateTest {
 
         delegate.execute(
             DoNotDisturbActionConfig(mode = DoNotDisturbMode.PRIORITY_ONLY),
-            batteryChangedEvent()
+            batteryChangedEvent(),
         )
 
         verify { notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY) }
@@ -77,7 +76,7 @@ internal class DoNotDisturbActionDelegateTest {
 
         delegate.execute(
             DoNotDisturbActionConfig(mode = DoNotDisturbMode.TOTAL_SILENCE),
-            batteryChangedEvent()
+            batteryChangedEvent(),
         )
 
         verify { notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE) }
@@ -89,7 +88,7 @@ internal class DoNotDisturbActionDelegateTest {
 
         delegate.execute(
             DoNotDisturbActionConfig(mode = DoNotDisturbMode.OFF),
-            batteryChangedEvent()
+            batteryChangedEvent(),
         )
 
         verify { notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL) }
@@ -118,6 +117,6 @@ internal class DoNotDisturbActionDelegateTest {
         level = 20,
         scale = 100,
         chargeState = BatteryChargeState.CHARGING,
-        plugStatus = BatteryPlugStatus.AC
+        plugStatus = BatteryPlugStatus.AC,
     )
 }

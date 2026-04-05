@@ -14,8 +14,8 @@ class AutomationRuntimeService(
 ) {
     suspend fun handleEvent(event: AutomationEvent) {
         repository.getEnabledRules().forEach { rule ->
-            if(!triggerMatcher.matches(rule.triggers, event)) return@forEach
-            if(!constraintEvaluator.evaluateAll(rule.constraints, event)) return@forEach
+            if (!triggerMatcher.matches(rule.triggers, event)) return@forEach
+            if (!constraintEvaluator.evaluateAll(rule.constraints, event)) return@forEach
 
             actionExecutor.executeAll(rule.actions, event)
         }

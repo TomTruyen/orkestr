@@ -14,14 +14,11 @@ data object AutomationRulesRoute : NavKey
 data object AutomationRuleEditorRoute : NavKey
 
 @Serializable
-data class AutomationDefinitionSelectionRoute(
-    val section: RuleSection,
-    val editingIndex: Int? = null
-) : NavKey
+data class AutomationDefinitionSelectionRoute(val section: RuleSection, val editingIndex: Int? = null) : NavKey
 
 @Serializable
 data class AutomationDefinitionConfigurationRoute(
     val section: RuleSection,
     val typeKey: String,
-    val editingIndex: Int? = null
+    val editingIndex: Int? = null,
 ) : NavKey

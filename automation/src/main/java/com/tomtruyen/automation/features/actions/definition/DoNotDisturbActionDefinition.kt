@@ -2,17 +2,17 @@ package com.tomtruyen.automation.features.actions.definition
 
 import com.tomtruyen.automation.R
 import com.tomtruyen.automation.codegen.GenerateActionDefinition
-import com.tomtruyen.automation.core.model.DoNotDisturbMode
 import com.tomtruyen.automation.core.definition.AutomationFieldType
 import com.tomtruyen.automation.core.definition.AutomationOption
 import com.tomtruyen.automation.core.definition.AutomationTextResolver
 import com.tomtruyen.automation.core.definition.TypedAutomationFieldDefinition
+import com.tomtruyen.automation.core.model.DoNotDisturbMode
 import com.tomtruyen.automation.features.actions.config.DoNotDisturbActionConfig
 
 @GenerateActionDefinition
 object DoNotDisturbActionDefinition : ActionDefinition<DoNotDisturbActionConfig>(
     configClass = DoNotDisturbActionConfig::class,
-    defaultConfig = DoNotDisturbActionConfig()
+    defaultConfig = DoNotDisturbActionConfig(),
 ) {
     override val titleRes = R.string.automation_definition_action_do_not_disturb_title
     override val descriptionRes = R.string.automation_definition_action_do_not_disturb_description
@@ -28,30 +28,30 @@ object DoNotDisturbActionDefinition : ActionDefinition<DoNotDisturbActionConfig>
             options = listOf(
                 AutomationOption(
                     VALUE_PRIORITY_ONLY,
-                    R.string.automation_definition_action_do_not_disturb_option_priority_only
+                    R.string.automation_definition_action_do_not_disturb_option_priority_only,
                 ),
                 AutomationOption(
                     VALUE_ALARMS_ONLY,
-                    R.string.automation_definition_action_do_not_disturb_option_alarms_only
+                    R.string.automation_definition_action_do_not_disturb_option_alarms_only,
                 ),
                 AutomationOption(
                     VALUE_TOTAL_SILENCE,
-                    R.string.automation_definition_action_do_not_disturb_option_total_silence
+                    R.string.automation_definition_action_do_not_disturb_option_total_silence,
                 ),
                 AutomationOption(
                     VALUE_OFF,
-                    R.string.automation_definition_action_do_not_disturb_option_off
-                )
+                    R.string.automation_definition_action_do_not_disturb_option_off,
+                ),
             ),
             reader = { it.mode.toFieldValue() },
-            updater = { config, value -> config.copy(mode = value.toMode()) }
-        )
+            updater = { config, value -> config.copy(mode = value.toMode()) },
+        ),
     )
 
     override fun summarize(config: DoNotDisturbActionConfig, resolver: AutomationTextResolver): String =
         resolver.resolve(
             R.string.automation_definition_action_do_not_disturb_summary,
-            listOf(resolver.resolve(config.mode.toLabelRes()))
+            listOf(resolver.resolve(config.mode.toLabelRes())),
         )
 
     private fun String.toMode(): DoNotDisturbMode = when (this) {

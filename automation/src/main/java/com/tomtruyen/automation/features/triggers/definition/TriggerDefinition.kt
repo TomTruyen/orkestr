@@ -7,5 +7,5 @@ import kotlin.reflect.KClass
 
 abstract class TriggerDefinition<C : TriggerConfig>(
     final override val configClass: KClass<C>,
-    final override val defaultConfig: C
+    final override val defaultConfig: C,
 ) : AutomationNodeDefinition<C, TriggerType>

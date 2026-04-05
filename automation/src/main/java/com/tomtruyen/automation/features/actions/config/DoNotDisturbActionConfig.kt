@@ -10,9 +10,7 @@ import kotlinx.serialization.Transient
 
 @Serializable
 @SerialName(DoNotDisturbActionConfig.DISCRIMINATOR)
-data class DoNotDisturbActionConfig(
-    val mode: DoNotDisturbMode = DoNotDisturbMode.PRIORITY_ONLY
-) : ActionConfig {
+data class DoNotDisturbActionConfig(val mode: DoNotDisturbMode = DoNotDisturbMode.PRIORITY_ONLY) : ActionConfig {
     override val type: ActionType = ActionType.DO_NOT_DISTURB
 
     @Transient

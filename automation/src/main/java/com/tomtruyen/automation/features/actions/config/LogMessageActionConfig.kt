@@ -6,9 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @SerialName(LogMessageActionConfig.DISCRIMINATOR)
-data class LogMessageActionConfig(
-    val message: String = "Rule executed"
-) : ActionConfig {
+data class LogMessageActionConfig(val message: String = "Rule executed") : ActionConfig {
     override val type: ActionType = ActionType.LOG_MESSAGE
 
     companion object {

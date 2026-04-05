@@ -1,6 +1,5 @@
 package com.tomtruyen.orkestr.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -14,7 +13,7 @@ import androidx.compose.ui.platform.LocalContext
 private val DarkColorScheme = darkColorScheme(
     primary = MistBlue,
     secondary = Sand,
-    tertiary = Moss
+    tertiary = Moss,
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -26,7 +25,7 @@ private val LightColorScheme = lightColorScheme(
     onPrimary = Cloud,
     onSecondary = Cloud,
     onBackground = Ink,
-    onSurface = Ink
+    onSurface = Ink,
 )
 
 @Composable
@@ -34,7 +33,7 @@ fun OrkestrTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
@@ -43,12 +42,13 @@ fun OrkestrTheme(
         }
 
         darkTheme -> DarkColorScheme
+
         else -> LightColorScheme
     }
 
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
-        content = content
+        content = content,
     )
 }

@@ -8,4 +8,4 @@ data class BatteryChangedEvent(
     val scale: Int,
     val chargeState: BatteryChargeState,
     val plugStatus: BatteryPlugStatus,
-): AutomationEvent()
+) : AutomationEvent()

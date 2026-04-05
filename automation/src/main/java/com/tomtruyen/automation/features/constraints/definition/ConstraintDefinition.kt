@@ -7,5 +7,5 @@ import kotlin.reflect.KClass
 
 abstract class ConstraintDefinition<C : ConstraintConfig>(
     final override val configClass: KClass<C>,
-    final override val defaultConfig: C
+    final override val defaultConfig: C,
 ) : AutomationNodeDefinition<C, ConstraintType>

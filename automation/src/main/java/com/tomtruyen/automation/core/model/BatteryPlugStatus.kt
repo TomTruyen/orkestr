@@ -10,7 +10,8 @@ enum class BatteryPlugStatus {
     USB,
     WIRELESS,
     DOCK,
-    UNKNOWN;
+    UNKNOWN,
+    ;
 
     companion object {
         fun fromBatteryManagerPluggedStatus(plugged: Int): BatteryPlugStatus = when (plugged) {

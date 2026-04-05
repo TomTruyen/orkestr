@@ -9,7 +9,8 @@ enum class BatteryChargeState {
     CHARGING,
     DISCHARGING,
     FULL,
-    NOT_CHARGING;
+    NOT_CHARGING,
+    ;
 
     companion object {
         fun fromBatteryManagerState(status: Int): BatteryChargeState = when (status) {

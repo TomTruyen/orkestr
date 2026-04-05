@@ -15,7 +15,7 @@ val appModule = module {
 
     viewModel {
         AutomationRulesViewModel(
-            repository = get<AutomationRuleRepository>()
+            repository = get<AutomationRuleRepository>(),
         )
     }
 
@@ -23,7 +23,7 @@ val appModule = module {
         AutomationRuleEditorViewModel(
             stringResolver = get<StringResolver>(),
             repository = get<AutomationRuleRepository>(),
-            definitions = get<AutomationDefinitionRegistry>()
+            definitions = get<AutomationDefinitionRegistry>(),
         )
     }
 }

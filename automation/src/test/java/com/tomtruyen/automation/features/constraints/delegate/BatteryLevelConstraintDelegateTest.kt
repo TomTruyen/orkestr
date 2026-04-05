@@ -19,13 +19,13 @@ internal class BatteryLevelConstraintDelegateTest {
     fun evaluate_whenBatteryPercentMatchesConstraint_returnsTrue() = runTest {
         val config = BatteryLevelConstraintConfig(
             operator = ComparisonOperator.GREATER_THAN_OR_EQUAL,
-            value = 80
+            value = 80,
         )
         val event = BatteryChangedEvent(
             level = 8,
             scale = 10,
             chargeState = BatteryChargeState.CHARGING,
-            plugStatus = BatteryPlugStatus.AC
+            plugStatus = BatteryPlugStatus.AC,
         )
 
         val result = delegate.evaluate(config, event)
@@ -37,13 +37,13 @@ internal class BatteryLevelConstraintDelegateTest {
     fun evaluate_whenBatteryPercentDoesNotMatchConstraint_returnsFalse() = runTest {
         val config = BatteryLevelConstraintConfig(
             operator = ComparisonOperator.LESS_THAN,
-            value = 40
+            value = 40,
         )
         val event = BatteryChangedEvent(
             level = 50,
             scale = 100,
             chargeState = BatteryChargeState.CHARGING,
-            plugStatus = BatteryPlugStatus.AC
+            plugStatus = BatteryPlugStatus.AC,
         )
 
         val result = delegate.evaluate(config, event)
@@ -58,7 +58,7 @@ internal class BatteryLevelConstraintDelegateTest {
             level = 50,
             scale = 0,
             chargeState = BatteryChargeState.CHARGING,
-            plugStatus = BatteryPlugStatus.AC
+            plugStatus = BatteryPlugStatus.AC,
         )
 
         val result = delegate.evaluate(config, event)

@@ -38,24 +38,24 @@ fun AutomationHomeScreen(
     summarizeTrigger: (TriggerConfig) -> String,
     summarizeConstraint: (ConstraintConfig) -> String,
     summarizeAction: (ActionConfig) -> String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val state by viewModel.uiState.collectAsState()
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(20.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
             ) {
                 AutomationCardColumn {
                     AutomationSectionHeader(
                         title = stringResource(R.string.automation_rules_intro_title),
-                        description = stringResource(R.string.automation_rules_intro_description)
+                        description = stringResource(R.string.automation_rules_intro_description),
                     )
                     Button(onClick = { viewModel.onAction(AutomationRulesAction.CreateRuleClicked) }) {
                         Text(stringResource(R.string.automation_action_create_rule))
@@ -68,7 +68,7 @@ fun AutomationHomeScreen(
             item {
                 EmptyStateCard(
                     title = stringResource(R.string.automation_empty_rules_title),
-                    description = stringResource(R.string.automation_empty_rules_description)
+                    description = stringResource(R.string.automation_empty_rules_description),
                 )
             }
         }
@@ -82,16 +82,16 @@ fun AutomationHomeScreen(
                             R.string.automation_rule_counts,
                             rule.triggers.size,
                             rule.constraints.size,
-                            rule.actions.size
+                            rule.actions.size,
                         ),
                         trailing = {
                             Switch(
                                 checked = rule.enabled,
                                 onCheckedChange = {
                                     viewModel.onAction(AutomationRulesAction.ToggleRuleEnabled(rule, it))
-                                }
+                                },
                             )
-                        }
+                        },
                     )
                     Text(
                         text = stringResource(
@@ -99,23 +99,25 @@ fun AutomationHomeScreen(
                             rule.triggers.firstOrNull()?.let(summarizeTrigger)
                                 ?: stringResource(R.string.automation_none_configured),
                             rule.actions.firstOrNull()?.let(summarizeAction)
-                                ?: stringResource(R.string.automation_none_configured)
+                                ?: stringResource(R.string.automation_none_configured),
                         ),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     if (rule.constraints.isNotEmpty()) {
                         Text(
                             text = summarizeConstraint(rule.constraints.first()),
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Button(onClick = { viewModel.onAction(AutomationRulesAction.EditRuleClicked(rule)) }) {
                             Text(stringResource(R.string.automation_action_edit))
                         }
-                        OutlinedButton(onClick = { viewModel.onAction(AutomationRulesAction.DeleteRuleClicked(rule)) }) {
+                        OutlinedButton(
+                            onClick = { viewModel.onAction(AutomationRulesAction.DeleteRuleClicked(rule)) },
+                        ) {
                             Text(stringResource(R.string.automation_action_delete))
                         }
                     }

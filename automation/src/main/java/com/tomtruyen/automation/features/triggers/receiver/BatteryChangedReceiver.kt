@@ -17,10 +17,10 @@ import kotlinx.coroutines.launch
 class BatteryChangedReceiver(
     override val service: AutomationRuntimeService,
     override val scope: CoroutineScope,
-    override val logger: AutomationLogger
-): TriggerReceiver() {
+    override val logger: AutomationLogger,
+) : TriggerReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        if(intent.action != Intent.ACTION_BATTERY_CHANGED) return
+        if (intent.action != Intent.ACTION_BATTERY_CHANGED) return
 
         val level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
         val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
@@ -39,7 +39,7 @@ class BatteryChangedReceiver(
                 plugStatus=$plugStatus
                 rawStatus=$rawStatus
                 rawPlugged=$rawPlugged
-            """.trimIndent()
+            """.trimIndent(),
         )
 
         scope.launch {
@@ -49,20 +49,20 @@ class BatteryChangedReceiver(
                     scale = scale,
                     chargeState = chargeState,
                     plugStatus = plugStatus,
-                )
+                ),
             )
         }
     }
 
     @GenerateReceiverFactory
-    companion object Factory: TriggerFactory {
+    companion object Factory : TriggerFactory {
         override val key: TriggerReceiverKey = TriggerReceiverKey.BATTERY_CHANGED
 
         override fun register(
             context: Context,
             service: AutomationRuntimeService,
             scope: CoroutineScope,
-            logger: AutomationLogger
+            logger: AutomationLogger,
         ): TriggerReceiver {
             val receiver = BatteryChangedReceiver(service, scope, logger)
 
@@ -70,7 +70,7 @@ class BatteryChangedReceiver(
                 context,
                 receiver,
                 IntentFilter(Intent.ACTION_BATTERY_CHANGED),
-                ContextCompat.RECEIVER_NOT_EXPORTED
+                ContextCompat.RECEIVER_NOT_EXPORTED,
             )
 
             return receiver

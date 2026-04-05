@@ -2,17 +2,17 @@ package com.tomtruyen.automation.features.triggers.definition
 
 import com.tomtruyen.automation.R
 import com.tomtruyen.automation.codegen.GenerateTriggerDefinition
-import com.tomtruyen.automation.core.model.BatteryChargeState
 import com.tomtruyen.automation.core.definition.AutomationFieldType
 import com.tomtruyen.automation.core.definition.AutomationOption
 import com.tomtruyen.automation.core.definition.AutomationTextResolver
 import com.tomtruyen.automation.core.definition.TypedAutomationFieldDefinition
+import com.tomtruyen.automation.core.model.BatteryChargeState
 import com.tomtruyen.automation.features.triggers.config.BatteryChangedTriggerConfig
 
 @GenerateTriggerDefinition
 object ChargeStateTriggerDefinition : TriggerDefinition<BatteryChangedTriggerConfig>(
     configClass = BatteryChangedTriggerConfig::class,
-    defaultConfig = BatteryChangedTriggerConfig()
+    defaultConfig = BatteryChangedTriggerConfig(),
 ) {
     override val titleRes = R.string.automation_definition_trigger_charge_state_title
     override val descriptionRes = R.string.automation_definition_trigger_charge_state_description
@@ -28,30 +28,30 @@ object ChargeStateTriggerDefinition : TriggerDefinition<BatteryChangedTriggerCon
             options = listOf(
                 AutomationOption(
                     VALUE_CHARGING,
-                    R.string.automation_definition_trigger_charge_state_option_charging
+                    R.string.automation_definition_trigger_charge_state_option_charging,
                 ),
                 AutomationOption(
                     VALUE_DISCHARGING,
-                    R.string.automation_definition_trigger_charge_state_option_discharging
+                    R.string.automation_definition_trigger_charge_state_option_discharging,
                 ),
                 AutomationOption(
                     VALUE_FULL,
-                    R.string.automation_definition_trigger_charge_state_option_full
+                    R.string.automation_definition_trigger_charge_state_option_full,
                 ),
                 AutomationOption(
                     VALUE_NOT_CHARGING,
-                    R.string.automation_definition_trigger_charge_state_option_not_charging
-                )
+                    R.string.automation_definition_trigger_charge_state_option_not_charging,
+                ),
             ),
             reader = { it.state.toFieldValue() },
-            updater = { config, value -> config.copy(state = value.toChargeState()) }
-        )
+            updater = { config, value -> config.copy(state = value.toChargeState()) },
+        ),
     )
 
     override fun summarize(config: BatteryChangedTriggerConfig, resolver: AutomationTextResolver): String =
         resolver.resolve(
             R.string.automation_definition_trigger_charge_state_summary,
-            listOf(resolver.resolve(config.state.toLabelRes()))
+            listOf(resolver.resolve(config.state.toLabelRes())),
         )
 
     private fun String.toChargeState(): BatteryChargeState = when (this) {

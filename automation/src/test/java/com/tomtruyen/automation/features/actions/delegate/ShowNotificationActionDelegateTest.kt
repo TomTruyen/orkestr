@@ -1,7 +1,9 @@
 package com.tomtruyen.automation.features.actions.delegate
 
-import android.os.Build
 import android.content.Context
+import android.os.Build
+import androidx.core.app.NotificationManagerCompat
+import androidx.test.core.app.ApplicationProvider
 import com.tomtruyen.automation.core.event.BatteryChangedEvent
 import com.tomtruyen.automation.core.model.BatteryChargeState
 import com.tomtruyen.automation.core.model.BatteryPlugStatus
@@ -12,18 +14,15 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
-import io.mockk.mockk
 import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import androidx.core.app.NotificationManagerCompat
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import androidx.test.core.app.ApplicationProvider
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Build.VERSION_CODES.TIRAMISU])
@@ -58,7 +57,7 @@ internal class ShowNotificationActionDelegateTest {
 
         delegate.execute(
             ShowNotificationActionConfig(title = "Title", message = "Message"),
-            batteryChangedEvent()
+            batteryChangedEvent(),
         )
 
         verify { notificationManagerCompat.notify(any(), any()) }
@@ -77,6 +76,6 @@ internal class ShowNotificationActionDelegateTest {
         level = 20,
         scale = 100,
         chargeState = BatteryChargeState.CHARGING,
-        plugStatus = BatteryPlugStatus.AC
+        plugStatus = BatteryPlugStatus.AC,
     )
 }

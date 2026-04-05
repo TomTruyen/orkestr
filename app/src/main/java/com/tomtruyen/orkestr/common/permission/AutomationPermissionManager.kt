@@ -23,7 +23,7 @@ import com.tomtruyen.orkestr.R
 class AutomationPermissionManager private constructor(
     private val context: Context,
     private val activity: Activity,
-    private val requestPermissions: (Array<String>) -> Unit
+    private val requestPermissions: (Array<String>) -> Unit,
 ) {
     private var dialogState by mutableStateOf<PermissionDialogState?>(null)
     private var pendingRequest: PermissionRequest? = null
@@ -40,7 +40,7 @@ class AutomationPermissionManager private constructor(
         if (missingIntentPermissions.isNotEmpty()) {
             dialogState = PermissionDialogState.Intent(
                 permissions = missingIntentPermissions,
-                onGranted = onGranted
+                onGranted = onGranted,
             )
             return
         }
@@ -55,15 +55,16 @@ class AutomationPermissionManager private constructor(
 
         pendingRequest = PermissionRequest(
             permissions = missingRuntimePermissions,
-            onGranted = onGranted
+            onGranted = onGranted,
         )
 
         dialogState = if (missingRuntimePermissions.any { permission ->
-            ActivityCompat.shouldShowRequestPermissionRationale(activity, permission.permission)
-        }) {
+                ActivityCompat.shouldShowRequestPermissionRationale(activity, permission.permission)
+            }
+        ) {
             PermissionDialogState.Rationale(
                 permissions = missingRuntimePermissions,
-                onGranted = onGranted
+                onGranted = onGranted,
             )
         } else {
             null
@@ -92,7 +93,7 @@ class AutomationPermissionManager private constructor(
                     onDismiss = {
                         dialogState = null
                         pendingRequest = null
-                    }
+                    },
                 )
 
                 is PermissionDialogState.Denied -> PermissionDialog(
@@ -110,7 +111,7 @@ class AutomationPermissionManager private constructor(
                     onDismiss = {
                         dialogState = null
                         launchPermissionRequest(state.permissions)
-                    }
+                    },
                 )
 
                 is PermissionDialogState.Intent -> PermissionDialog(
@@ -124,7 +125,7 @@ class AutomationPermissionManager private constructor(
                         dialogState = null
                         context.startActivity(state.permissions.first().intent.createIntent(context))
                     },
-                    onDismiss = { dialogState = null }
+                    onDismiss = { dialogState = null },
                 )
             }
         }
@@ -143,7 +144,7 @@ class AutomationPermissionManager private constructor(
         } else {
             dialogState = PermissionDialogState.Denied(
                 permissions = deniedPermissions,
-                onGranted = request.onGranted
+                onGranted = request.onGranted,
             )
         }
     }
@@ -152,28 +153,19 @@ class AutomationPermissionManager private constructor(
         requestPermissions(permissions.map { it.permission }.toTypedArray())
     }
 
-    private data class PermissionRequest(
-        val permissions: List<AutomationPermission.Runtime>,
-        val onGranted: () -> Unit
-    )
+    private data class PermissionRequest(val permissions: List<AutomationPermission.Runtime>, val onGranted: () -> Unit)
 
     private sealed interface PermissionDialogState {
         val onGranted: () -> Unit
 
-        data class Rationale(
-            val permissions: List<AutomationPermission.Runtime>,
-            override val onGranted: () -> Unit
-        ) : PermissionDialogState
+        data class Rationale(val permissions: List<AutomationPermission.Runtime>, override val onGranted: () -> Unit) :
+            PermissionDialogState
 
-        data class Denied(
-            val permissions: List<AutomationPermission.Runtime>,
-            override val onGranted: () -> Unit
-        ) : PermissionDialogState
+        data class Denied(val permissions: List<AutomationPermission.Runtime>, override val onGranted: () -> Unit) :
+            PermissionDialogState
 
-        data class Intent(
-            val permissions: List<AutomationPermission.Intent>,
-            override val onGranted: () -> Unit
-        ) : PermissionDialogState
+        data class Intent(val permissions: List<AutomationPermission.Intent>, override val onGranted: () -> Unit) :
+            PermissionDialogState
     }
 
     companion object {
@@ -182,7 +174,7 @@ class AutomationPermissionManager private constructor(
             val activity = context.findActivity() ?: error("Activity context is required for permissions.")
             lateinit var manager: AutomationPermissionManager
             val launcher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.RequestMultiplePermissions()
+                contract = ActivityResultContracts.RequestMultiplePermissions(),
             ) { result ->
                 manager.onPermissionsResult(result)
             }
@@ -190,7 +182,7 @@ class AutomationPermissionManager private constructor(
                 AutomationPermissionManager(
                     context = context,
                     activity = activity,
-                    requestPermissions = launcher::launch
+                    requestPermissions = launcher::launch,
                 )
             }
             return manager
@@ -205,7 +197,7 @@ private fun PermissionDialog(
     confirmLabel: String,
     dismissLabel: String,
     onConfirm: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -220,7 +212,7 @@ private fun PermissionDialog(
             OutlinedButton(onClick = onDismiss) {
                 Text(dismissLabel)
             }
-        }
+        },
     )
 }
 

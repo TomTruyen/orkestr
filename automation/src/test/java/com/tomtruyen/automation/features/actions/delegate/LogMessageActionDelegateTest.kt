@@ -26,8 +26,8 @@ internal class LogMessageActionDelegateTest {
                     level = 10,
                     scale = 100,
                     chargeState = BatteryChargeState.CHARGING,
-                    plugStatus = BatteryPlugStatus.AC
-                )
+                    plugStatus = BatteryPlugStatus.AC,
+                ),
             )
         } finally {
             System.setOut(originalOut)

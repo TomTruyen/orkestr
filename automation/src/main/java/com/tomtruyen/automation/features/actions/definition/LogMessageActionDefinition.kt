@@ -10,7 +10,7 @@ import com.tomtruyen.automation.features.actions.config.LogMessageActionConfig
 @GenerateActionDefinition
 object LogMessageActionDefinition : ActionDefinition<LogMessageActionConfig>(
     configClass = LogMessageActionConfig::class,
-    defaultConfig = LogMessageActionConfig()
+    defaultConfig = LogMessageActionConfig(),
 ) {
     override val titleRes = R.string.automation_definition_action_log_message_title
     override val descriptionRes = R.string.automation_definition_action_log_message_description
@@ -25,15 +25,14 @@ object LogMessageActionDefinition : ActionDefinition<LogMessageActionConfig>(
             defaultValue = defaultConfig.message,
             placeholderRes = R.string.automation_definition_action_log_message_field_message_placeholder,
             reader = { it.message },
-            updater = { config, value -> config.copy(message = value) }
-        )
+            updater = { config, value -> config.copy(message = value) },
+        ),
     )
 
-    override fun summarize(config: LogMessageActionConfig, resolver: AutomationTextResolver): String =
-        resolver.resolve(
-            R.string.automation_definition_action_log_message_summary,
-            listOf(config.message.ifBlank { defaultConfig.message })
-        )
+    override fun summarize(config: LogMessageActionConfig, resolver: AutomationTextResolver): String = resolver.resolve(
+        R.string.automation_definition_action_log_message_summary,
+        listOf(config.message.ifBlank { defaultConfig.message }),
+    )
 
     private const val FIELD_MESSAGE = "message"
 }

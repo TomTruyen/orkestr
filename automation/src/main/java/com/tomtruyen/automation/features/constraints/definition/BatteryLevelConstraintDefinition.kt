@@ -2,17 +2,17 @@ package com.tomtruyen.automation.features.constraints.definition
 
 import com.tomtruyen.automation.R
 import com.tomtruyen.automation.codegen.GenerateConstraintDefinition
-import com.tomtruyen.automation.core.utils.ComparisonOperator
 import com.tomtruyen.automation.core.definition.AutomationFieldType
 import com.tomtruyen.automation.core.definition.AutomationOption
 import com.tomtruyen.automation.core.definition.AutomationTextResolver
 import com.tomtruyen.automation.core.definition.TypedAutomationFieldDefinition
+import com.tomtruyen.automation.core.utils.ComparisonOperator
 import com.tomtruyen.automation.features.constraints.config.BatteryLevelConstraintConfig
 
 @GenerateConstraintDefinition
 object BatteryLevelConstraintDefinition : ConstraintDefinition<BatteryLevelConstraintConfig>(
     configClass = BatteryLevelConstraintConfig::class,
-    defaultConfig = BatteryLevelConstraintConfig()
+    defaultConfig = BatteryLevelConstraintConfig(),
 ) {
     override val titleRes = R.string.automation_definition_constraint_battery_level_title
     override val descriptionRes = R.string.automation_definition_constraint_battery_level_description
@@ -28,31 +28,31 @@ object BatteryLevelConstraintDefinition : ConstraintDefinition<BatteryLevelConst
             options = listOf(
                 AutomationOption(
                     VALUE_GT,
-                    R.string.automation_definition_constraint_battery_level_option_gt
+                    R.string.automation_definition_constraint_battery_level_option_gt,
                 ),
                 AutomationOption(
                     VALUE_GTE,
-                    R.string.automation_definition_constraint_battery_level_option_gte
+                    R.string.automation_definition_constraint_battery_level_option_gte,
                 ),
                 AutomationOption(
                     VALUE_LT,
-                    R.string.automation_definition_constraint_battery_level_option_lt
+                    R.string.automation_definition_constraint_battery_level_option_lt,
                 ),
                 AutomationOption(
                     VALUE_LTE,
-                    R.string.automation_definition_constraint_battery_level_option_lte
+                    R.string.automation_definition_constraint_battery_level_option_lte,
                 ),
                 AutomationOption(
                     VALUE_EQ,
-                    R.string.automation_definition_constraint_battery_level_option_eq
+                    R.string.automation_definition_constraint_battery_level_option_eq,
                 ),
                 AutomationOption(
                     VALUE_NEQ,
-                    R.string.automation_definition_constraint_battery_level_option_neq
-                )
+                    R.string.automation_definition_constraint_battery_level_option_neq,
+                ),
             ),
             reader = { it.operator.toFieldValue() },
-            updater = { config, value -> config.copy(operator = value.toOperator()) }
+            updater = { config, value -> config.copy(operator = value.toOperator()) },
         ),
         TypedAutomationFieldDefinition(
             configClass = BatteryLevelConstraintConfig::class,
@@ -78,8 +78,8 @@ object BatteryLevelConstraintDefinition : ConstraintDefinition<BatteryLevelConst
                 } else {
                     emptyList()
                 }
-            }
-        )
+            },
+        ),
     )
 
     override fun summarize(config: BatteryLevelConstraintConfig, resolver: AutomationTextResolver): String =
@@ -87,8 +87,8 @@ object BatteryLevelConstraintDefinition : ConstraintDefinition<BatteryLevelConst
             R.string.automation_definition_constraint_battery_level_summary,
             listOf(
                 resolver.resolve(config.operator.toLabelRes()),
-                config.value
-            )
+                config.value,
+            ),
         )
 
     private fun String.toOperator(): ComparisonOperator = when (this) {

@@ -11,9 +11,10 @@ import kotlinx.serialization.Transient
 @SerialName(ShowNotificationActionConfig.DISCRIMINATOR)
 data class ShowNotificationActionConfig(
     val title: String = "Automation started",
-    val message: String = "Your rule was triggered."
+    val message: String = "Your rule was triggered.",
 ) : ActionConfig {
     override val type: ActionType = ActionType.SHOW_NOTIFICATION
+
     @Transient
     override val requiredPermissions: List<AutomationPermission> = listOf(PostNotificationPermission)
 

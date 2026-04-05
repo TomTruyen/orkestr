@@ -7,5 +7,5 @@ import kotlin.reflect.KClass
 
 abstract class ActionDefinition<C : ActionConfig>(
     final override val configClass: KClass<C>,
-    final override val defaultConfig: C
+    final override val defaultConfig: C,
 ) : AutomationNodeDefinition<C, ActionType>

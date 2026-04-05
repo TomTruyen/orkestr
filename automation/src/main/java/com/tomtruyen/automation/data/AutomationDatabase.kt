@@ -9,7 +9,7 @@ import com.tomtruyen.automation.data.entity.AutomationRuleEntity
 @Database(
     entities = [AutomationRuleEntity::class],
     version = 1,
-    exportSchema = false
+    exportSchema = false,
 )
 @TypeConverters(AutomationRuleTypeConverters::class)
 abstract class AutomationDatabase : RoomDatabase() {

@@ -1,6 +1,7 @@
 package com.tomtruyen.orkestr.features.automation.navigation
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -13,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.foundation.layout.padding
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
@@ -35,7 +35,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun AutomationNavGraph(
     rulesViewModel: AutomationRulesViewModel = koinViewModel(),
-    editorViewModel: AutomationRuleEditorViewModel = koinViewModel()
+    editorViewModel: AutomationRuleEditorViewModel = koinViewModel(),
 ) {
     val backStack = rememberNavBackStack(AutomationRulesRoute)
 
@@ -66,8 +66,8 @@ fun AutomationNavGraph(
                     backStack.add(
                         AutomationDefinitionSelectionRoute(
                             section = event.section,
-                            editingIndex = event.editingIndex
-                        )
+                            editingIndex = event.editingIndex,
+                        ),
                     )
                 }
 
@@ -76,8 +76,8 @@ fun AutomationNavGraph(
                         AutomationDefinitionConfigurationRoute(
                             section = event.section,
                             typeKey = event.typeKey,
-                            editingIndex = event.editingIndex
-                        )
+                            editingIndex = event.editingIndex,
+                        ),
                     )
                 }
 
@@ -113,14 +113,14 @@ fun AutomationNavGraph(
             AutomationScaffold(
                 title = stringResource(R.string.automation_title_rules),
                 canNavigateBack = false,
-                onNavigateBack = null
+                onNavigateBack = null,
             ) { modifier ->
                 AutomationHomeScreen(
                     viewModel = rulesViewModel,
                     summarizeTrigger = editorViewModel::summarizeTrigger,
                     summarizeConstraint = editorViewModel::summarizeConstraint,
                     summarizeAction = editorViewModel::summarizeAction,
-                    modifier = modifier
+                    modifier = modifier,
                 )
             }
         }
@@ -131,11 +131,11 @@ fun AutomationNavGraph(
                 canNavigateBack = true,
                 onNavigateBack = {
                     editorViewModel.onAction(AutomationEditorAction.CloseEditorClicked)
-                }
+                },
             ) { modifier ->
                 AutomationRuleEditorScreen(
                     viewModel = editorViewModel,
-                    modifier = modifier
+                    modifier = modifier,
                 )
             }
         }
@@ -144,16 +144,16 @@ fun AutomationNavGraph(
             AutomationScaffold(
                 title = stringResource(
                     R.string.automation_title_select_node,
-                    stringResource(route.section.singularTitleRes)
+                    stringResource(route.section.singularTitleRes),
                 ),
                 canNavigateBack = true,
                 onNavigateBack = {
                     editorViewModel.onAction(AutomationEditorAction.ClosePickerClicked)
-                }
+                },
             ) { modifier ->
                 AutomationDefinitionSelectionScreen(
                     viewModel = editorViewModel,
-                    modifier = modifier
+                    modifier = modifier,
                 )
             }
         }
@@ -162,16 +162,16 @@ fun AutomationNavGraph(
             AutomationScaffold(
                 title = stringResource(
                     R.string.automation_title_configure_node,
-                    stringResource(route.section.singularTitleRes)
+                    stringResource(route.section.singularTitleRes),
                 ),
                 canNavigateBack = true,
                 onNavigateBack = {
                     editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
-                }
+                },
             ) { modifier ->
                 AutomationDefinitionConfigurationScreen(
                     viewModel = editorViewModel,
-                    modifier = modifier
+                    modifier = modifier,
                 )
             }
         }
@@ -179,7 +179,7 @@ fun AutomationNavGraph(
 
     NavDisplay(
         backStack = backStack,
-        entryProvider = provider
+        entryProvider = provider,
     )
 }
 
@@ -189,7 +189,7 @@ private fun AutomationScaffold(
     title: String,
     canNavigateBack: Boolean,
     onNavigateBack: (() -> Unit)?,
-    content: @Composable (Modifier) -> Unit
+    content: @Composable (Modifier) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -200,13 +200,13 @@ private fun AutomationScaffold(
                         IconButton(onClick = onNavigateBack) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.automation_action_back)
+                                contentDescription = stringResource(R.string.automation_action_back),
                             )
                         }
                     }
-                }
+                },
             )
-        }
+        },
     ) { innerPadding ->
         content(Modifier.padding(innerPadding))
     }

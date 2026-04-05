@@ -6,7 +6,7 @@ import com.tomtruyen.automation.features.constraints.delegate.ConstraintDelegate
 import com.tomtruyen.automation.generated.GeneratedConstraintProvider
 
 class ConstraintEvaluator(
-    delegates: List<ConstraintDelegate<out ConstraintConfig>> = GeneratedConstraintProvider.delegates()
+    delegates: List<ConstraintDelegate<out ConstraintConfig>> = GeneratedConstraintProvider.delegates(),
 ) {
     private val delegatesByType = delegates.associateBy { it.type }
 
@@ -22,5 +22,5 @@ class ConstraintEvaluator(
 @Suppress("UNCHECKED_CAST")
 private suspend fun ConstraintDelegate<out ConstraintConfig>.evaluateTyped(
     config: ConstraintConfig,
-    event: AutomationEvent
+    event: AutomationEvent,
 ): Boolean = (this as ConstraintDelegate<ConstraintConfig>).evaluate(config, event)

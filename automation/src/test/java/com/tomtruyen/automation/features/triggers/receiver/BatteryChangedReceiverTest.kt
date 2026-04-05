@@ -19,11 +19,11 @@ import io.mockk.mockkStatic
 import io.mockk.runs
 import io.mockk.unmockkAll
 import io.mockk.verify
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -87,8 +87,8 @@ internal class BatteryChangedReceiverTest {
                     level = 50,
                     scale = 100,
                     chargeState = BatteryChargeState.CHARGING,
-                    plugStatus = BatteryPlugStatus.AC
-                )
+                    plugStatus = BatteryPlugStatus.AC,
+                ),
             )
         }
     }
@@ -102,7 +102,7 @@ internal class BatteryChangedReceiverTest {
                 context,
                 any(),
                 any(),
-                ContextCompat.RECEIVER_NOT_EXPORTED
+                ContextCompat.RECEIVER_NOT_EXPORTED,
             )
         } returns null
 
@@ -113,7 +113,7 @@ internal class BatteryChangedReceiverTest {
                 context,
                 receiver,
                 match { it.hasAction(Intent.ACTION_BATTERY_CHANGED) },
-                ContextCompat.RECEIVER_NOT_EXPORTED
+                ContextCompat.RECEIVER_NOT_EXPORTED,
             )
         }
     }

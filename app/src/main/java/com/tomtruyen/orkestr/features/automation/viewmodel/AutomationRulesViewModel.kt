@@ -9,11 +9,10 @@ import com.tomtruyen.orkestr.features.automation.state.AutomationRulesUiState
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class AutomationRulesViewModel(
-    private val repository: AutomationRuleRepository
-) : BaseViewModel<AutomationRulesUiState, AutomationRulesEvent, AutomationRulesAction>(
-    initialState = AutomationRulesUiState()
-) {
+class AutomationRulesViewModel(private val repository: AutomationRuleRepository) :
+    BaseViewModel<AutomationRulesUiState, AutomationRulesEvent, AutomationRulesAction>(
+        initialState = AutomationRulesUiState(),
+    ) {
     init {
         observeAutomationRules()
     }
@@ -45,7 +44,7 @@ class AutomationRulesViewModel(
 
             is AutomationRulesAction.ToggleRuleEnabled -> toggleRuleEnabled(
                 id = action.rule.id,
-                enabled = action.enabled
+                enabled = action.enabled,
             )
         }
     }

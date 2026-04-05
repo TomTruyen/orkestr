@@ -93,7 +93,7 @@ internal class AutomationRuleRepositoryTest {
             dao.updateEnabled(
                 id = "rule-id",
                 enabled = false,
-                updatedAtEpochMillis = capture(timestampSlot)
+                updatedAtEpochMillis = capture(timestampSlot),
             )
         } returns Unit
         val before = System.currentTimeMillis()
@@ -111,7 +111,7 @@ internal class AutomationRuleRepositoryTest {
         enabled = enabled,
         triggers = listOf(BatteryChangedTriggerConfig()),
         constraints = listOf(BatteryLevelConstraintConfig()),
-        actions = listOf(LogMessageActionConfig())
+        actions = listOf(LogMessageActionConfig()),
     )
 
     private fun sampleEntity(enabled: Boolean = false): AutomationRuleEntity = AutomationRuleEntity(
@@ -121,6 +121,6 @@ internal class AutomationRuleRepositoryTest {
         triggers = listOf(BatteryChangedTriggerConfig()),
         constraints = listOf(BatteryLevelConstraintConfig()),
         actions = listOf(LogMessageActionConfig()),
-        updatedAtEpochMillis = 123L
+        updatedAtEpochMillis = 123L,
     )
 }

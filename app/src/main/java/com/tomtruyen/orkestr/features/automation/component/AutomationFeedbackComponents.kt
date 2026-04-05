@@ -16,19 +16,15 @@ import androidx.compose.ui.unit.dp
 import com.tomtruyen.orkestr.R
 
 @Composable
-fun EmptyStateCard(
-    title: String,
-    description: String,
-    modifier: Modifier = Modifier
-) {
+fun EmptyStateCard(title: String, description: String, modifier: Modifier = Modifier) {
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = CardDefaults.outlinedShape,
-        color = MaterialTheme.colorScheme.surfaceContainerLow
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
     ) {
         Column(
             modifier = Modifier.padding(18.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(text = title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
             Text(text = description, style = MaterialTheme.typography.bodyMedium)
@@ -40,23 +36,23 @@ fun EmptyStateCard(
 fun ValidationCard(errors: List<String>) {
     Surface(
         shape = CardDefaults.outlinedShape,
-        color = MaterialTheme.colorScheme.errorContainer
+        color = MaterialTheme.colorScheme.errorContainer,
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(
                 text = stringResource(R.string.automation_validation_title),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onErrorContainer
+                color = MaterialTheme.colorScheme.onErrorContainer,
             )
             errors.forEach { error ->
                 Text(
                     text = "• $error",
                     color = MaterialTheme.colorScheme.onErrorContainer,
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                 )
             }
         }

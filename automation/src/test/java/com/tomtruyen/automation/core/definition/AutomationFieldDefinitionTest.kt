@@ -7,15 +7,14 @@ import org.junit.Test
 
 internal class AutomationFieldDefinitionTest {
     private val resolver = object : AutomationTextResolver {
-        override fun resolve(stringRes: Int, formatArgs: List<Any>): String =
-            buildString {
-                append("res:")
-                append(stringRes)
-                if (formatArgs.isNotEmpty()) {
-                    append(":")
-                    append(formatArgs.joinToString())
-                }
+        override fun resolve(stringRes: Int, formatArgs: List<Any>): String = buildString {
+            append("res:")
+            append(stringRes)
+            if (formatArgs.isNotEmpty()) {
+                append(":")
+                append(formatArgs.joinToString())
             }
+        }
     }
 
     @Test
@@ -24,17 +23,20 @@ internal class AutomationFieldDefinitionTest {
             id = "field",
             labelRes = 10,
             type = AutomationFieldType.TEXT,
-            descriptionRes = 11
+            descriptionRes = 11,
         ) {
             override fun readValue(config: AutomationConfig<*>?) = ""
-            override fun updateValue(config: AutomationConfig<*>?, input: String): AutomationConfig<*> = TestFieldConfig(input)
+            override fun updateValue(config: AutomationConfig<*>?, input: String): AutomationConfig<*> =
+                TestFieldConfig(
+                    input,
+                )
         }
 
         val errors = field.validateInput("", resolver)
 
         assertEquals(
             listOf("res:${R.string.automation_definition_error_required}:res:10"),
-            errors
+            errors,
         )
     }
 
@@ -45,17 +47,20 @@ internal class AutomationFieldDefinitionTest {
             labelRes = 10,
             type = AutomationFieldType.NUMBER,
             descriptionRes = 11,
-            required = false
+            required = false,
         ) {
             override fun readValue(config: AutomationConfig<*>?) = ""
-            override fun updateValue(config: AutomationConfig<*>?, input: String): AutomationConfig<*> = TestFieldConfig(input)
+            override fun updateValue(config: AutomationConfig<*>?, input: String): AutomationConfig<*> =
+                TestFieldConfig(
+                    input,
+                )
         }
 
         val errors = field.validateInput("abc", resolver)
 
         assertEquals(
             listOf("res:${R.string.automation_definition_error_number}:res:10"),
-            errors
+            errors,
         )
     }
 
@@ -81,7 +86,7 @@ internal class AutomationFieldDefinitionTest {
             updater = { config, input -> config.copy(value = input) },
             inputValidator = { input, _ ->
                 if (input == "fallback") listOf("custom-error") else emptyList()
-            }
+            },
         )
 
         val errors = field.validateInput("", resolver)
@@ -98,12 +103,10 @@ internal class AutomationFieldDefinitionTest {
         descriptionRes = 11,
         defaultValue = "fallback",
         reader = { it.value },
-        updater = { config, input -> config.copy(value = input) }
+        updater = { config, input -> config.copy(value = input) },
     )
 
-    private data class TestFieldConfig(
-        val value: String = "default"
-    ) : AutomationConfig<TestFieldType> {
+    private data class TestFieldConfig(val value: String = "default") : AutomationConfig<TestFieldType> {
         override val type: TestFieldType = TestFieldType.FIELD
     }
 
@@ -112,6 +115,6 @@ internal class AutomationFieldDefinitionTest {
     }
 
     private enum class TestFieldType {
-        FIELD
+        FIELD,
     }
 }

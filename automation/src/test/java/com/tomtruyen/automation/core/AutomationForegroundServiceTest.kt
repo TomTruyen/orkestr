@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.ResolveInfo
+import androidx.core.content.ContextCompat
 import com.tomtruyen.automation.core.AutomationForegroundService.Companion.start
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
 import com.tomtruyen.automation.features.triggers.config.BatteryChangedTriggerConfig
@@ -13,16 +14,15 @@ import com.tomtruyen.automation.features.triggers.receiver.TriggerReceiverKey
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
-import io.mockk.runs
 import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableSharedFlow
-import org.junit.Assert.assertNotNull
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -33,8 +33,6 @@ import org.koin.dsl.module
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
-import androidx.core.content.ContextCompat
-import kotlinx.coroutines.runBlocking
 
 @RunWith(RobolectricTestRunner::class)
 internal class AutomationForegroundServiceTest {
@@ -75,7 +73,7 @@ internal class AutomationForegroundServiceTest {
                     single<AutomationRuleRepository> { this@AutomationForegroundServiceTest.repository }
                     single<AutomationLogger> { this@AutomationForegroundServiceTest.logger }
                     single<List<TriggerReceiver.TriggerFactory>> { listOf(firstFactory, secondFactory) }
-                }
+                },
             )
         }
     }
@@ -95,7 +93,7 @@ internal class AutomationForegroundServiceTest {
                 action = "com.tomtruyen.automation.action.STOP_FOREGROUND_SERVICE"
             },
             0,
-            0
+            0,
         )
 
         assertEquals(Service.START_NOT_STICKY, result)
@@ -124,7 +122,7 @@ internal class AutomationForegroundServiceTest {
                 match {
                     it.component?.className == AutomationForegroundService::class.java.name &&
                         it.action == "com.tomtruyen.automation.action.START_FOREGROUND_SERVICE"
-                }
+                },
             )
         }
     }
@@ -164,7 +162,7 @@ internal class AutomationForegroundServiceTest {
                         enabled = false,
                         triggers = listOf(BatteryChangedTriggerConfig()),
                         constraints = emptyList(),
-                        actions = emptyList()
+                        actions = emptyList(),
                     ),
                     AutomationRule(
                         id = "enabled",
@@ -172,9 +170,9 @@ internal class AutomationForegroundServiceTest {
                         enabled = true,
                         triggers = listOf(BatteryChangedTriggerConfig()),
                         constraints = emptyList(),
-                        actions = emptyList()
-                    )
-                )
+                        actions = emptyList(),
+                    ),
+                ),
             )
         }
 
@@ -212,12 +210,14 @@ internal class AutomationForegroundServiceTest {
                 context: Context,
                 service: AutomationRuntimeService,
                 scope: kotlinx.coroutines.CoroutineScope,
-                logger: AutomationLogger
+                logger: AutomationLogger,
             ): TriggerReceiver = receiver
         }
 
     @Suppress("UNCHECKED_CAST")
-    private fun registeredReceivers(service: AutomationForegroundService): MutableMap<TriggerReceiver.TriggerFactory, TriggerReceiver> {
+    private fun registeredReceivers(
+        service: AutomationForegroundService,
+    ): MutableMap<TriggerReceiver.TriggerFactory, TriggerReceiver> {
         val field = AutomationForegroundService::class.java.getDeclaredField("registeredReceivers")
         field.isAccessible = true
         return field.get(service) as MutableMap<TriggerReceiver.TriggerFactory, TriggerReceiver>

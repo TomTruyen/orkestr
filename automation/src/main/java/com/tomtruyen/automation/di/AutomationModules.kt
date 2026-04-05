@@ -25,7 +25,7 @@ val automationModule = module {
         Room.databaseBuilder(
             context = get(),
             klass = AutomationDatabase::class.java,
-            name = "automation.db"
+            name = "automation.db",
         ).build()
     }
 
@@ -60,5 +60,4 @@ val automationModule = module {
             actionExecutor = get(),
         )
     }
-
 }

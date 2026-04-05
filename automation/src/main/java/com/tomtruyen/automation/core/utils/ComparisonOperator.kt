@@ -9,7 +9,8 @@ enum class ComparisonOperator {
     LESS_THAN,
     LESS_THAN_OR_EQUAL,
     EQUAL,
-    NOT_EQUAL;
+    NOT_EQUAL,
+    ;
 
     fun matches(left: Int, right: Int): Boolean = when (this) {
         GREATER_THAN -> left > right

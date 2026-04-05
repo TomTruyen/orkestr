@@ -20,7 +20,7 @@ internal class ChargeStateTriggerDelegateTest {
             level = 20,
             scale = 100,
             chargeState = BatteryChargeState.CHARGING,
-            plugStatus = BatteryPlugStatus.AC
+            plugStatus = BatteryPlugStatus.AC,
         )
 
         val result = delegate.matches(config, event)
@@ -35,7 +35,7 @@ internal class ChargeStateTriggerDelegateTest {
             level = 20,
             scale = 100,
             chargeState = BatteryChargeState.CHARGING,
-            plugStatus = BatteryPlugStatus.AC
+            plugStatus = BatteryPlugStatus.AC,
         )
 
         val result = delegate.matches(config, event)

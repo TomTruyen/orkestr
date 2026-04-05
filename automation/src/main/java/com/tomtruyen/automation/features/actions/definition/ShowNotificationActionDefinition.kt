@@ -10,7 +10,7 @@ import com.tomtruyen.automation.features.actions.config.ShowNotificationActionCo
 @GenerateActionDefinition
 object ShowNotificationActionDefinition : ActionDefinition<ShowNotificationActionConfig>(
     configClass = ShowNotificationActionConfig::class,
-    defaultConfig = ShowNotificationActionConfig()
+    defaultConfig = ShowNotificationActionConfig(),
 ) {
     override val titleRes = R.string.automation_definition_action_show_notification_title
     override val descriptionRes = R.string.automation_definition_action_show_notification_description
@@ -25,7 +25,7 @@ object ShowNotificationActionDefinition : ActionDefinition<ShowNotificationActio
             defaultValue = ShowNotificationActionConfig().title,
             placeholderRes = R.string.automation_definition_action_show_notification_field_title_placeholder,
             reader = { it.title },
-            updater = { config, value -> config.copy(title = value) }
+            updater = { config, value -> config.copy(title = value) },
         ),
         TypedAutomationFieldDefinition(
             configClass = ShowNotificationActionConfig::class,
@@ -37,14 +37,14 @@ object ShowNotificationActionDefinition : ActionDefinition<ShowNotificationActio
             defaultValue = ShowNotificationActionConfig().message,
             placeholderRes = R.string.automation_definition_action_show_notification_field_message_placeholder,
             reader = { it.message },
-            updater = { config, value -> config.copy(message = value) }
-        )
+            updater = { config, value -> config.copy(message = value) },
+        ),
     )
 
     override fun summarize(config: ShowNotificationActionConfig, resolver: AutomationTextResolver): String =
         resolver.resolve(
             R.string.automation_definition_action_show_notification_summary,
-            listOf(config.title.ifBlank { defaultConfig.title })
+            listOf(config.title.ifBlank { defaultConfig.title }),
         )
 
     private const val FIELD_TITLE = "title"

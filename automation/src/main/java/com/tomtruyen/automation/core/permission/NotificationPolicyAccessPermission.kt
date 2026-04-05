@@ -6,7 +6,7 @@ import android.os.Build
 import android.provider.Settings
 import com.tomtruyen.automation.R
 
-data object NotificationPolicyAccessPermission: AutomationPermission.Intent(
+data object NotificationPolicyAccessPermission : AutomationPermission.Intent(
     titleRes = R.string.automation_permission_notification_policy_title,
     messageRes = R.string.automation_permission_notification_policy_message,
     intent = PermissionIntent.Custom {
@@ -16,5 +16,5 @@ data object NotificationPolicyAccessPermission: AutomationPermission.Intent(
         val notificationManager = context.getSystemService(NotificationManager::class.java)
         notificationManager?.isNotificationPolicyAccessGranted == true
     },
-    minSdk = Build.VERSION_CODES.M
+    minSdk = Build.VERSION_CODES.M,
 )

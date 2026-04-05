@@ -23,14 +23,14 @@ import com.tomtruyen.automation.core.definition.AutomationFieldType
 fun DefinitionFieldPreview(fields: List<AutomationFieldDefinition>) {
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         fields.forEach { field ->
             FilterChip(
                 selected = false,
                 onClick = {},
                 label = { Text(stringResource(field.labelRes)) },
-                enabled = false
+                enabled = false,
             )
         }
     }
@@ -40,7 +40,7 @@ fun DefinitionFieldPreview(fields: List<AutomationFieldDefinition>) {
 fun AutomationFieldForm(
     fields: List<AutomationFieldDefinition>,
     config: AutomationConfig<*>?,
-    onFieldChanged: (String, String) -> Unit
+    onFieldChanged: (String, String) -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         fields.forEach { field ->
@@ -49,22 +49,22 @@ fun AutomationFieldForm(
                     val selected = field.readValue(config).ifBlank { field.defaultValue } == "true"
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Column(
                             modifier = Modifier.weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
                             Text(text = stringResource(field.labelRes), style = MaterialTheme.typography.titleMedium)
                             Text(
                                 text = stringResource(field.descriptionRes),
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                         Switch(
                             checked = selected,
-                            onCheckedChange = { onFieldChanged(field.id, it.toString()) }
+                            onCheckedChange = { onFieldChanged(field.id, it.toString()) },
                         )
                     }
                 }
@@ -75,17 +75,17 @@ fun AutomationFieldForm(
                         Text(
                             text = stringResource(field.descriptionRes),
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         FlowRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             field.options.forEach { option ->
                                 FilterChip(
                                     selected = field.readValue(config).ifBlank { field.defaultValue } == option.value,
                                     onClick = { onFieldChanged(field.id, option.value) },
-                                    label = { Text(stringResource(option.labelRes)) }
+                                    label = { Text(stringResource(option.labelRes)) },
                                 )
                             }
                         }
@@ -107,7 +107,7 @@ fun AutomationFieldForm(
                             Text(field.placeholderRes?.let { stringResource(it) } ?: field.defaultValue)
                         },
                         supportingText = { Text(stringResource(field.descriptionRes)) },
-                        singleLine = field.type != AutomationFieldType.TEXT
+                        singleLine = field.type != AutomationFieldType.TEXT,
                     )
                 }
             }

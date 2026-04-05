@@ -19,6 +19,6 @@ fun AppNavigation() {
 
     NavDisplay(
         backStack = backStack,
-        entryProvider = provider
+        entryProvider = provider,
     )
 }

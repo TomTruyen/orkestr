@@ -5,10 +5,7 @@ import com.tomtruyen.automation.R
 import com.tomtruyen.automation.core.config.AutomationConfig
 import kotlin.reflect.KClass
 
-data class AutomationOption(
-    val value: String,
-    @param:StringRes val labelRes: Int
-)
+data class AutomationOption(val value: String, @param:StringRes val labelRes: Int)
 
 abstract class AutomationFieldDefinition(
     val id: String,
@@ -18,7 +15,7 @@ abstract class AutomationFieldDefinition(
     val required: Boolean = true,
     val defaultValue: String = "",
     @param:StringRes val placeholderRes: Int? = null,
-    val options: List<AutomationOption> = emptyList()
+    val options: List<AutomationOption> = emptyList(),
 ) {
     abstract fun readValue(config: AutomationConfig<*>?): String
     abstract fun updateValue(config: AutomationConfig<*>?, input: String): AutomationConfig<*>
@@ -30,14 +27,14 @@ abstract class AutomationFieldDefinition(
         if (required && normalized.isBlank()) {
             errors += resolver.resolve(
                 R.string.automation_definition_error_required,
-                listOf(resolver.resolve(labelRes))
+                listOf(resolver.resolve(labelRes)),
             )
         }
 
         if (type == AutomationFieldType.NUMBER && normalized.isNotBlank() && normalized.toIntOrNull() == null) {
             errors += resolver.resolve(
                 R.string.automation_definition_error_number,
-                listOf(resolver.resolve(labelRes))
+                listOf(resolver.resolve(labelRes)),
             )
         }
 
@@ -58,7 +55,7 @@ class TypedAutomationFieldDefinition<C : AutomationConfig<*>>(
     options: List<AutomationOption> = emptyList(),
     private val reader: (C) -> String,
     private val updater: (C, String) -> C,
-    private val inputValidator: (String, AutomationTextResolver) -> List<String> = { _, _ -> emptyList() }
+    private val inputValidator: (String, AutomationTextResolver) -> List<String> = { _, _ -> emptyList() },
 ) : AutomationFieldDefinition(
     id = id,
     labelRes = labelRes,
@@ -67,7 +64,7 @@ class TypedAutomationFieldDefinition<C : AutomationConfig<*>>(
     required = required,
     defaultValue = defaultValue,
     placeholderRes = placeholderRes,
-    options = options
+    options = options,
 ) {
     override fun readValue(config: AutomationConfig<*>?): String = reader(cast(config) ?: defaultConfig)
 

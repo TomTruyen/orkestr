@@ -37,8 +37,8 @@ internal class AutomationRuleTypeConvertersTest {
         val constraints = listOf(
             BatteryLevelConstraintConfig(
                 operator = ComparisonOperator.LESS_THAN_OR_EQUAL,
-                value = 40
-            )
+                value = 40,
+            ),
         )
 
         val encoded = converters.fromConstraints(constraints)

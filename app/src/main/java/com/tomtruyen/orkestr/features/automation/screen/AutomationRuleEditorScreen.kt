@@ -49,10 +49,7 @@ import com.tomtruyen.orkestr.ui.theme.ActionGreenContainer
 import com.tomtruyen.orkestr.ui.theme.OnActionGreenContainer
 
 @Composable
-fun AutomationRuleEditorScreen(
-    viewModel: AutomationRuleEditorViewModel,
-    modifier: Modifier = Modifier
-) {
+fun AutomationRuleEditorScreen(viewModel: AutomationRuleEditorViewModel, modifier: Modifier = Modifier) {
     val uiState by viewModel.uiState.collectAsState()
     val state = uiState.editorState ?: return
     val permissionManager = AutomationPermissionManager.remember(LocalContext.current)
@@ -66,24 +63,24 @@ fun AutomationRuleEditorScreen(
                     onClick = { viewModel.onAction(AutomationEditorAction.SaveRuleClicked) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp)
+                        .padding(16.dp),
                 ) {
                     Text(stringResource(R.string.automation_action_save_rule))
                 }
             }
-        }
+        },
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
             contentPadding = PaddingValues(20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
                 ) {
                     AutomationCardColumn {
                         OutlinedTextField(
@@ -92,7 +89,7 @@ fun AutomationRuleEditorScreen(
                             modifier = Modifier.fillMaxWidth(),
                             label = { Text(stringResource(R.string.automation_label_rule_name)) },
                             placeholder = { Text(stringResource(R.string.automation_rule_name_placeholder)) },
-                            singleLine = true
+                            singleLine = true,
                         )
                         AutomationTitleRow(
                             title = stringResource(R.string.automation_label_rule_enabled),
@@ -102,9 +99,9 @@ fun AutomationRuleEditorScreen(
                                     checked = state.enabled,
                                     onCheckedChange = {
                                         viewModel.onAction(AutomationEditorAction.RuleEnabledChanged(it))
-                                    }
+                                    },
                                 )
-                            }
+                            },
                         )
                         if (state.validation.errors.isNotEmpty()) {
                             ValidationCard(errors = state.validation.errors)
@@ -122,14 +119,14 @@ fun AutomationRuleEditorScreen(
                     onAddNode = { viewModel.onAction(AutomationEditorAction.AddNodeClicked(RuleSection.TRIGGERS)) },
                     onNodeClick = {
                         permissionManager.request(
-                            permissions = viewModel.requiredPermissionsForNode(RuleSection.TRIGGERS, it)
+                            permissions = viewModel.requiredPermissionsForNode(RuleSection.TRIGGERS, it),
                         ) {
                             viewModel.onAction(AutomationEditorAction.EditNodeClicked(RuleSection.TRIGGERS, it))
                         }
                     },
                     onNodeLongClick = { index, entry ->
                         nodeDialog = NodeActionDialogState(RuleSection.TRIGGERS, index, entry)
-                    }
+                    },
                 )
             }
             item {
@@ -141,14 +138,14 @@ fun AutomationRuleEditorScreen(
                     onAddNode = { viewModel.onAction(AutomationEditorAction.AddNodeClicked(RuleSection.CONSTRAINTS)) },
                     onNodeClick = {
                         permissionManager.request(
-                            permissions = viewModel.requiredPermissionsForNode(RuleSection.CONSTRAINTS, it)
+                            permissions = viewModel.requiredPermissionsForNode(RuleSection.CONSTRAINTS, it),
                         ) {
                             viewModel.onAction(AutomationEditorAction.EditNodeClicked(RuleSection.CONSTRAINTS, it))
                         }
                     },
                     onNodeLongClick = { index, entry ->
                         nodeDialog = NodeActionDialogState(RuleSection.CONSTRAINTS, index, entry)
-                    }
+                    },
                 )
             }
             item {
@@ -160,14 +157,14 @@ fun AutomationRuleEditorScreen(
                     onAddNode = { viewModel.onAction(AutomationEditorAction.AddNodeClicked(RuleSection.ACTIONS)) },
                     onNodeClick = {
                         permissionManager.request(
-                            permissions = viewModel.requiredPermissionsForNode(RuleSection.ACTIONS, it)
+                            permissions = viewModel.requiredPermissionsForNode(RuleSection.ACTIONS, it),
                         ) {
                             viewModel.onAction(AutomationEditorAction.EditNodeClicked(RuleSection.ACTIONS, it))
                         }
                     },
                     onNodeLongClick = { index, entry ->
                         nodeDialog = NodeActionDialogState(RuleSection.ACTIONS, index, entry)
-                    }
+                    },
                 )
             }
         }
@@ -179,7 +176,7 @@ fun AutomationRuleEditorScreen(
             onDismiss = { nodeDialog = null },
             onConfigure = {
                 permissionManager.request(
-                    permissions = viewModel.requiredPermissionsForNode(dialog.section, dialog.index)
+                    permissions = viewModel.requiredPermissionsForNode(dialog.section, dialog.index),
                 ) {
                     viewModel.onAction(AutomationEditorAction.EditNodeClicked(dialog.section, dialog.index))
                 }
@@ -188,18 +185,14 @@ fun AutomationRuleEditorScreen(
             onDelete = {
                 viewModel.onAction(AutomationEditorAction.DeleteNodeClicked(dialog.section, dialog.index))
                 nodeDialog = null
-            }
+            },
         )
     }
 
     permissionManager.RenderDialogs()
 }
 
-private data class NodeActionDialogState(
-    val section: RuleSection,
-    val index: Int,
-    val label: String
-)
+private data class NodeActionDialogState(val section: RuleSection, val index: Int, val label: String)
 
 @Composable
 private fun RuleSectionEditorCard(
@@ -209,24 +202,24 @@ private fun RuleSectionEditorCard(
     contentColor: androidx.compose.ui.graphics.Color,
     onAddNode: () -> Unit,
     onNodeClick: (Int) -> Unit,
-    onNodeLongClick: (Int, String) -> Unit
+    onNodeLongClick: (Int, String) -> Unit,
 ) {
     AutomationTintedColumn(
         tint = tint,
-        contentColor = contentColor
+        contentColor = contentColor,
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
             Column(
                 modifier = Modifier
                     .align(Alignment.CenterStart)
                     .padding(end = 56.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 Text(text = stringResource(section.titleRes), style = MaterialTheme.typography.titleLarge)
                 Text(
                     text = stringResource(section.helperRes),
                     style = MaterialTheme.typography.bodySmall,
-                    color = contentColor.copy(alpha = 0.8f)
+                    color = contentColor.copy(alpha = 0.8f),
                 )
             }
             IconButton(onClick = onAddNode, modifier = Modifier.align(Alignment.CenterEnd)) {
@@ -234,8 +227,8 @@ private fun RuleSectionEditorCard(
                     imageVector = Icons.Filled.Add,
                     contentDescription = stringResource(
                         R.string.automation_action_add_node,
-                        stringResource(section.singularTitleRes)
-                    )
+                        stringResource(section.singularTitleRes),
+                    ),
                 )
             }
         }
@@ -248,8 +241,8 @@ private fun RuleSectionEditorCard(
                         RuleSection.TRIGGERS -> R.string.automation_empty_triggers_description
                         RuleSection.CONSTRAINTS -> R.string.automation_empty_constraints_description
                         RuleSection.ACTIONS -> R.string.automation_empty_actions_description
-                    }
-                )
+                    },
+                ),
             )
         } else {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -257,7 +250,7 @@ private fun RuleSectionEditorCard(
                     NodeListItem(
                         text = entry,
                         onClick = { onNodeClick(index) },
-                        onLongClick = { onNodeLongClick(index, entry) }
+                        onLongClick = { onNodeLongClick(index, entry) },
                     )
                 }
             }
@@ -270,7 +263,7 @@ private fun NodeActionDialog(
     state: NodeActionDialogState,
     onDismiss: () -> Unit,
     onConfigure: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -290,6 +283,6 @@ private fun NodeActionDialog(
                     Text(stringResource(R.string.automation_action_close))
                 }
             }
-        }
+        },
     )
 }

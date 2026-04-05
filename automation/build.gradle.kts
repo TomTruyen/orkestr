@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.detekt)
 }
 
 android {
@@ -38,6 +39,16 @@ android {
     }
 }
 
+detekt {
+    toolVersion = libs.versions.detekt.get()
+    config.setFrom(rootProject.file("detekt.yml"))
+    buildUponDefaultConfig = true
+    parallel = true
+    autoCorrect = true
+    ignoreFailures = false
+    basePath.set(rootDir)
+}
+
 dependencies {
     implementation(project(":automation-ksp-annotations"))
     implementation(libs.androidx.core.ktx)
@@ -58,4 +69,17 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    detektPlugins(libs.detekt.formatting)
+}
+
+tasks.withType<dev.detekt.gradle.Detekt>().configureEach {
+    jvmTarget.set("11")
+    reports {
+        html.required.set(true)
+        sarif.required.set(true)
+    }
+}
+
+tasks.withType<dev.detekt.gradle.DetektCreateBaselineTask>().configureEach {
+    jvmTarget.set("11")
 }

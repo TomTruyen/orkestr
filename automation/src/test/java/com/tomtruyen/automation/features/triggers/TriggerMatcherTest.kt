@@ -5,11 +5,10 @@ import com.tomtruyen.automation.core.event.BatteryChangedEvent
 import com.tomtruyen.automation.core.model.BatteryChargeState
 import com.tomtruyen.automation.core.model.BatteryPlugStatus
 import com.tomtruyen.automation.features.triggers.config.BatteryChangedTriggerConfig
-import com.tomtruyen.automation.features.triggers.config.TriggerConfig
 import com.tomtruyen.automation.features.triggers.delegate.TriggerDelegate
 import io.mockk.MockKAnnotations
-import io.mockk.impl.annotations.MockK
 import io.mockk.every
+import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -35,7 +34,7 @@ internal class TriggerMatcherTest {
             level = 50,
             scale = 100,
             chargeState = BatteryChargeState.CHARGING,
-            plugStatus = BatteryPlugStatus.AC
+            plugStatus = BatteryPlugStatus.AC,
         )
 
         every { matchingDelegate.type } returns TriggerType.CHARGE_STATE

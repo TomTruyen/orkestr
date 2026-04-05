@@ -18,64 +18,51 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun AutomationCardColumn(
-    content: @Composable ColumnScope.() -> Unit
-) {
+fun AutomationCardColumn(content: @Composable ColumnScope.() -> Unit) {
     Column(
         modifier = Modifier.padding(18.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
-        content = content
+        content = content,
     )
 }
 
 @Composable
-fun AutomationTintedColumn(
-    tint: Color,
-    contentColor: Color,
-    content: @Composable ColumnScope.() -> Unit
-) {
+fun AutomationTintedColumn(tint: Color, contentColor: Color, content: @Composable ColumnScope.() -> Unit) {
     Surface(
         color = tint,
         contentColor = contentColor,
-        shape = CardDefaults.outlinedShape
+        shape = CardDefaults.outlinedShape,
     ) {
         AutomationCardColumn(content = content)
     }
 }
 
 @Composable
-fun AutomationSectionHeader(
-    title: String,
-    description: String
-) {
+fun AutomationSectionHeader(title: String, description: String) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(text = title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
         Text(
             text = description,
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }
 
 @Composable
-fun AutomationTitleRow(
-    title: String,
-    subtitle: String,
-    trailing: @Composable () -> Unit
-) {
+fun AutomationTitleRow(title: String, subtitle: String, trailing: @Composable () -> Unit) {
     Box(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier
                 .align(Alignment.CenterStart)
                 .padding(end = 72.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Text(text = title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
         Box(modifier = Modifier.align(Alignment.CenterEnd)) {

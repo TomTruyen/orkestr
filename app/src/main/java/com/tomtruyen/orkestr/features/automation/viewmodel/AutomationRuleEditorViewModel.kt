@@ -2,9 +2,9 @@ package com.tomtruyen.orkestr.features.automation.viewmodel
 
 import com.tomtruyen.automation.core.AutomationRule
 import com.tomtruyen.automation.core.config.AutomationConfig
-import com.tomtruyen.automation.core.permission.AutomationPermission
 import com.tomtruyen.automation.core.definition.AutomationDefinitionRegistry
 import com.tomtruyen.automation.core.definition.AutomationNodeDefinition
+import com.tomtruyen.automation.core.permission.AutomationPermission
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
 import com.tomtruyen.automation.features.actions.ActionType
 import com.tomtruyen.automation.features.actions.config.ActionConfig
@@ -28,94 +28,24 @@ import java.util.UUID
 class AutomationRuleEditorViewModel(
     private val stringResolver: StringResolver,
     private val repository: AutomationRuleRepository,
-    private val definitions: AutomationDefinitionRegistry
+    private val definitions: AutomationDefinitionRegistry,
 ) : BaseViewModel<AutomationEditorUiState, AutomationEditorEvent, AutomationEditorAction>(
-    initialState = AutomationEditorUiState()
+    initialState = AutomationEditorUiState(),
 ) {
     override fun onAction(action: AutomationEditorAction) {
         when (action) {
-            AutomationEditorAction.CloseEditorClicked -> {
-                closeEditor()
-                triggerEvent(AutomationEditorEvent.NavigateBackToRules)
-            }
-
-            AutomationEditorAction.ClosePickerClicked -> {
-                closePicker()
-                triggerEvent(AutomationEditorEvent.PopToEditor)
-            }
-
-            AutomationEditorAction.BackToPickerSelectionClicked -> {
-                navigateBackFromConfiguration()
-            }
-
-            is AutomationEditorAction.RuleNameChanged -> {
-                val editor = uiState.value.editorState ?: return
-                updateState {
-                    it.copy(
-                        editorState = editor.copy(
-                            name = action.name,
-                            validation = RuleValidationState()
-                        )
-                    )
-                }
-            }
-
-            is AutomationEditorAction.RuleEnabledChanged -> {
-                val editor = uiState.value.editorState ?: return
-                updateState { it.copy(editorState = editor.copy(enabled = action.enabled)) }
-            }
-
+            AutomationEditorAction.CloseEditorClicked -> closeEditorAndNavigateBack()
+            AutomationEditorAction.ClosePickerClicked -> closePickerAndReturnToEditor()
+            AutomationEditorAction.BackToPickerSelectionClicked -> navigateBackFromConfiguration()
+            is AutomationEditorAction.RuleNameChanged -> updateRuleName(action.name)
+            is AutomationEditorAction.RuleEnabledChanged -> updateRuleEnabled(action.enabled)
             AutomationEditorAction.SaveRuleClicked -> saveRule()
-
-            is AutomationEditorAction.AddNodeClicked -> {
-                startSelection(action.section, null, launchedFromSelection = true)
-                triggerEvent(
-                    AutomationEditorEvent.NavigateToDefinitionSelection(
-                        section = action.section,
-                        editingIndex = null
-                    )
-                )
-            }
-
-            is AutomationEditorAction.EditNodeClicked -> {
-                startSelection(action.section, action.index, launchedFromSelection = false)
-                val typeKey = uiState.value.pickerState?.selectedTypeKey
-                if (typeKey != null) {
-                    navigateToConfiguration(typeKey)
-                }
-            }
-
-            is AutomationEditorAction.DeleteNodeClicked -> {
-                deleteNode(action.section, action.index)
-            }
-
-            is AutomationEditorAction.PickerQueryChanged -> {
-                val picker = uiState.value.pickerState ?: return
-                updateState { it.copy(pickerState = picker.copy(query = action.query)) }
-            }
-
-            is AutomationEditorAction.DefinitionSelected -> {
-                navigateToConfiguration(action.typeKey)
-            }
-
-            is AutomationEditorAction.PickerFieldChanged -> {
-                val picker = uiState.value.pickerState ?: return
-                val typeKey = picker.selectedTypeKey ?: return
-                val definition = definitionFor(picker.section, typeKey) ?: return
-                updateState {
-                    it.copy(
-                        pickerState = picker.copy(
-                            draftConfig = definition.updateFieldAny(
-                                config = picker.draftConfig,
-                                fieldId = action.fieldId,
-                                value = action.value
-                            ),
-                            errors = emptyList()
-                        )
-                    )
-                }
-            }
-
+            is AutomationEditorAction.AddNodeClicked -> startAddingNode(action.section)
+            is AutomationEditorAction.EditNodeClicked -> editNode(action.section, action.index)
+            is AutomationEditorAction.DeleteNodeClicked -> deleteNode(action.section, action.index)
+            is AutomationEditorAction.PickerQueryChanged -> updatePickerQuery(action.query)
+            is AutomationEditorAction.DefinitionSelected -> navigateToConfiguration(action.typeKey)
+            is AutomationEditorAction.PickerFieldChanged -> updatePickerField(action.fieldId, action.value)
             AutomationEditorAction.SavePickerClicked -> savePickerSelection()
         }
     }
@@ -124,7 +54,7 @@ class AutomationRuleEditorViewModel(
         updateState {
             it.copy(
                 editorState = RuleEditorState(id = UUID.randomUUID().toString()),
-                pickerState = null
+                pickerState = null,
             )
         }
     }
@@ -138,29 +68,28 @@ class AutomationRuleEditorViewModel(
                     enabled = rule.enabled,
                     triggers = rule.triggers,
                     constraints = rule.constraints,
-                    actions = rule.actions
+                    actions = rule.actions,
                 ),
-                pickerState = null
+                pickerState = null,
             )
         }
     }
 
-    fun definitionItems(section: RuleSection, query: String): List<DefinitionListItem> =
-        definitionsFor(section)
-            .filter { definition ->
-                query.isBlank() ||
-                    stringResolver.resolve(definition.titleRes).contains(query, ignoreCase = true) ||
-                    stringResolver.resolve(definition.descriptionRes).contains(query, ignoreCase = true)
-            }
-            .map { definition ->
-                DefinitionListItem(
-                    key = definition.key,
-                    titleRes = definition.titleRes,
-                    descriptionRes = definition.descriptionRes,
-                    fields = definition.fields,
-                    permissions = definition.requiredPermissions
-                )
-            }
+    fun definitionItems(section: RuleSection, query: String): List<DefinitionListItem> = definitionsFor(section)
+        .filter { definition ->
+            query.isBlank() ||
+                stringResolver.resolve(definition.titleRes).contains(query, ignoreCase = true) ||
+                stringResolver.resolve(definition.descriptionRes).contains(query, ignoreCase = true)
+        }
+        .map { definition ->
+            DefinitionListItem(
+                key = definition.key,
+                titleRes = definition.titleRes,
+                descriptionRes = definition.descriptionRes,
+                fields = definition.fields,
+                permissions = definition.requiredPermissions,
+            )
+        }
 
     fun summarizeTrigger(config: TriggerConfig): String =
         definitions.trigger(config.type)?.summarizeAny(config, stringResolver)
@@ -183,7 +112,7 @@ class AutomationRuleEditorViewModel(
             titleRes = definition.titleRes,
             descriptionRes = definition.descriptionRes,
             fields = definition.fields,
-            permissions = definition.requiredPermissions
+            permissions = definition.requiredPermissions,
         )
     }
 
@@ -200,8 +129,73 @@ class AutomationRuleEditorViewModel(
         updateState { it.copy(editorState = null, pickerState = null) }
     }
 
+    private fun closeEditorAndNavigateBack() {
+        closeEditor()
+        triggerEvent(AutomationEditorEvent.NavigateBackToRules)
+    }
+
     private fun closePicker() {
         updateState { it.copy(pickerState = null) }
+    }
+
+    private fun closePickerAndReturnToEditor() {
+        closePicker()
+        triggerEvent(AutomationEditorEvent.PopToEditor)
+    }
+
+    private fun updateRuleName(name: String) {
+        val editor = uiState.value.editorState ?: return
+        updateState {
+            it.copy(
+                editorState = editor.copy(
+                    name = name,
+                    validation = RuleValidationState(),
+                ),
+            )
+        }
+    }
+
+    private fun updateRuleEnabled(enabled: Boolean) {
+        val editor = uiState.value.editorState ?: return
+        updateState { it.copy(editorState = editor.copy(enabled = enabled)) }
+    }
+
+    private fun startAddingNode(section: RuleSection) {
+        startSelection(section, null, launchedFromSelection = true)
+        triggerEvent(
+            AutomationEditorEvent.NavigateToDefinitionSelection(
+                section = section,
+                editingIndex = null,
+            ),
+        )
+    }
+
+    private fun editNode(section: RuleSection, index: Int) {
+        startSelection(section, index, launchedFromSelection = false)
+        uiState.value.pickerState?.selectedTypeKey?.let(::navigateToConfiguration)
+    }
+
+    private fun updatePickerQuery(query: String) {
+        val picker = uiState.value.pickerState ?: return
+        updateState { it.copy(pickerState = picker.copy(query = query)) }
+    }
+
+    private fun updatePickerField(fieldId: String, value: String) {
+        val picker = uiState.value.pickerState ?: return
+        val typeKey = picker.selectedTypeKey ?: return
+        val definition = definitionFor(picker.section, typeKey) ?: return
+        updateState {
+            it.copy(
+                pickerState = picker.copy(
+                    draftConfig = definition.updateFieldAny(
+                        config = picker.draftConfig,
+                        fieldId = fieldId,
+                        value = value,
+                    ),
+                    errors = emptyList(),
+                ),
+            )
+        }
     }
 
     private fun startSelection(section: RuleSection, editingIndex: Int?, launchedFromSelection: Boolean) {
@@ -216,7 +210,7 @@ class AutomationRuleEditorViewModel(
             DefinitionPickerState(
                 section = section,
                 editingIndex = editingIndex,
-                launchedFromSelection = launchedFromSelection
+                launchedFromSelection = launchedFromSelection,
             )
         } else {
             DefinitionPickerState(
@@ -224,7 +218,7 @@ class AutomationRuleEditorViewModel(
                 editingIndex = editingIndex,
                 launchedFromSelection = launchedFromSelection,
                 selectedTypeKey = definitionKeyOf(existing),
-                draftConfig = existing
+                draftConfig = existing,
             )
         }
 
@@ -242,8 +236,8 @@ class AutomationRuleEditorViewModel(
                     } else {
                         defaultConfig(picker.section, typeKey)
                     },
-                    errors = emptyList()
-                )
+                    errors = emptyList(),
+                ),
             )
         }
     }
@@ -255,8 +249,8 @@ class AutomationRuleEditorViewModel(
             AutomationEditorEvent.NavigateToDefinitionConfiguration(
                 section = picker.section,
                 typeKey = typeKey,
-                editingIndex = picker.editingIndex
-            )
+                editingIndex = picker.editingIndex,
+            ),
         )
     }
 
@@ -278,8 +272,8 @@ class AutomationRuleEditorViewModel(
                 pickerState = picker.copy(
                     selectedTypeKey = null,
                     draftConfig = null,
-                    errors = emptyList()
-                )
+                    errors = emptyList(),
+                ),
             )
         }
     }
@@ -300,8 +294,8 @@ class AutomationRuleEditorViewModel(
                     enabled = current.enabled,
                     triggers = current.triggers,
                     constraints = current.constraints,
-                    actions = current.actions
-                )
+                    actions = current.actions,
+                ),
             )
             closeEditor()
             triggerEvent(AutomationEditorEvent.NavigateBackToRules)
@@ -326,9 +320,9 @@ class AutomationRuleEditorViewModel(
                     it.copy(
                         editorState = editor.copy(
                             triggers = replaceAt(editor.triggers, picker.editingIndex, config),
-                            validation = RuleValidationState()
+                            validation = RuleValidationState(),
                         ),
-                        pickerState = null
+                        pickerState = null,
                     )
                 }
             }
@@ -345,9 +339,9 @@ class AutomationRuleEditorViewModel(
                     it.copy(
                         editorState = editor.copy(
                             constraints = replaceAt(editor.constraints, picker.editingIndex, config),
-                            validation = RuleValidationState()
+                            validation = RuleValidationState(),
                         ),
-                        pickerState = null
+                        pickerState = null,
                     )
                 }
             }
@@ -364,9 +358,9 @@ class AutomationRuleEditorViewModel(
                     it.copy(
                         editorState = editor.copy(
                             actions = replaceAt(editor.actions, picker.editingIndex, config),
-                            validation = RuleValidationState()
+                            validation = RuleValidationState(),
                         ),
-                        pickerState = null
+                        pickerState = null,
                     )
                 }
             }
@@ -380,15 +374,17 @@ class AutomationRuleEditorViewModel(
         val updated = when (section) {
             RuleSection.TRIGGERS -> current.copy(
                 triggers = current.triggers.toMutableList().also { it.removeAt(index) },
-                validation = RuleValidationState()
+                validation = RuleValidationState(),
             )
+
             RuleSection.CONSTRAINTS -> current.copy(
                 constraints = current.constraints.toMutableList().also { it.removeAt(index) },
-                validation = RuleValidationState()
+                validation = RuleValidationState(),
             )
+
             RuleSection.ACTIONS -> current.copy(
                 actions = current.actions.toMutableList().also { it.removeAt(index) },
-                validation = RuleValidationState()
+                validation = RuleValidationState(),
             )
         }
         updateState { it.copy(editorState = updated) }

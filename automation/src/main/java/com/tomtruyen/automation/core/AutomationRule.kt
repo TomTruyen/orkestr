@@ -10,5 +10,5 @@ data class AutomationRule(
     val enabled: Boolean,
     val triggers: List<TriggerConfig>,
     val constraints: List<ConstraintConfig>,
-    val actions: List<ActionConfig>
+    val actions: List<ActionConfig>,
 )

@@ -30,15 +30,15 @@ internal class AutomationNodeDefinitionTest {
     fun updateFieldAny_updatesMatchingField_andFallsBackForUnknownFields() {
         assertEquals(
             TestNodeConfig("updated"),
-            TestNodeDefinition.updateFieldAny(null, "value", "updated")
+            TestNodeDefinition.updateFieldAny(null, "value", "updated"),
         )
         assertEquals(
             TestNodeConfig("existing"),
-            TestNodeDefinition.updateFieldAny(TestNodeConfig("existing"), "missing", "updated")
+            TestNodeDefinition.updateFieldAny(TestNodeConfig("existing"), "missing", "updated"),
         )
         assertEquals(
             TestNodeConfig(),
-            TestNodeDefinition.updateFieldAny(OtherNodeConfig, "missing", "updated")
+            TestNodeDefinition.updateFieldAny(OtherNodeConfig, "missing", "updated"),
         )
     }
 
@@ -66,17 +66,15 @@ internal class AutomationNodeDefinitionTest {
                 descriptionRes = 4,
                 reader = { it.value },
                 updater = { config, input -> config.copy(value = input) },
-                inputValidator = { input, _ -> if (input == "invalid") listOf("invalid") else emptyList() }
-            )
+                inputValidator = { input, _ -> if (input == "invalid") listOf("invalid") else emptyList() },
+            ),
         )
 
         override fun summarize(config: TestNodeConfig, resolver: AutomationTextResolver): String =
             "summary:${config.value}"
     }
 
-    private data class TestNodeConfig(
-        val value: String = "default"
-    ) : AutomationConfig<TestNodeType> {
+    private data class TestNodeConfig(val value: String = "default") : AutomationConfig<TestNodeType> {
         override val type: TestNodeType = TestNodeType.NODE
         override val requiredPermissions = listOf(NotificationPolicyAccessPermission)
     }
@@ -86,6 +84,6 @@ internal class AutomationNodeDefinitionTest {
     }
 
     private enum class TestNodeType {
-        NODE
+        NODE,
     }
 }

@@ -1,0 +1,40 @@
+config:
+  validation: false
+  warningsAsErrors: false
+
+complexity:
+  CyclomaticComplexMethod:
+    allowedComplexity: 20
+  LongMethod:
+    active: false
+  LongParameterList:
+    allowedFunctionParameters: 8
+    allowedConstructorParameters: 9
+  TooManyFunctions:
+    active: false
+
+formatting:
+  MaximumLineLength:
+    maxLineLength: 160
+
+naming:
+  FunctionNaming:
+    ignoreAnnotated:
+      - Composable
+
+style:
+  MaxLineLength:
+    maxLineLength: 160
+  MagicNumber:
+    ignoreNumbers:
+      - "-1"
+      - "0"
+      - "1"
+      - "2"
+    ignorePropertyDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
+    ignoreNamedArgument: true
+  ReturnCount:
+    active: false
+  WildcardImport:
+    active: false

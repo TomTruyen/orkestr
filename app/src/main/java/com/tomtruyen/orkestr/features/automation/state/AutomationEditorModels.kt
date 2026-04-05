@@ -2,15 +2,13 @@ package com.tomtruyen.orkestr.features.automation.state
 
 import androidx.annotation.StringRes
 import com.tomtruyen.automation.core.config.AutomationConfig
-import com.tomtruyen.automation.core.permission.AutomationPermission
 import com.tomtruyen.automation.core.definition.AutomationFieldDefinition
+import com.tomtruyen.automation.core.permission.AutomationPermission
 import com.tomtruyen.automation.features.actions.config.ActionConfig
 import com.tomtruyen.automation.features.constraints.config.ConstraintConfig
 import com.tomtruyen.automation.features.triggers.config.TriggerConfig
 
-data class RuleValidationState(
-    val errors: List<String> = emptyList()
-)
+data class RuleValidationState(val errors: List<String> = emptyList())
 
 data class RuleEditorState(
     val id: String,
@@ -19,7 +17,7 @@ data class RuleEditorState(
     val triggers: List<TriggerConfig> = emptyList(),
     val constraints: List<ConstraintConfig> = emptyList(),
     val actions: List<ActionConfig> = emptyList(),
-    val validation: RuleValidationState = RuleValidationState()
+    val validation: RuleValidationState = RuleValidationState(),
 )
 
 data class DefinitionListItem(
@@ -27,7 +25,7 @@ data class DefinitionListItem(
     @param:StringRes val titleRes: Int,
     @param:StringRes val descriptionRes: Int,
     val fields: List<AutomationFieldDefinition>,
-    val permissions: List<AutomationPermission> = emptyList()
+    val permissions: List<AutomationPermission> = emptyList(),
 )
 
 data class DefinitionPickerState(
@@ -37,5 +35,5 @@ data class DefinitionPickerState(
     val launchedFromSelection: Boolean = true,
     val selectedTypeKey: String? = null,
     val draftConfig: AutomationConfig<*>? = null,
-    val errors: List<String> = emptyList()
+    val errors: List<String> = emptyList(),
 )

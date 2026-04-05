@@ -8,7 +8,7 @@ import com.tomtruyen.automation.generated.GeneratedActionProvider
 
 class ActionExecutor(
     context: Context,
-    delegates: List<ActionDelegate<out ActionConfig>> = GeneratedActionProvider.delegates(context)
+    delegates: List<ActionDelegate<out ActionConfig>> = GeneratedActionProvider.delegates(context),
 ) {
     private val delegatesByType = delegates.associateBy { it.type }
 
@@ -20,9 +20,6 @@ class ActionExecutor(
 }
 
 @Suppress("UNCHECKED_CAST")
-private suspend fun ActionDelegate<out ActionConfig>.executeTyped(
-    config: ActionConfig,
-    event: AutomationEvent
-) {
+private suspend fun ActionDelegate<out ActionConfig>.executeTyped(config: ActionConfig, event: AutomationEvent) {
     (this as ActionDelegate<ActionConfig>).execute(config, event)
 }

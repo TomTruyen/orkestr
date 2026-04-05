@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.detekt)
 }
 
 android {
@@ -40,6 +41,16 @@ android {
     }
 }
 
+detekt {
+    toolVersion = libs.versions.detekt.get()
+    config.setFrom(rootProject.file("detekt.yml"))
+    buildUponDefaultConfig = true
+    parallel = true
+    autoCorrect = true
+    ignoreFailures = false
+    basePath.set(rootDir)
+}
+
 dependencies {
     implementation(project(":automation"))
     implementation(libs.androidx.core.ktx)
@@ -64,4 +75,17 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+    detektPlugins(libs.detekt.formatting)
+}
+
+tasks.withType<dev.detekt.gradle.Detekt>().configureEach {
+    jvmTarget.set("11")
+    reports {
+        html.required.set(true)
+        sarif.required.set(true)
+    }
+}
+
+tasks.withType<dev.detekt.gradle.DetektCreateBaselineTask>().configureEach {
+    jvmTarget.set("11")
 }

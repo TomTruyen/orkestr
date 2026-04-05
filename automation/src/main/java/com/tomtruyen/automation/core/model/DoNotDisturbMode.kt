@@ -4,5 +4,5 @@ enum class DoNotDisturbMode {
     PRIORITY_ONLY,
     ALARMS_ONLY,
     TOTAL_SILENCE,
-    OFF
+    OFF,
 }

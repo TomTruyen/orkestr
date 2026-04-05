@@ -41,7 +41,7 @@ internal class AutomationRuntimeServiceTest {
             repository = repository,
             triggerMatcher = triggerMatcher,
             constraintEvaluator = constraintEvaluator,
-            actionExecutor = actionExecutor
+            actionExecutor = actionExecutor,
         )
 
         coEvery { actionExecutor.executeAll(any(), any()) } just Runs
@@ -63,7 +63,7 @@ internal class AutomationRuntimeServiceTest {
     fun handleEvent_whenTriggersDoNotMatch_skipsConstraintsAndActions() = runTest(StandardTestDispatcher()) {
         val event = mockk<AutomationEvent>()
         val rule = mockk<AutomationRule>()
-        
+
         coEvery { repository.getEnabledRules() } returns listOf(rule)
         coEvery { triggerMatcher.matches(rule.triggers, event) } returns false
 
@@ -78,7 +78,7 @@ internal class AutomationRuntimeServiceTest {
     fun handleEvent_whenConstraintsDoNotPass_skipsActions() = runTest(StandardTestDispatcher()) {
         val event = mockk<AutomationEvent>()
         val rule = mockk<AutomationRule>()
-        
+
         coEvery { repository.getEnabledRules() } returns listOf(rule)
         coEvery { triggerMatcher.matches(rule.triggers, event) } returns true
         coEvery { constraintEvaluator.evaluateAll(rule.constraints, event) } returns false
@@ -128,14 +128,14 @@ internal class AutomationRuntimeServiceTest {
         }
 
         coEvery { repository.getEnabledRules() } returns listOf(rule1, rule2, rule3)
-        
+
         // rule1: triggers match, constraints pass -> execute
         coEvery { triggerMatcher.matches(rule1.triggers, event) } returns true
         coEvery { constraintEvaluator.evaluateAll(rule1.constraints, event) } returns true
 
         // rule2: triggers don't match -> skip
         coEvery { triggerMatcher.matches(rule2.triggers, event) } returns false
-        
+
         // rule3: triggers match, constraints don't pass -> skip
         coEvery { triggerMatcher.matches(rule3.triggers, event) } returns true
         coEvery { constraintEvaluator.evaluateAll(rule3.constraints, event) } returns false
@@ -160,9 +160,9 @@ internal class AutomationRuntimeServiceTest {
         val rule2 = mockk<AutomationRule>(relaxed = true) {
             every { this@mockk.actions } returns actions2
         }
-        
+
         coEvery { repository.getEnabledRules() } returns listOf(rule1, rule2)
-        
+
         coEvery { triggerMatcher.matches(any(), event) } returns true
         coEvery { constraintEvaluator.evaluateAll(any(), event) } returns true
 

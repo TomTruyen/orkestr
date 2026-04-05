@@ -6,7 +6,7 @@ import com.tomtruyen.automation.core.AutomationLogger
 import com.tomtruyen.automation.core.AutomationRuntimeService
 import kotlinx.coroutines.CoroutineScope
 
-abstract class TriggerReceiver: BroadcastReceiver() {
+abstract class TriggerReceiver : BroadcastReceiver() {
     protected abstract val service: AutomationRuntimeService
     protected abstract val scope: CoroutineScope
     protected abstract val logger: AutomationLogger
@@ -18,7 +18,7 @@ abstract class TriggerReceiver: BroadcastReceiver() {
             context: Context,
             service: AutomationRuntimeService,
             scope: CoroutineScope,
-            logger: AutomationLogger
+            logger: AutomationLogger,
         ): TriggerReceiver
     }
 }

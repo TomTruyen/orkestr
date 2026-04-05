@@ -5,14 +5,12 @@ import android.content.Context
 import android.os.Build
 import com.tomtruyen.automation.codegen.GenerateActionDelegate
 import com.tomtruyen.automation.core.event.AutomationEvent
+import com.tomtruyen.automation.core.model.DoNotDisturbMode
 import com.tomtruyen.automation.features.actions.ActionType
 import com.tomtruyen.automation.features.actions.config.DoNotDisturbActionConfig
-import com.tomtruyen.automation.core.model.DoNotDisturbMode
 
 @GenerateActionDelegate
-class DoNotDisturbActionDelegate(
-    private val context: Context
-) : ActionDelegate<DoNotDisturbActionConfig> {
+class DoNotDisturbActionDelegate(private val context: Context) : ActionDelegate<DoNotDisturbActionConfig> {
     override val type: ActionType = ActionType.DO_NOT_DISTURB
 
     override suspend fun execute(config: DoNotDisturbActionConfig, event: AutomationEvent) {
@@ -28,7 +26,7 @@ class DoNotDisturbActionDelegate(
                 DoNotDisturbMode.ALARMS_ONLY -> NotificationManager.INTERRUPTION_FILTER_ALARMS
                 DoNotDisturbMode.TOTAL_SILENCE -> NotificationManager.INTERRUPTION_FILTER_NONE
                 DoNotDisturbMode.OFF -> NotificationManager.INTERRUPTION_FILTER_ALL
-            }
+            },
         )
     }
 }

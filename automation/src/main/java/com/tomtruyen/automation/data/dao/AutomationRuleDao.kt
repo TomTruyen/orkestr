@@ -24,6 +24,8 @@ interface AutomationRuleDao {
     @Query("DELETE FROM automation_rules WHERE id = :id")
     suspend fun deleteById(id: String)
 
-    @Query("UPDATE automation_rules SET enabled = :enabled, updatedAtEpochMillis = :updatedAtEpochMillis WHERE id = :id")
+    @Query(
+        "UPDATE automation_rules SET enabled = :enabled, updatedAtEpochMillis = :updatedAtEpochMillis WHERE id = :id",
+    )
     suspend fun updateEnabled(id: String, enabled: Boolean, updatedAtEpochMillis: Long)
 }

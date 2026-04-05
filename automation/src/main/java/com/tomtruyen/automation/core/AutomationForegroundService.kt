@@ -12,20 +12,21 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
-import com.tomtruyen.automation.features.triggers.receiver.BatteryChangedReceiver
 import com.tomtruyen.automation.features.triggers.receiver.TriggerReceiver
 import com.tomtruyen.automation.features.triggers.receiver.TriggerReceiverKey
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.core.component.KoinComponent
 
-class AutomationForegroundService : Service(), KoinComponent {
+class AutomationForegroundService :
+    Service(),
+    KoinComponent {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     private val service by inject<AutomationRuntimeService>()
@@ -141,7 +142,7 @@ class AutomationForegroundService : Service(), KoinComponent {
                     context = this,
                     service = service,
                     scope = scope,
-                    logger = logger
+                    logger = logger,
                 )
             }
     }

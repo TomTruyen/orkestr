@@ -10,7 +10,7 @@ import com.tomtruyen.automation.features.triggers.definition.TriggerDefinition
 class AutomationDefinitionRegistry(
     val triggers: List<TriggerDefinition<*>>,
     val constraints: List<ConstraintDefinition<*>>,
-    val actions: List<ActionDefinition<*>>
+    val actions: List<ActionDefinition<*>>,
 ) {
     private val triggerMap = triggers.associateBy { it.type }
     private val constraintMap = constraints.associateBy { it.type }

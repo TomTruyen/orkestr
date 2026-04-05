@@ -5,7 +5,6 @@ import com.tomtruyen.automation.core.event.AutomationEvent
 import com.tomtruyen.automation.core.event.BatteryChangedEvent
 import com.tomtruyen.automation.core.model.BatteryChargeState
 import com.tomtruyen.automation.core.model.BatteryPlugStatus
-import com.tomtruyen.automation.features.actions.config.ActionConfig
 import com.tomtruyen.automation.features.actions.config.LogMessageActionConfig
 import com.tomtruyen.automation.features.actions.delegate.ActionDelegate
 import io.mockk.MockKAnnotations
@@ -35,7 +34,7 @@ internal class ActionExecutorTest {
             level = 50,
             scale = 100,
             chargeState = BatteryChargeState.CHARGING,
-            plugStatus = BatteryPlugStatus.AC
+            plugStatus = BatteryPlugStatus.AC,
         )
 
         coEvery { delegate.type } returns ActionType.LOG_MESSAGE

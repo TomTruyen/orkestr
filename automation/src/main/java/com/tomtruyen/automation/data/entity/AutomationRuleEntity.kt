@@ -15,5 +15,5 @@ data class AutomationRuleEntity(
     @ColumnInfo(name = "triggersJson") val triggers: List<TriggerConfig>,
     @ColumnInfo(name = "constraintsJson") val constraints: List<ConstraintConfig>,
     @ColumnInfo(name = "actionsJson") val actions: List<ActionConfig>,
-    val updatedAtEpochMillis: Long
+    val updatedAtEpochMillis: Long,
 )

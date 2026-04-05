@@ -6,7 +6,6 @@ import com.tomtruyen.automation.core.model.BatteryChargeState
 import com.tomtruyen.automation.core.model.BatteryPlugStatus
 import com.tomtruyen.automation.core.utils.ComparisonOperator
 import com.tomtruyen.automation.features.constraints.config.BatteryLevelConstraintConfig
-import com.tomtruyen.automation.features.constraints.config.ConstraintConfig
 import com.tomtruyen.automation.features.constraints.delegate.ConstraintDelegate
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -31,13 +30,13 @@ internal class ConstraintEvaluatorTest {
 
         constraint = BatteryLevelConstraintConfig(
             operator = ComparisonOperator.GREATER_THAN,
-            value = 20
+            value = 20,
         )
         event = BatteryChangedEvent(
             level = 50,
             scale = 100,
             chargeState = BatteryChargeState.CHARGING,
-            plugStatus = BatteryPlugStatus.AC
+            plugStatus = BatteryPlugStatus.AC,
         )
 
         coEvery { delegate.type } returns ConstraintType.BATTERY_LEVEL
