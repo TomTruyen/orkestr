@@ -5,19 +5,17 @@ import com.tomtruyen.automation.core.AutomationLogger
 import com.tomtruyen.automation.core.AutomationRuntimeService
 import com.tomtruyen.automation.core.LogcatAutomationLogger
 import com.tomtruyen.automation.data.AutomationDatabase
-import com.tomtruyen.automation.core.definition.AutomationDefinitionRegistry
-import com.tomtruyen.automation.features.constraints.definition.BatteryLevelConstraintDefinition
-import com.tomtruyen.automation.features.triggers.definition.ChargeStateTriggerDefinition
-import com.tomtruyen.automation.features.actions.definition.DoNotDisturbActionDefinition
-import com.tomtruyen.automation.features.actions.definition.LogMessageActionDefinition
-import com.tomtruyen.automation.features.actions.definition.ShowNotificationActionDefinition
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
 import com.tomtruyen.automation.data.repository.AutomationRuleRepositoryImpl
 import com.tomtruyen.automation.features.actions.ActionExecutor
 import com.tomtruyen.automation.features.constraints.ConstraintEvaluator
 import com.tomtruyen.automation.features.triggers.TriggerMatcher
-import com.tomtruyen.automation.features.triggers.receiver.BatteryChangedReceiver
 import com.tomtruyen.automation.features.triggers.receiver.TriggerReceiver
+import com.tomtruyen.automation.generated.GeneratedActionProvider
+import com.tomtruyen.automation.generated.GeneratedAutomationRegistryProvider
+import com.tomtruyen.automation.generated.GeneratedConstraintProvider
+import com.tomtruyen.automation.generated.GeneratedReceiverProvider
+import com.tomtruyen.automation.generated.GeneratedTriggerProvider
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -39,28 +37,20 @@ val automationModule = module {
 
     // Definitions
     single {
-        AutomationDefinitionRegistry(
-            triggers = listOf(ChargeStateTriggerDefinition),
-            constraints = listOf(BatteryLevelConstraintDefinition),
-            actions = listOf(
-                ShowNotificationActionDefinition,
-                LogMessageActionDefinition,
-                DoNotDisturbActionDefinition
-            )
-        )
+        GeneratedAutomationRegistryProvider.create()
     }
 
     // Logger
     single<AutomationLogger> { LogcatAutomationLogger() }
 
     single<List<TriggerReceiver.TriggerFactory>> {
-        listOf(BatteryChangedReceiver.Factory)
+        GeneratedReceiverProvider.factories
     }
 
     // Runtime Service
-    single { TriggerMatcher() }
-    single { ConstraintEvaluator() }
-    single { ActionExecutor(androidContext()) }
+    single { TriggerMatcher(GeneratedTriggerProvider.delegates()) }
+    single { ConstraintEvaluator(GeneratedConstraintProvider.delegates()) }
+    single { ActionExecutor(androidContext(), GeneratedActionProvider.delegates(androidContext())) }
 
     single<AutomationRuntimeService> {
         AutomationRuntimeService(

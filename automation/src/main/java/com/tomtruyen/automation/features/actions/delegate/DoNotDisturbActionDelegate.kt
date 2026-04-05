@@ -3,11 +3,13 @@ package com.tomtruyen.automation.features.actions.delegate
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import com.tomtruyen.automation.codegen.GenerateActionDelegate
 import com.tomtruyen.automation.core.event.AutomationEvent
 import com.tomtruyen.automation.features.actions.ActionType
 import com.tomtruyen.automation.features.actions.config.DoNotDisturbActionConfig
 import com.tomtruyen.automation.core.model.DoNotDisturbMode
 
+@GenerateActionDelegate
 class DoNotDisturbActionDelegate(
     private val context: Context
 ) : ActionDelegate<DoNotDisturbActionConfig> {

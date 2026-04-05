@@ -1,6 +1,7 @@
 package com.tomtruyen.automation.features.triggers.definition
 
 import com.tomtruyen.automation.R
+import com.tomtruyen.automation.codegen.GenerateTriggerDefinition
 import com.tomtruyen.automation.core.model.BatteryChargeState
 import com.tomtruyen.automation.core.definition.AutomationFieldType
 import com.tomtruyen.automation.core.definition.AutomationOption
@@ -8,6 +9,7 @@ import com.tomtruyen.automation.core.definition.AutomationTextResolver
 import com.tomtruyen.automation.core.definition.TypedAutomationFieldDefinition
 import com.tomtruyen.automation.features.triggers.config.BatteryChangedTriggerConfig
 
+@GenerateTriggerDefinition
 object ChargeStateTriggerDefinition : TriggerDefinition<BatteryChangedTriggerConfig>(
     configClass = BatteryChangedTriggerConfig::class,
     defaultConfig = BatteryChangedTriggerConfig()

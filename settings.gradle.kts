@@ -25,3 +25,5 @@ dependencyResolutionManagement {
 rootProject.name = "orkestr"
 include(":app")
 include(":automation")
+include(":automation-ksp")
+include(":automation-ksp-annotations")

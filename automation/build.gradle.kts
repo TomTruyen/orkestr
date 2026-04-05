@@ -35,6 +35,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":automation-ksp-annotations"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.room.runtime)
@@ -44,6 +45,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.koin.android)
     implementation(libs.play.services.location)
+    ksp(project(":automation-ksp"))
     ksp(libs.androidx.room.compiler)
     testImplementation(libs.junit)
     testImplementation(libs.mockk)

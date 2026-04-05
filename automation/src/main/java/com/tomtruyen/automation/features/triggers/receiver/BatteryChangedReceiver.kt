@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
 import androidx.core.content.ContextCompat
+import com.tomtruyen.automation.codegen.GenerateReceiverFactory
 import com.tomtruyen.automation.core.AutomationLogger
 import com.tomtruyen.automation.core.AutomationRuntimeService
 import com.tomtruyen.automation.core.event.BatteryChangedEvent
@@ -53,6 +54,7 @@ class BatteryChangedReceiver(
         }
     }
 
+    @GenerateReceiverFactory
     companion object Factory: TriggerFactory {
         override val key: TriggerReceiverKey = TriggerReceiverKey.BATTERY_CHANGED
 

@@ -7,10 +7,12 @@ import android.app.NotificationManager
 import android.content.Context
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.tomtruyen.automation.codegen.GenerateActionDelegate
 import com.tomtruyen.automation.core.event.AutomationEvent
 import com.tomtruyen.automation.features.actions.ActionType
 import com.tomtruyen.automation.features.actions.config.ShowNotificationActionConfig
 
+@GenerateActionDelegate
 class ShowNotificationActionDelegate(
     private val context: Context
 ) : ActionDelegate<ShowNotificationActionConfig> {

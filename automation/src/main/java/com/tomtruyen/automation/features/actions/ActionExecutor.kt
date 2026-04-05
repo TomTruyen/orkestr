@@ -4,17 +4,11 @@ import android.content.Context
 import com.tomtruyen.automation.core.event.AutomationEvent
 import com.tomtruyen.automation.features.actions.config.ActionConfig
 import com.tomtruyen.automation.features.actions.delegate.ActionDelegate
-import com.tomtruyen.automation.features.actions.delegate.DoNotDisturbActionDelegate
-import com.tomtruyen.automation.features.actions.delegate.LogMessageActionDelegate
-import com.tomtruyen.automation.features.actions.delegate.ShowNotificationActionDelegate
+import com.tomtruyen.automation.generated.GeneratedActionProvider
 
 class ActionExecutor(
     context: Context,
-    delegates: List<ActionDelegate<out ActionConfig>> = listOf(
-        LogMessageActionDelegate(),
-        ShowNotificationActionDelegate(context),
-        DoNotDisturbActionDelegate(context)
-    )
+    delegates: List<ActionDelegate<out ActionConfig>> = GeneratedActionProvider.delegates(context)
 ) {
     private val delegatesByType = delegates.associateBy { it.type }
 

@@ -2,13 +2,11 @@ package com.tomtruyen.automation.features.constraints
 
 import com.tomtruyen.automation.core.event.AutomationEvent
 import com.tomtruyen.automation.features.constraints.config.ConstraintConfig
-import com.tomtruyen.automation.features.constraints.delegate.BatteryLevelConstraintDelegate
 import com.tomtruyen.automation.features.constraints.delegate.ConstraintDelegate
+import com.tomtruyen.automation.generated.GeneratedConstraintProvider
 
 class ConstraintEvaluator(
-    delegates: List<ConstraintDelegate<out ConstraintConfig>> = listOf(
-        BatteryLevelConstraintDelegate()
-    )
+    delegates: List<ConstraintDelegate<out ConstraintConfig>> = GeneratedConstraintProvider.delegates()
 ) {
     private val delegatesByType = delegates.associateBy { it.type }
 
