@@ -1,6 +1,8 @@
 package com.tomtruyen.orkestr.features.automation.navigation
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -11,6 +13,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -19,6 +22,7 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import com.tomtruyen.orkestr.common.component.LocalNavigationSharedTransitionScope
 import com.tomtruyen.orkestr.features.automation.screen.AutomationDefinitionConfigurationScreen
 import com.tomtruyen.orkestr.features.automation.screen.AutomationDefinitionSelectionScreen
 import com.tomtruyen.orkestr.features.automation.screen.AutomationHomeScreen
@@ -43,6 +47,7 @@ import org.koin.androidx.compose.koinViewModel
 import com.tomtruyen.orkestr.ui.common.R as CommonR
 
 @Composable
+@OptIn(ExperimentalSharedTransitionApi::class)
 fun AutomationNavGraph(
     rulesViewModel: AutomationRulesViewModel = koinViewModel(),
     editorViewModel: AutomationRuleEditorViewModel = koinViewModel(),
@@ -279,10 +284,14 @@ fun AutomationNavGraph(
         }
     }
 
-    NavDisplay(
-        backStack = backStack,
-        entryProvider = provider,
-    )
+    SharedTransitionLayout {
+        CompositionLocalProvider(LocalNavigationSharedTransitionScope provides this) {
+            NavDisplay(
+                backStack = backStack,
+                entryProvider = provider,
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
