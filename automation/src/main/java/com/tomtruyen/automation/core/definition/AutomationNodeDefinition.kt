@@ -2,6 +2,7 @@ package com.tomtruyen.automation.core.definition
 
 import androidx.annotation.StringRes
 import com.tomtruyen.automation.core.config.AutomationConfig
+import com.tomtruyen.automation.core.config.AutomationCategory
 import com.tomtruyen.automation.core.permission.AutomationPermission
 import kotlin.reflect.KClass
 
@@ -20,6 +21,9 @@ interface AutomationNodeDefinition<C : AutomationConfig<T>, T : Enum<T>> {
 
     @get:StringRes
     val descriptionRes: Int
+
+    val category: AutomationCategory
+        get() = defaultConfig.category
 
     val fields: List<AutomationFieldDefinition>
     fun summarize(config: C, resolver: AutomationTextResolver): String

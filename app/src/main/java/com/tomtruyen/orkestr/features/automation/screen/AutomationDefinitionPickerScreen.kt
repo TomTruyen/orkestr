@@ -3,9 +3,12 @@ package com.tomtruyen.orkestr.features.automation.screen
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
@@ -18,9 +21,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.tomtruyen.orkestr.R
@@ -38,8 +46,15 @@ import com.tomtruyen.orkestr.features.automation.viewmodel.AutomationRuleEditorV
 fun AutomationDefinitionSelectionScreen(viewModel: AutomationRuleEditorViewModel, modifier: Modifier = Modifier) {
     val uiState by viewModel.uiState.collectAsState()
     val pickerState = uiState.pickerState ?: return
-    val items = viewModel.definitionItems(pickerState.section, pickerState.query)
+    val groups = viewModel.definitionCategoryGroups(pickerState.section, pickerState.query)
     val permissionManager = AutomationPermissionManager.remember(LocalContext.current)
+    var expandedCategories by rememberSaveable(pickerState.section) { mutableStateOf(setOf<String>()) }
+
+    LaunchedEffect(pickerState.query, groups) {
+        if (pickerState.query.isNotBlank()) {
+            expandedCategories = expandedCategories + groups.map { it.category.name }
+        }
+    }
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -68,7 +83,7 @@ fun AutomationDefinitionSelectionScreen(viewModel: AutomationRuleEditorViewModel
             )
         }
 
-        if (items.isEmpty()) {
+        if (groups.isEmpty()) {
             item {
                 EmptyStateCard(
                     title = stringResource(R.string.automation_empty_matches_title),
@@ -77,28 +92,72 @@ fun AutomationDefinitionSelectionScreen(viewModel: AutomationRuleEditorViewModel
             }
         }
 
-        items(items, key = { it.key }) { item ->
-            OutlinedCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        permissionManager.request(item.permissions) {
-                            viewModel.onAction(AutomationEditorAction.DefinitionSelected(item.key))
+        groups.forEach { group ->
+            item(key = "category-${group.category.name}") {
+                OutlinedCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            expandedCategories = if (group.category.name in expandedCategories) {
+                                expandedCategories - group.category.name
+                            } else {
+                                expandedCategories + group.category.name
+                            }
+                        },
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 18.dp, vertical = 16.dp),
+                    ) {
+                        Text(
+                            text = if (group.category.name in expandedCategories) "▾" else "▸",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = stringResource(group.category.titleRes),
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        Text(
+                            text = group.items.size.toString(),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
+
+            if (group.category.name in expandedCategories) {
+                items(group.items, key = { it.key }) { item ->
+                    OutlinedCard(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                permissionManager.request(item.permissions) {
+                                    viewModel.onAction(AutomationEditorAction.DefinitionSelected(item.key))
+                                }
+                            },
+                    ) {
+                        AutomationCardColumn {
+                            Text(
+                                text = stringResource(item.titleRes),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                            Text(
+                                text = stringResource(item.descriptionRes),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            DefinitionFieldPreview(fields = item.fields)
                         }
-                    },
-            ) {
-                AutomationCardColumn {
-                    Text(
-                        text = stringResource(item.titleRes),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                    Text(
-                        text = stringResource(item.descriptionRes),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    DefinitionFieldPreview(fields = item.fields)
+                    }
                 }
             }
         }

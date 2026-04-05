@@ -3,6 +3,12 @@
     <string name="automation_definition_error_required">%1$s is required.</string>
     <string name="automation_definition_error_number">%1$s must be a number.</string>
 
+    <!-- Definition categories -->
+    <string name="automation_definition_category_battery_power">Battery/Power</string>
+    <string name="automation_definition_category_notifications">Notifications</string>
+    <string name="automation_definition_category_volume">Volume</string>
+    <string name="automation_definition_category_utility">Utility</string>
+
     <!-- Trigger definitions -->
     <string name="automation_definition_trigger_charge_state_title">Charge State</string>
     <string name="automation_definition_trigger_charge_state_description">Runs when the device enters a matching charging state.</string>

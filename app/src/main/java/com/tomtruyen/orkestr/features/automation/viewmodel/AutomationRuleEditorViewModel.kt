@@ -18,6 +18,7 @@ import com.tomtruyen.orkestr.common.StringResolver
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorAction
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorEvent
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorUiState
+import com.tomtruyen.orkestr.features.automation.state.DefinitionCategoryGroup
 import com.tomtruyen.orkestr.features.automation.state.DefinitionListItem
 import com.tomtruyen.orkestr.features.automation.state.DefinitionPickerState
 import com.tomtruyen.orkestr.features.automation.state.RuleEditorState
@@ -86,8 +87,22 @@ class AutomationRuleEditorViewModel(
                 key = definition.key,
                 titleRes = definition.titleRes,
                 descriptionRes = definition.descriptionRes,
+                category = definition.category,
                 fields = definition.fields,
                 permissions = definition.requiredPermissions,
+            )
+        }
+
+    fun definitionCategoryGroups(section: RuleSection, query: String): List<DefinitionCategoryGroup> = definitionItems(
+        section = section,
+        query = query,
+    ).groupBy { it.category }
+        .toList()
+        .sortedBy { (category, _) -> stringResolver.resolve(category.titleRes) }
+        .map { (category, items) ->
+            DefinitionCategoryGroup(
+                category = category,
+                items = items.sortedBy { item -> stringResolver.resolve(item.titleRes) },
             )
         }
 
@@ -111,6 +126,7 @@ class AutomationRuleEditorViewModel(
             key = definition.key,
             titleRes = definition.titleRes,
             descriptionRes = definition.descriptionRes,
+            category = definition.category,
             fields = definition.fields,
             permissions = definition.requiredPermissions,
         )

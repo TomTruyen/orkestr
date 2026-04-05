@@ -1,6 +1,7 @@
 package com.tomtruyen.automation.core.definition
 
 import com.tomtruyen.automation.core.config.AutomationConfig
+import com.tomtruyen.automation.core.config.AutomationCategory
 import com.tomtruyen.automation.core.permission.NotificationPolicyAccessPermission
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -16,6 +17,7 @@ internal class AutomationNodeDefinitionTest {
     fun defaultProperties_areDerivedFromDefaultConfig() {
         assertEquals(TestNodeType.NODE.name, TestNodeDefinition.key)
         assertEquals(TestNodeType.NODE, TestNodeDefinition.type)
+        assertEquals(AutomationCategory.UTILITY, TestNodeDefinition.category)
         assertEquals(listOf(NotificationPolicyAccessPermission), TestNodeDefinition.requiredPermissions)
         assertEquals(TestNodeConfig(), TestNodeDefinition.initialConfig())
     }
@@ -76,11 +78,13 @@ internal class AutomationNodeDefinitionTest {
 
     private data class TestNodeConfig(val value: String = "default") : AutomationConfig<TestNodeType> {
         override val type: TestNodeType = TestNodeType.NODE
+        override val category: AutomationCategory = AutomationCategory.UTILITY
         override val requiredPermissions = listOf(NotificationPolicyAccessPermission)
     }
 
     private data object OtherNodeConfig : AutomationConfig<TestNodeType> {
         override val type: TestNodeType = TestNodeType.NODE
+        override val category: AutomationCategory = AutomationCategory.BATTERY_POWER
     }
 
     private enum class TestNodeType {

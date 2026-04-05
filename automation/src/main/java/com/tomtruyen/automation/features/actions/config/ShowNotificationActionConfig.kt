@@ -1,5 +1,6 @@
 package com.tomtruyen.automation.features.actions.config
 
+import com.tomtruyen.automation.core.config.AutomationCategory
 import com.tomtruyen.automation.core.permission.AutomationPermission
 import com.tomtruyen.automation.core.permission.PostNotificationPermission
 import com.tomtruyen.automation.features.actions.ActionType
@@ -14,6 +15,7 @@ data class ShowNotificationActionConfig(
     val message: String = "Your rule was triggered.",
 ) : ActionConfig {
     override val type: ActionType = ActionType.SHOW_NOTIFICATION
+    override val category: AutomationCategory = AutomationCategory.NOTIFICATIONS
 
     @Transient
     override val requiredPermissions: List<AutomationPermission> = listOf(PostNotificationPermission)

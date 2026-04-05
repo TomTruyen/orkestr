@@ -1,5 +1,6 @@
 package com.tomtruyen.automation.features.constraints.config
 
+import com.tomtruyen.automation.core.config.AutomationCategory
 import com.tomtruyen.automation.core.utils.ComparisonOperator
 import com.tomtruyen.automation.features.constraints.ConstraintType
 import kotlinx.serialization.SerialName
@@ -12,6 +13,7 @@ data class BatteryLevelConstraintConfig(
     val value: Int = 80,
 ) : ConstraintConfig {
     override val type: ConstraintType = ConstraintType.BATTERY_LEVEL
+    override val category: AutomationCategory = AutomationCategory.BATTERY_POWER
 
     companion object {
         const val DISCRIMINATOR = "battery_level"
