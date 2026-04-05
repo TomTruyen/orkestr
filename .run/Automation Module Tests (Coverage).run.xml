@@ -1,22 +1,23 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="All Automation Tests" type="GradleRunConfiguration" factoryName="Gradle">
+  <configuration default="false" name="Automation Module Tests (Coverage)" type="GradleRunConfiguration" factoryName="Gradle">
     <ExternalSystemSettings>
       <option name="executionName" />
       <option name="externalProjectPath" value="$PROJECT_DIR$" />
       <option name="externalSystemIdString" value="GRADLE" />
-      <option name="scriptParameters" value="--continue" />
+      <option name="scriptParameters" value="" />
       <option name="taskDescriptions">
         <list />
       </option>
       <option name="taskNames">
         <list>
           <option value=":automation:testDebugUnitTest" />
-          <option value=":automation-ksp:test" />
+          <option value="--tests" />
+          <option value="&quot;com.tomtruyen.automation.*&quot;" />
         </list>
       </option>
       <option name="vmOptions" />
     </ExternalSystemSettings>
-    <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+    <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
     <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
     <ExternalSystemDebugDisabled>false</ExternalSystemDebugDisabled>
     <EXTENSION ID="com.intellij.execution.ExternalSystemRunConfigurationJavaExtension">

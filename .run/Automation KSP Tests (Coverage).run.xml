@@ -1,10 +1,10 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="All Automation Tests (Coverage)" type="JUnit" factoryName="JUnit">
-    <module name="orkestr" />
-    <option name="TEST_OBJECT" value="package" />
-    <option name="PACKAGE_NAME" value="com.tomtruyen.automation" />
+  <configuration default="false" name="Automation KSP Tests (Coverage)" type="JUnit" factoryName="JUnit">
+    <module name="orkestr.automation-ksp" />
+    <option name="PACKAGE_NAME" value="com.tomtruyen.automation.codegen" />
     <option name="MAIN_CLASS_NAME" value="" />
     <option name="METHOD_NAME" value="" />
+    <option name="TEST_OBJECT" value="package" />
     <option name="TEST_SEARCH_SCOPE">
       <value defaultName="wholeProject" />
     </option>
