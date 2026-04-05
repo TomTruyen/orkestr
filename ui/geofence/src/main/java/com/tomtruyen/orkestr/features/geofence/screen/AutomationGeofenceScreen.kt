@@ -2,6 +2,7 @@ package com.tomtruyen.orkestr.features.geofence.screen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -11,14 +12,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -47,6 +51,7 @@ import com.tomtruyen.orkestr.common.component.AutomationSectionHeader
 import com.tomtruyen.orkestr.common.component.EmptyStateCard
 import com.tomtruyen.orkestr.common.component.ValidationCard
 import com.tomtruyen.orkestr.features.geofence.state.GeofenceEditorState
+import com.tomtruyen.orkestr.features.geofence.state.GeofenceMapPickerState
 import com.tomtruyen.orkestr.features.geofence.state.GeofenceSearchResult
 import com.tomtruyen.orkestr.features.geofence.state.GeofenceTriggerAction
 import com.tomtruyen.orkestr.features.geofence.viewmodel.GeofenceTriggerViewModel
@@ -267,24 +272,75 @@ fun AutomationGeofenceEditorScreen(viewModel: GeofenceTriggerViewModel, modifier
             }
 
             item {
-                OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+                OutlinedCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { viewModel.onAction(GeofenceTriggerAction.OpenMapPickerClicked) },
+                ) {
                     AutomationCardColumn {
                         GoogleGeofenceMap(
                             state = state,
-                            onMapClick = { latitude, longitude ->
-                                viewModel.onAction(
-                                    GeofenceTriggerAction.GeofenceMapLocationSelected(latitude, longitude),
-                                )
-                            },
+                            interactive = false,
+                            onMapClick = { _, _ -> viewModel.onAction(GeofenceTriggerAction.OpenMapPickerClicked) },
                         )
                         Text(
-                            text = stringResource(R.string.geofence_map_hint),
+                            text = stringResource(R.string.geofence_map_preview_hint),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AutomationGeofenceMapPickerScreen(viewModel: GeofenceTriggerViewModel, modifier: Modifier = Modifier) {
+    val uiState by viewModel.uiState.collectAsState()
+    val mapPickerState = uiState.mapPickerState ?: return
+    val bottomSheetState = rememberStandardBottomSheetState(
+        initialValue = androidx.compose.material3.SheetValue.PartiallyExpanded,
+        skipHiddenState = true,
+    )
+
+    BottomSheetScaffold(
+        modifier = modifier.fillMaxSize(),
+        sheetPeekHeight = 260.dp,
+        sheetDragHandle = null,
+        scaffoldState = androidx.compose.material3.rememberBottomSheetScaffoldState(
+            bottomSheetState = bottomSheetState,
+        ),
+        sheetContent = {
+            MapPickerSheetContent(
+                state = mapPickerState,
+                onSearchQueryChanged = {
+                    viewModel.onAction(GeofenceTriggerAction.MapPickerAddressQueryChanged(it))
+                },
+                onSearchClicked = {
+                    viewModel.onAction(GeofenceTriggerAction.MapPickerAddressSearchClicked)
+                },
+                onSearchResultClicked = { result ->
+                    viewModel.onAction(GeofenceTriggerAction.MapPickerSearchResultSelected(result))
+                },
+                onConfirmClicked = {
+                    viewModel.onAction(GeofenceTriggerAction.ConfirmMapPickerClicked)
+                },
+            )
+        },
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+        ) {
+            GoogleMapPicker(
+                state = mapPickerState,
+                onMapClick = { latitude, longitude ->
+                    viewModel.onAction(GeofenceTriggerAction.MapPickerLocationSelected(latitude, longitude))
+                },
+            )
         }
     }
 }
@@ -351,10 +407,10 @@ private fun GeofenceSearchResultCard(result: GeofenceSearchResult, onClick: () -
 }
 
 @Composable
-private fun GoogleGeofenceMap(state: GeofenceEditorState, onMapClick: (Double, Double) -> Unit) {
+private fun GoogleGeofenceMap(state: GeofenceEditorState, interactive: Boolean, onMapClick: (Double, Double) -> Unit) {
     val selectedLatLng = LatLng(state.mapLatitude, state.mapLongitude)
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(selectedLatLng, 14f)
+        position = CameraPosition.fromLatLngZoom(selectedLatLng, PREVIEW_MAP_ZOOM)
     }
     var mapLoaded by remember { mutableStateOf(false) }
 
@@ -371,12 +427,19 @@ private fun GoogleGeofenceMap(state: GeofenceEditorState, onMapClick: (Double, D
             .height(320.dp),
         cameraPositionState = cameraPositionState,
         uiSettings = MapUiSettings(
-            zoomControlsEnabled = false,
+            zoomControlsEnabled = interactive,
             myLocationButtonEnabled = false,
-            scrollGesturesEnabled = false,
+            scrollGesturesEnabled = interactive,
+            zoomGesturesEnabled = interactive,
         ),
         onMapLoaded = { mapLoaded = true },
-        onMapClick = { point -> onMapClick(point.latitude, point.longitude) },
+        onMapClick = { point ->
+            if (interactive) {
+                onMapClick(point.latitude, point.longitude)
+            } else {
+                onMapClick(state.mapLatitude, state.mapLongitude)
+            }
+        },
     ) {
         Marker(
             state = MarkerState(position = selectedLatLng),
@@ -386,12 +449,98 @@ private fun GoogleGeofenceMap(state: GeofenceEditorState, onMapClick: (Double, D
         Circle(
             center = selectedLatLng,
             radius = state.mapRadiusMeters.toDouble(),
-            fillColor = Color(0x332196F3),
-            strokeColor = Color(0xFF1976D2),
-            strokeWidth = 3f,
+            fillColor = GEOFENCE_FILL_COLOR,
+            strokeColor = GEOFENCE_STROKE_COLOR,
+            strokeWidth = GEOFENCE_STROKE_WIDTH,
         )
+    }
+}
+
+@Composable
+private fun GoogleMapPicker(state: GeofenceMapPickerState, onMapClick: (Double, Double) -> Unit) {
+    val selectedLatLng = LatLng(state.latitude, state.longitude)
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(selectedLatLng, PICKER_MAP_ZOOM)
+    }
+    var mapLoaded by remember { mutableStateOf(false) }
+
+    LaunchedEffect(mapLoaded, state.latitude, state.longitude) {
+        if (!mapLoaded) return@LaunchedEffect
+        cameraPositionState.animate(CameraUpdateFactory.newLatLng(selectedLatLng))
+    }
+
+    GoogleMap(
+        modifier = Modifier.fillMaxSize(),
+        cameraPositionState = cameraPositionState,
+        uiSettings = MapUiSettings(
+            zoomControlsEnabled = false,
+            myLocationButtonEnabled = false,
+        ),
+        onMapLoaded = { mapLoaded = true },
+        onMapClick = { point -> onMapClick(point.latitude, point.longitude) },
+    ) {
+        Marker(
+            state = MarkerState(position = selectedLatLng),
+            title = stringResource(R.string.geofence_map_picker_title),
+            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE),
+        )
+    }
+}
+
+@Composable
+private fun MapPickerSheetContent(
+    state: GeofenceMapPickerState,
+    onSearchQueryChanged: (String) -> Unit,
+    onSearchClicked: () -> Unit,
+    onSearchResultClicked: (GeofenceSearchResult) -> Unit,
+    onConfirmClicked: () -> Unit,
+) {
+    AutomationCardColumn {
+        Text(
+            text = stringResource(R.string.geofence_map_picker_sheet_title),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+        )
+        OutlinedTextField(
+            value = state.addressQuery,
+            onValueChange = onSearchQueryChanged,
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(stringResource(R.string.geofence_search_label)) },
+            placeholder = { Text(stringResource(R.string.geofence_search_placeholder)) },
+            singleLine = true,
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Button(onClick = onSearchClicked) {
+                Text(stringResource(R.string.geofence_action_search))
+            }
+            Button(onClick = onConfirmClicked) {
+                Text(stringResource(R.string.geofence_action_confirm_location))
+            }
+        }
+        state.selectedAddress?.let { address ->
+            Text(
+                text = stringResource(R.string.geofence_selected_address, address),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        if (state.errors.isNotEmpty()) {
+            ValidationCard(errors = state.errors)
+        }
+        state.searchResults.forEach { result ->
+            GeofenceSearchResultCard(
+                result = result,
+                onClick = { onSearchResultClicked(result) },
+            )
+        }
     }
 }
 
 private fun formatCoordinates(latitude: Double, longitude: Double): String =
     String.format(Locale.US, "%.6f, %.6f", latitude, longitude)
+
+private const val PREVIEW_MAP_ZOOM = 14f
+private const val PICKER_MAP_ZOOM = 16f
+private const val GEOFENCE_STROKE_WIDTH = 3f
+private val GEOFENCE_FILL_COLOR = Color(0x332196F3)
+private val GEOFENCE_STROKE_COLOR = Color(0xFF1976D2)

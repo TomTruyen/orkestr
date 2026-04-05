@@ -8,4 +8,5 @@ data class GeofenceTriggerUiState(
     val geofences: List<AutomationGeofence> = emptyList(),
     val configErrors: List<String> = emptyList(),
     val geofenceEditorState: GeofenceEditorState? = null,
+    val mapPickerState: GeofenceMapPickerState? = null,
 )

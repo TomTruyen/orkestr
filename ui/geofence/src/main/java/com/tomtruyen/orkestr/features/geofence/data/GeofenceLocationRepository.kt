@@ -9,10 +9,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
-data class GeofenceLocation(
-    val latitude: Double,
-    val longitude: Double,
-)
+data class GeofenceLocation(val latitude: Double, val longitude: Double)
 
 class GeofenceLocationRepository(context: Context) {
     private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)

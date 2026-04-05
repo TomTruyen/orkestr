@@ -1,7 +1,9 @@
 <resources>
     <string name="geofence_title_new_geofence">New Geofence</string>
+    <string name="geofence_map_picker_title">Choose Location</string>
     <string name="geofence_action_create_geofence">Create Geofence</string>
     <string name="geofence_action_search">Search</string>
+    <string name="geofence_action_confirm_location">Confirm</string>
     <string name="geofence_action_save_trigger">Save Changes</string>
 
     <string name="geofence_error_name_required">Geofence name is required.</string>
@@ -31,4 +33,6 @@
     <string name="geofence_search_results_title">Search results</string>
     <string name="geofence_selected_address">Selected address: %1$s</string>
     <string name="geofence_map_hint">Tap the map to place the center point.</string>
+    <string name="geofence_map_preview_hint">Tap the map preview to open the full-screen picker.</string>
+    <string name="geofence_map_picker_sheet_title">Pick a location</string>
 </resources>

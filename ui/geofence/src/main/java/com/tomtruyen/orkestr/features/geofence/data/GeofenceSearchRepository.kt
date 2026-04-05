@@ -23,7 +23,7 @@ class GeofenceSearchRepository(private val context: Context) {
         } else {
             withContext(Dispatchers.IO) {
                 @Suppress("DEPRECATION")
-                geocoder.getFromLocationName(query, 5).orEmpty()
+                geocoder.getFromLocationName(query, MAX_SEARCH_RESULTS).orEmpty()
             }
         }.mapNotNull(Address::toSearchResult)
     }
@@ -32,7 +32,7 @@ class GeofenceSearchRepository(private val context: Context) {
 private suspend fun Geocoder.awaitResults(query: String): List<Address> = suspendCancellableCoroutine { continuation ->
     getFromLocationName(
         query,
-        5,
+        MAX_SEARCH_RESULTS,
         object : Geocoder.GeocodeListener {
             override fun onGeocode(addresses: MutableList<Address>) {
                 continuation.resume(addresses.toList())
@@ -59,3 +59,5 @@ private fun Address.toSearchResult(): GeofenceSearchResult? {
         longitude = longitude,
     )
 }
+
+private const val MAX_SEARCH_RESULTS = 5

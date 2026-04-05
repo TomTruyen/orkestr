@@ -7,9 +7,9 @@ import com.tomtruyen.orkestr.features.geofence.data.GeofenceLocation
 import com.tomtruyen.orkestr.features.geofence.data.GeofenceLocationRepository
 import com.tomtruyen.orkestr.features.geofence.data.GeofenceSearchRepository
 import com.tomtruyen.orkestr.features.geofence.state.GeofenceTriggerAction
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.coEvery
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

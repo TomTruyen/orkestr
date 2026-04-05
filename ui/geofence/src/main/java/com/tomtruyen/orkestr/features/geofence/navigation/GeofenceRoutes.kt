@@ -8,3 +8,6 @@ data object GeofenceTriggerConfigurationRoute : NavKey
 
 @Serializable
 data object GeofenceEditorRoute : NavKey
+
+@Serializable
+data object GeofenceMapPickerRoute : NavKey

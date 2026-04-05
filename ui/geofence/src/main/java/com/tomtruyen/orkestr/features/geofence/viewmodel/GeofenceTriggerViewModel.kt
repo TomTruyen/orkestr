@@ -8,6 +8,7 @@ import com.tomtruyen.orkestr.common.StringResolver
 import com.tomtruyen.orkestr.features.geofence.data.GeofenceLocationRepository
 import com.tomtruyen.orkestr.features.geofence.data.GeofenceSearchRepository
 import com.tomtruyen.orkestr.features.geofence.state.GeofenceEditorState
+import com.tomtruyen.orkestr.features.geofence.state.GeofenceMapPickerState
 import com.tomtruyen.orkestr.features.geofence.state.GeofenceSearchResult
 import com.tomtruyen.orkestr.features.geofence.state.GeofenceTriggerAction
 import com.tomtruyen.orkestr.features.geofence.state.GeofenceTriggerEvent
@@ -36,17 +37,18 @@ class GeofenceTriggerViewModel(
     override fun onAction(action: GeofenceTriggerAction) {
         when (action) {
             is GeofenceTriggerAction.LoadConfig -> loadConfig(action.config)
-
             is GeofenceTriggerAction.SelectGeofence -> selectGeofence(action.geofenceId)
-
-            is GeofenceTriggerAction.SelectTransition -> Unit
-
             GeofenceTriggerAction.SaveConfigurationClicked -> saveConfiguration()
-
             GeofenceTriggerAction.CreateGeofenceClicked -> openGeofenceEditor()
-
             GeofenceTriggerAction.CloseGeofenceEditorClicked -> closeGeofenceEditor()
+            GeofenceTriggerAction.OpenMapPickerClicked -> openMapPicker()
+            GeofenceTriggerAction.CloseMapPickerClicked -> closeMapPicker()
+            else -> handleScreenAction(action)
+        }
+    }
 
+    private fun handleScreenAction(action: GeofenceTriggerAction) {
+        when (action) {
             is GeofenceTriggerAction.GeofenceNameChanged -> updateEditorState {
                 it.copy(name = action.value, errors = emptyList())
             }
@@ -67,7 +69,33 @@ class GeofenceTriggerViewModel(
 
             is GeofenceTriggerAction.GeofenceMapLocationSelected -> updateMapLocation(action.latitude, action.longitude)
 
+            is GeofenceTriggerAction.MapPickerAddressQueryChanged -> updateMapPickerState {
+                it.copy(addressQuery = action.value, errors = emptyList())
+            }
+
+            GeofenceTriggerAction.MapPickerAddressSearchClicked -> searchMapPickerAddresses()
+
+            is GeofenceTriggerAction.MapPickerSearchResultSelected -> applyMapPickerSearchResult(action.result)
+
+            is GeofenceTriggerAction.MapPickerLocationSelected -> updateMapPickerLocation(
+                action.latitude,
+                action.longitude,
+            )
+
+            GeofenceTriggerAction.ConfirmMapPickerClicked -> confirmMapPicker()
+
             GeofenceTriggerAction.SaveGeofenceClicked -> saveGeofence()
+
+            is GeofenceTriggerAction.SelectTransition -> Unit
+
+            is GeofenceTriggerAction.LoadConfig,
+            is GeofenceTriggerAction.SelectGeofence,
+            GeofenceTriggerAction.SaveConfigurationClicked,
+            GeofenceTriggerAction.CreateGeofenceClicked,
+            GeofenceTriggerAction.CloseGeofenceEditorClicked,
+            GeofenceTriggerAction.OpenMapPickerClicked,
+            GeofenceTriggerAction.CloseMapPickerClicked,
+            -> Unit
         }
     }
 
@@ -77,6 +105,7 @@ class GeofenceTriggerViewModel(
                 config = config,
                 configErrors = emptyList(),
                 geofenceEditorState = null,
+                mapPickerState = null,
             )
         }
     }
@@ -158,13 +187,39 @@ class GeofenceTriggerViewModel(
     }
 
     private fun closeGeofenceEditor() {
-        updateState { state -> state.copy(geofenceEditorState = null) }
+        updateState { state -> state.copy(geofenceEditorState = null, mapPickerState = null) }
+        triggerEvent(GeofenceTriggerEvent.PopBack)
+    }
+
+    private fun openMapPicker() {
+        val editorState = uiState.value.geofenceEditorState ?: return
+        updateState { state ->
+            state.copy(
+                mapPickerState = GeofenceMapPickerState(
+                    latitude = editorState.mapLatitude,
+                    longitude = editorState.mapLongitude,
+                    addressQuery = editorState.addressQuery,
+                    selectedAddress = editorState.selectedAddress,
+                    searchResults = editorState.searchResults,
+                ),
+            )
+        }
+        triggerEvent(GeofenceTriggerEvent.NavigateToMapPicker)
+    }
+
+    private fun closeMapPicker() {
+        updateState { state -> state.copy(mapPickerState = null) }
         triggerEvent(GeofenceTriggerEvent.PopBack)
     }
 
     private fun updateEditorState(transform: (GeofenceEditorState) -> GeofenceEditorState) {
         val editorState = uiState.value.geofenceEditorState ?: return
         updateState { state -> state.copy(geofenceEditorState = transform(editorState)) }
+    }
+
+    private fun updateMapPickerState(transform: (GeofenceMapPickerState) -> GeofenceMapPickerState) {
+        val mapPickerState = uiState.value.mapPickerState ?: return
+        updateState { state -> state.copy(mapPickerState = transform(mapPickerState)) }
     }
 
     private fun updateLatitude(value: String) {
@@ -227,6 +282,29 @@ class GeofenceTriggerViewModel(
         }
     }
 
+    private fun updateMapPickerLocation(latitude: Double, longitude: Double) {
+        updateMapPickerState { state ->
+            state.copy(
+                latitude = latitude,
+                longitude = longitude,
+                errors = emptyList(),
+            )
+        }
+    }
+
+    private fun applyMapPickerSearchResult(result: GeofenceSearchResult) {
+        updateMapPickerState { state ->
+            state.copy(
+                addressQuery = result.title,
+                selectedAddress = result.title,
+                searchResults = emptyList(),
+                latitude = result.latitude,
+                longitude = result.longitude,
+                errors = emptyList(),
+            )
+        }
+    }
+
     private fun searchAddresses() {
         val editorState = uiState.value.geofenceEditorState ?: return
         if (editorState.addressQuery.isBlank()) return
@@ -242,6 +320,37 @@ class GeofenceTriggerViewModel(
             }
 
             updateEditorState { state ->
+                state.copy(
+                    searchResults = results,
+                    errors = if (results.isEmpty()) {
+                        listOf(stringResolver.resolve(R.string.geofence_error_geocoder_no_results))
+                    } else {
+                        emptyList()
+                    },
+                )
+            }
+        }
+    }
+
+    private fun searchMapPickerAddresses() {
+        val mapPickerState = uiState.value.mapPickerState ?: return
+        if (mapPickerState.addressQuery.isBlank()) return
+
+        launch {
+            if (!geofenceSearchRepository.isAvailable()) {
+                updateMapPickerErrors(listOf(stringResolver.resolve(R.string.geofence_error_geocoder_unavailable)))
+                return@launch
+            }
+
+            val results = runCatching {
+                geofenceSearchRepository.search(
+                    mapPickerState.addressQuery.trim(),
+                )
+            }.getOrElse {
+                emptyList()
+            }
+
+            updateMapPickerState { state ->
                 state.copy(
                     searchResults = results,
                     errors = if (results.isEmpty()) {
@@ -272,6 +381,7 @@ class GeofenceTriggerViewModel(
                         geofenceName = geofence.name,
                     ),
                     geofenceEditorState = null,
+                    mapPickerState = null,
                     configErrors = emptyList(),
                 )
             }
@@ -283,6 +393,27 @@ class GeofenceTriggerViewModel(
         updateEditorState { state -> state.copy(errors = errors) }
     }
 
+    private fun updateMapPickerErrors(errors: List<String>) {
+        updateMapPickerState { state -> state.copy(errors = errors) }
+    }
+
+    private fun confirmMapPicker() {
+        val mapPickerState = uiState.value.mapPickerState ?: return
+        updateEditorState { state ->
+            state.copy(
+                addressQuery = mapPickerState.addressQuery,
+                selectedAddress = mapPickerState.selectedAddress,
+                searchResults = emptyList(),
+                latitudeText = formatCoordinate(mapPickerState.latitude),
+                longitudeText = formatCoordinate(mapPickerState.longitude),
+                mapLatitude = mapPickerState.latitude,
+                mapLongitude = mapPickerState.longitude,
+                errors = emptyList(),
+            )
+        }
+        closeMapPicker()
+    }
+
     private fun validateGeofence(editorState: GeofenceEditorState): List<String> {
         val latitude = editorState.latitudeText.toDoubleOrNull()
         val longitude = editorState.longitudeText.toDoubleOrNull()
@@ -292,10 +423,10 @@ class GeofenceTriggerViewModel(
         if (editorState.name.isBlank()) {
             errors += stringResolver.resolve(R.string.geofence_error_name_required)
         }
-        if (latitude == null || latitude !in -90.0..90.0) {
+        if (latitude == null || latitude !in MIN_LATITUDE..MAX_LATITUDE) {
             errors += stringResolver.resolve(R.string.geofence_error_latitude_invalid)
         }
-        if (longitude == null || longitude !in -180.0..180.0) {
+        if (longitude == null || longitude !in MIN_LONGITUDE..MAX_LONGITUDE) {
             errors += stringResolver.resolve(R.string.geofence_error_longitude_invalid)
         }
         if (radius == null || radius <= 0f) {
@@ -327,5 +458,9 @@ class GeofenceTriggerViewModel(
         const val DEFAULT_LATITUDE = 0.0
         const val DEFAULT_LONGITUDE = 0.0
         const val DEFAULT_RADIUS_METERS = 150f
+        const val MIN_LATITUDE = -90.0
+        const val MAX_LATITUDE = 90.0
+        const val MIN_LONGITUDE = -180.0
+        const val MAX_LONGITUDE = 180.0
     }
 }

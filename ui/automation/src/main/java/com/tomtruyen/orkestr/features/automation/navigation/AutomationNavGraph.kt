@@ -29,9 +29,11 @@ import com.tomtruyen.orkestr.features.automation.state.AutomationRulesEvent
 import com.tomtruyen.orkestr.features.automation.viewmodel.AutomationRuleEditorViewModel
 import com.tomtruyen.orkestr.features.automation.viewmodel.AutomationRulesViewModel
 import com.tomtruyen.orkestr.features.geofence.navigation.GeofenceEditorRoute
+import com.tomtruyen.orkestr.features.geofence.navigation.GeofenceMapPickerRoute
 import com.tomtruyen.orkestr.features.geofence.navigation.GeofenceTriggerConfigurationRoute
 import com.tomtruyen.orkestr.features.geofence.screen.AutomationGeofenceConfigurationScreen
 import com.tomtruyen.orkestr.features.geofence.screen.AutomationGeofenceEditorScreen
+import com.tomtruyen.orkestr.features.geofence.screen.AutomationGeofenceMapPickerScreen
 import com.tomtruyen.orkestr.features.geofence.state.GeofenceTriggerAction
 import com.tomtruyen.orkestr.features.geofence.state.GeofenceTriggerEvent
 import com.tomtruyen.orkestr.features.geofence.viewmodel.GeofenceTriggerViewModel
@@ -115,6 +117,10 @@ fun AutomationNavGraph(
                     backStack.add(GeofenceEditorRoute)
                 }
 
+                GeofenceTriggerEvent.NavigateToMapPicker -> {
+                    backStack.add(GeofenceMapPickerRoute)
+                }
+
                 GeofenceTriggerEvent.PopBack -> {
                     if (backStack.size > 1) {
                         backStack.removeAt(backStack.lastIndex)
@@ -140,6 +146,10 @@ fun AutomationNavGraph(
 
             is GeofenceEditorRoute -> {
                 geofenceViewModel.onAction(GeofenceTriggerAction.CloseGeofenceEditorClicked)
+            }
+
+            is GeofenceMapPickerRoute -> {
+                geofenceViewModel.onAction(GeofenceTriggerAction.CloseMapPickerClicked)
             }
 
             is AutomationDefinitionSelectionRoute -> {
@@ -247,6 +257,21 @@ fun AutomationNavGraph(
                 },
             ) { modifier ->
                 AutomationGeofenceEditorScreen(
+                    viewModel = geofenceViewModel,
+                    modifier = modifier,
+                )
+            }
+        }
+
+        entry<GeofenceMapPickerRoute> {
+            AutomationScaffold(
+                title = stringResource(com.tomtruyen.orkestr.ui.geofence.R.string.geofence_map_picker_title),
+                canNavigateBack = true,
+                onNavigateBack = {
+                    geofenceViewModel.onAction(GeofenceTriggerAction.CloseMapPickerClicked)
+                },
+            ) { modifier ->
+                AutomationGeofenceMapPickerScreen(
                     viewModel = geofenceViewModel,
                     modifier = modifier,
                 )
