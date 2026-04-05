@@ -30,8 +30,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -98,34 +98,40 @@ internal class GeofenceRegistrationReceiverClassTest {
     }
 
     @Test
-    fun syncGeofences_whenMatchingGeofenceExists_registersRequestWithConfiguredTransitionsAndResponsiveness() = runTest {
-        val requestSlot = slot<GeofencingRequest>()
-        every { geofencingClient.addGeofences(capture(requestSlot), any<PendingIntent>()) } returns immediateSuccessTask()
-        val receiver = receiver()
+    fun syncGeofences_whenMatchingGeofenceExists_registersRequestWithConfiguredTransitionsAndResponsiveness() =
+        runTest {
+            val requestSlot = slot<GeofencingRequest>()
+            every {
+                geofencingClient.addGeofences(
+                    capture(requestSlot),
+                    any<PendingIntent>(),
+                )
+            } returns immediateSuccessTask()
+            val receiver = receiver()
 
-        invokeSyncGeofences(
-            receiver = receiver,
-            geofences = listOf(
-                RegisteredGeofence(
-                    geofence = sampleGeofence("home"),
-                    transitionMask = Geofence.GEOFENCE_TRANSITION_EXIT,
-                    notificationResponsivenessMillis = GeofenceUpdateRate.RELAXED.notificationResponsivenessMillis,
+            invokeSyncGeofences(
+                receiver = receiver,
+                geofences = listOf(
+                    RegisteredGeofence(
+                        geofence = sampleGeofence("home"),
+                        transitionMask = Geofence.GEOFENCE_TRANSITION_EXIT,
+                        notificationResponsivenessMillis = GeofenceUpdateRate.RELAXED.notificationResponsivenessMillis,
+                    ),
                 ),
-            ),
-        )
+            )
 
-        verify { geofencingClient.removeGeofences(any<PendingIntent>()) }
-        verify { geofencingClient.addGeofences(any(), any<PendingIntent>()) }
-        val request = requestSlot.captured
-        val registeredGeofence = request.geofences.single()
-        assertEquals("home", registeredGeofence.requestId)
-        assertEquals(Geofence.GEOFENCE_TRANSITION_EXIT, registeredGeofence.transitionTypes)
-        assertEquals(
-            GeofenceUpdateRate.RELAXED.notificationResponsivenessMillis,
-            registeredGeofence.notificationResponsiveness,
-        )
-        assertEquals(GeofencingRequest.INITIAL_TRIGGER_EXIT, request.initialTrigger)
-    }
+            verify { geofencingClient.removeGeofences(any<PendingIntent>()) }
+            verify { geofencingClient.addGeofences(any(), any<PendingIntent>()) }
+            val request = requestSlot.captured
+            val registeredGeofence = request.geofences.single()
+            assertEquals("home", registeredGeofence.requestId)
+            assertEquals(Geofence.GEOFENCE_TRANSITION_EXIT, registeredGeofence.transitionTypes)
+            assertEquals(
+                GeofenceUpdateRate.RELAXED.notificationResponsivenessMillis,
+                registeredGeofence.notificationResponsiveness,
+            )
+            assertEquals(GeofencingRequest.INITIAL_TRIGGER_EXIT, request.initialTrigger)
+        }
 
     @Test
     fun onUnregister_whenGeofencesWereActive_removesRegisteredIds() = runTest {
@@ -181,10 +187,7 @@ internal class GeofenceRegistrationReceiverClassTest {
         return task
     }
 
-    private fun invokeSyncGeofences(
-        receiver: GeofenceRegistrationReceiver,
-        geofences: List<RegisteredGeofence>,
-    ) {
+    private fun invokeSyncGeofences(receiver: GeofenceRegistrationReceiver, geofences: List<RegisteredGeofence>) {
         val method = GeofenceRegistrationReceiver::class.java.getDeclaredMethod(
             "syncGeofences",
             List::class.java,
