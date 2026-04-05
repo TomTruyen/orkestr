@@ -1,10 +1,11 @@
 package com.tomtruyen.automation.core
 
 import android.app.Service
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.ActivityInfo
-import android.content.pm.ResolveInfo
 import androidx.core.content.ContextCompat
 import com.tomtruyen.automation.core.AutomationForegroundService.Companion.start
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
@@ -185,17 +186,21 @@ internal class AutomationForegroundServiceTest {
     fun buildNotification_whenLaunchIntentExists_setsContentIntent() {
         val controller = Robolectric.buildService(AutomationForegroundService::class.java)
         val service = controller.get()
-        val launchProbeIntent = Intent(Intent.ACTION_MAIN).apply {
-            addCategory(Intent.CATEGORY_LAUNCHER)
-            setPackage(service.packageName)
+        val launcherComponent =
+            ComponentName(service.packageName, "com.tomtruyen.automation.TestLauncherActivity")
+        val activityInfo = ActivityInfo().apply {
+            packageName = launcherComponent.packageName
+            name = launcherComponent.className
         }
-        val resolveInfo = ResolveInfo().apply {
-            activityInfo = ActivityInfo().apply {
-                packageName = service.packageName
-                name = "com.tomtruyen.automation.TestLauncherActivity"
-            }
+        shadowOf(service.packageManager).apply {
+            addOrUpdateActivity(activityInfo)
+            addIntentFilterForActivity(
+                launcherComponent,
+                IntentFilter(Intent.ACTION_MAIN).apply {
+                    addCategory(Intent.CATEGORY_LAUNCHER)
+                },
+            )
         }
-        shadowOf(service.packageManager).addResolveInfoForIntent(launchProbeIntent, resolveInfo)
 
         val notification = invokeBuildNotification(service)
 
