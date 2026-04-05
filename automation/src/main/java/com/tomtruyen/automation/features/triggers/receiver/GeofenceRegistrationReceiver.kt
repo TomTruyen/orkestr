@@ -28,7 +28,8 @@ class GeofenceRegistrationReceiver(
     override val service: AutomationRuntimeService,
     override val scope: CoroutineScope,
     override val logger: AutomationLogger,
-) : TriggerReceiver(), KoinComponent {
+) : TriggerReceiver(),
+    KoinComponent {
     private val appContext = context.applicationContext
     private val geofencingClient: GeofencingClient = LocationServices.getGeofencingClient(appContext)
     private val geofenceRepository by inject<GeofenceRepository>()

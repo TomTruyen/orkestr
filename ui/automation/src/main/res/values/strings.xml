@@ -16,6 +16,7 @@
     <string name="automation_action_choose_different">Choose Different %1$s</string>
     <string name="automation_action_add_node">Add %1$s</string>
     <string name="automation_action_save_changes">Save Changes</string>
+    <string name="automation_label_beta">Beta</string>
 
     <!-- Automation rule editor -->
     <string name="automation_label_rule_name">Rule name</string>

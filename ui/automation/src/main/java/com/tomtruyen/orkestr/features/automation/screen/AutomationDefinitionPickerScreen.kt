@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -25,22 +26,23 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.tomtruyen.automation.features.triggers.definition.GeofenceTriggerDefinition
 import com.tomtruyen.orkestr.common.component.AutomationCardColumn
 import com.tomtruyen.orkestr.common.permission.AutomationPermissionManager
 import com.tomtruyen.orkestr.features.automation.component.AutomationFieldForm
 import com.tomtruyen.orkestr.features.automation.component.DefinitionFieldPreview
-import com.tomtruyen.orkestr.common.component.AutomationSectionHeader
 import com.tomtruyen.orkestr.common.component.EmptyStateCard
 import com.tomtruyen.orkestr.common.component.ValidationCard
-import com.tomtruyen.orkestr.ui.automation.R
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorAction
 import com.tomtruyen.orkestr.features.automation.viewmodel.AutomationRuleEditorViewModel
+import com.tomtruyen.orkestr.ui.automation.R
 
 @Composable
 fun AutomationDefinitionSelectionScreen(viewModel: AutomationRuleEditorViewModel, modifier: Modifier = Modifier) {
@@ -145,11 +147,19 @@ fun AutomationDefinitionSelectionScreen(viewModel: AutomationRuleEditorViewModel
                             },
                     ) {
                         AutomationCardColumn {
-                            Text(
-                                text = stringResource(item.titleRes),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold,
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                Text(
+                                    text = stringResource(item.titleRes),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                )
+                                if (item.isBeta) {
+                                    BetaChip()
+                                }
+                            }
                             Text(
                                 text = stringResource(item.descriptionRes),
                                 style = MaterialTheme.typography.bodyMedium,
@@ -208,9 +218,24 @@ fun AutomationDefinitionConfigurationScreen(viewModel: AutomationRuleEditorViewM
             item {
                 OutlinedCard(modifier = Modifier.fillMaxWidth()) {
                     AutomationCardColumn {
-                        AutomationSectionHeader(
-                            title = stringResource(definition.titleRes),
-                            description = stringResource(definition.descriptionRes),
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            Text(
+                                text = stringResource(definition.titleRes),
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+
+                            if (definition.isBeta) {
+                                BetaChip()
+                            }
+                        }
+                        Text(
+                            text = stringResource(definition.descriptionRes),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         if (pickerState.launchedFromSelection) {
                             Button(
@@ -246,4 +271,20 @@ fun AutomationDefinitionConfigurationScreen(viewModel: AutomationRuleEditorViewM
             }
         }
     }
+}
+
+@Composable
+private fun BetaChip(modifier: Modifier = Modifier) {
+    AssistChip(
+        onClick = {},
+        enabled = false,
+        modifier = modifier,
+        label = {
+            Text(
+                text = stringResource(R.string.automation_label_beta),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        },
+    )
 }

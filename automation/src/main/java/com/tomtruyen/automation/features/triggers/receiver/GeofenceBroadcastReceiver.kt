@@ -16,7 +16,9 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class GeofenceBroadcastReceiver : BroadcastReceiver(), KoinComponent {
+class GeofenceBroadcastReceiver :
+    BroadcastReceiver(),
+    KoinComponent {
     private val runtimeService by inject<AutomationRuntimeService>()
     private val logger by inject<AutomationLogger>()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -41,7 +43,9 @@ class GeofenceBroadcastReceiver : BroadcastReceiver(), KoinComponent {
         }
         if (event.hasError()) {
             logger.log(
-                "Geofence transition error: ${GeofenceStatusCodes.getStatusCodeString(event.errorCode)} (${event.errorCode})",
+                "Geofence transition error: ${GeofenceStatusCodes.getStatusCodeString(
+                    event.errorCode,
+                )} (${event.errorCode})",
             )
             return
         }

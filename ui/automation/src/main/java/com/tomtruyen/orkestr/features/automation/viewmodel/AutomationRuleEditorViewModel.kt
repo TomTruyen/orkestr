@@ -91,6 +91,7 @@ class AutomationRuleEditorViewModel(
                 category = definition.category,
                 fields = definition.fields,
                 permissions = definition.requiredPermissions,
+                isBeta = definition.isBeta
             )
         }
 
@@ -130,6 +131,7 @@ class AutomationRuleEditorViewModel(
             category = definition.category,
             fields = definition.fields,
             permissions = definition.requiredPermissions,
+            isBeta = definition.isBeta,
         )
     }
 

@@ -25,6 +25,9 @@ interface AutomationNodeDefinition<C : AutomationConfig<T>, T : Enum<T>> {
     val category: AutomationCategory
         get() = defaultConfig.category
 
+    val isBeta: Boolean
+        get() = false
+
     val fields: List<AutomationFieldDefinition>
     fun summarize(config: C, resolver: AutomationTextResolver): String
 

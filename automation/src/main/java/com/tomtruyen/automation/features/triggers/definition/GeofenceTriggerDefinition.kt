@@ -15,6 +15,7 @@ object GeofenceTriggerDefinition : TriggerDefinition<GeofenceTriggerConfig>(
     configClass = GeofenceTriggerConfig::class,
     defaultConfig = GeofenceTriggerConfig(),
 ) {
+    override val isBeta = true
     override val titleRes = R.string.automation_definition_trigger_geofence_title
     override val descriptionRes = R.string.automation_definition_trigger_geofence_description
     override val fields = listOf(
@@ -74,25 +75,24 @@ object GeofenceTriggerDefinition : TriggerDefinition<GeofenceTriggerConfig>(
         return errors
     }
 
-    override fun summarize(config: GeofenceTriggerConfig, resolver: AutomationTextResolver): String =
-        resolver.resolve(
-            R.string.automation_definition_trigger_geofence_summary,
-            listOf(
-                resolver.resolve(
-                    when (config.transitionType) {
-                        GeofenceTransitionType.ENTER ->
-                            R.string.automation_definition_trigger_geofence_transition_enter
+    override fun summarize(config: GeofenceTriggerConfig, resolver: AutomationTextResolver): String = resolver.resolve(
+        R.string.automation_definition_trigger_geofence_summary,
+        listOf(
+            resolver.resolve(
+                when (config.transitionType) {
+                    GeofenceTransitionType.ENTER ->
+                        R.string.automation_definition_trigger_geofence_transition_enter
 
-                        GeofenceTransitionType.EXIT ->
-                            R.string.automation_definition_trigger_geofence_transition_exit
-                    },
-                ),
-                config.geofenceName.ifBlank {
-                    resolver.resolve(R.string.automation_definition_trigger_geofence_unselected)
+                    GeofenceTransitionType.EXIT ->
+                        R.string.automation_definition_trigger_geofence_transition_exit
                 },
-                resolver.resolve(config.updateRate.labelRes),
             ),
-        )
+            config.geofenceName.ifBlank {
+                resolver.resolve(R.string.automation_definition_trigger_geofence_unselected)
+            },
+            resolver.resolve(config.updateRate.labelRes),
+        ),
+    )
 
     private fun String.toTransitionType(): GeofenceTransitionType = when (this) {
         VALUE_EXIT -> GeofenceTransitionType.EXIT

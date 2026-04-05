@@ -28,6 +28,7 @@ data class DefinitionListItem(
     val category: AutomationCategory,
     val fields: List<AutomationFieldDefinition>,
     val permissions: List<AutomationPermission> = emptyList(),
+    val isBeta: Boolean = false,
 )
 
 data class DefinitionCategoryGroup(val category: AutomationCategory, val items: List<DefinitionListItem>)

@@ -207,29 +207,38 @@ private fun RuleSectionEditorCard(
         tint = tint,
         contentColor = contentColor,
     ) {
-        Box(modifier = Modifier.fillMaxWidth()) {
-            Column(
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Row(
                 modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .padding(end = 56.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = stringResource(section.titleRes), style = MaterialTheme.typography.titleLarge)
                 Text(
-                    text = stringResource(section.helperRes),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = contentColor.copy(alpha = 0.8f),
+                    text = stringResource(section.titleRes),
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.weight(1f),
                 )
+
+                IconButton(onClick = onAddNode) {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = stringResource(
+                            R.string.automation_action_add_node,
+                            stringResource(section.singularTitleRes),
+                        ),
+                    )
+                }
             }
-            IconButton(onClick = onAddNode, modifier = Modifier.align(Alignment.CenterEnd)) {
-                Icon(
-                    imageVector = Icons.Filled.Add,
-                    contentDescription = stringResource(
-                        R.string.automation_action_add_node,
-                        stringResource(section.singularTitleRes),
-                    ),
-                )
-            }
+
+            Text(
+                text = stringResource(section.helperRes),
+                style = MaterialTheme.typography.bodySmall,
+                color = contentColor.copy(alpha = 0.8f),
+            )
         }
 
         if (entries.isEmpty()) {

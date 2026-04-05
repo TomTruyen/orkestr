@@ -21,12 +21,11 @@ class GeofenceRepositoryImpl(private val dao: GeofenceDao) : GeofenceRepository 
 
     override suspend fun getGeofence(id: String): AutomationGeofence? = dao.getById(id)?.toDomain()
 
-    override suspend fun getGeofences(ids: Collection<String>): List<AutomationGeofence> =
-        if (ids.isEmpty()) {
-            emptyList()
-        } else {
-            dao.getByIds(ids.distinct()).map(GeofenceEntity::toDomain)
-        }
+    override suspend fun getGeofences(ids: Collection<String>): List<AutomationGeofence> = if (ids.isEmpty()) {
+        emptyList()
+    } else {
+        dao.getByIds(ids.distinct()).map(GeofenceEntity::toDomain)
+    }
 
     override suspend fun upsertGeofence(geofence: AutomationGeofence) {
         dao.upsert(geofence.toEntity())
