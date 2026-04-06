@@ -1,7 +1,6 @@
 package com.tomtruyen.orkestr.features.automation.component
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -52,8 +51,7 @@ internal object AutomationGeneratedDefinitionPreviewCatalog {
     fun constraint(type: ConstraintType): ConstraintDefinition<*> =
         GeneratedConstraintProvider.definitions.first { it.type == type }
 
-    fun action(type: ActionType): ActionDefinition<*> =
-        GeneratedActionProvider.definitions.first { it.type == type }
+    fun action(type: ActionType): ActionDefinition<*> = GeneratedActionProvider.definitions.first { it.type == type }
 }
 
 @Preview(showBackground = true, widthDp = 420)
@@ -122,10 +120,7 @@ internal fun LogMessageActionDefinitionComposePreview() {
 }
 
 @Composable
-private fun AutomationDefinitionPreviewCard(
-    definition: AutomationNodeDefinition<*, *>,
-    config: AutomationConfig<*>?,
-) {
+private fun AutomationDefinitionPreviewCard(definition: AutomationNodeDefinition<*, *>, config: AutomationConfig<*>?) {
     MaterialTheme {
         Surface(modifier = Modifier.padding(16.dp)) {
             OutlinedCard(modifier = Modifier.fillMaxWidth()) {

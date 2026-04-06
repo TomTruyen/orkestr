@@ -1,11 +1,8 @@
 package com.tomtruyen.automation.core
 
 import android.app.Service
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
-import android.content.pm.ActivityInfo
 import androidx.core.content.ContextCompat
 import com.tomtruyen.automation.core.AutomationForegroundService.Companion.start
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
@@ -23,7 +20,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -33,7 +29,6 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.Shadows.shadowOf
 
 @RunWith(RobolectricTestRunner::class)
 internal class AutomationForegroundServiceTest {
@@ -182,31 +177,6 @@ internal class AutomationForegroundServiceTest {
         assertEquals(2, registeredReceivers(service).size)
     }
 
-    @Test
-    fun buildNotification_whenLaunchIntentExists_setsContentIntent() {
-        val controller = Robolectric.buildService(AutomationForegroundService::class.java)
-        val service = controller.get()
-        val launcherComponent =
-            ComponentName(service.packageName, "com.tomtruyen.automation.TestLauncherActivity")
-        val activityInfo = ActivityInfo().apply {
-            packageName = launcherComponent.packageName
-            name = launcherComponent.className
-        }
-        shadowOf(service.packageManager).apply {
-            addOrUpdateActivity(activityInfo)
-            addIntentFilterForActivity(
-                launcherComponent,
-                IntentFilter(Intent.ACTION_MAIN).apply {
-                    addCategory(Intent.CATEGORY_LAUNCHER)
-                },
-            )
-        }
-
-        val notification = invokeBuildNotification(service)
-
-        assertNotNull(notification.contentIntent)
-    }
-
     private fun factory(receiver: TriggerReceiver): TriggerReceiver.TriggerFactory =
         object : TriggerReceiver.TriggerFactory {
             override val key: TriggerReceiverKey = TriggerReceiverKey.BATTERY_CHANGED
@@ -233,13 +203,6 @@ internal class AutomationForegroundServiceTest {
         method.isAccessible = true
         method.invoke(service, keys)
     }
-
-    private fun invokeBuildNotification(service: AutomationForegroundService): android.app.Notification {
-        val method = AutomationForegroundService::class.java.getDeclaredMethod("buildNotification")
-        method.isAccessible = true
-        return method.invoke(service) as android.app.Notification
-    }
-
     private fun waitUntil(timeoutMs: Long = 2_000, condition: () -> Boolean) {
         val deadline = System.currentTimeMillis() + timeoutMs
         while (!condition() && System.currentTimeMillis() < deadline) {

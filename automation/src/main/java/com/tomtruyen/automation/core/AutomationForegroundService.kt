@@ -1,15 +1,11 @@
 package com.tomtruyen.automation.core
 
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
-import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import com.tomtruyen.automation.core.notification.AutomationNotificationService
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
 import com.tomtruyen.automation.features.triggers.receiver.TriggerReceiver
 import com.tomtruyen.automation.features.triggers.receiver.TriggerReceiverKey
@@ -34,14 +30,15 @@ class AutomationForegroundService :
     private val logger by inject<AutomationLogger>()
 
     private val receivers by inject<List<TriggerReceiver.TriggerFactory>>()
+    private val notificationService by lazy { AutomationNotificationService(this) }
 
     private val registeredReceivers = mutableMapOf<TriggerReceiver.TriggerFactory, TriggerReceiver>()
 
     override fun onCreate() {
         super.onCreate()
 
-        createNotificationChannel()
-        startForeground(NOTIFICATION_ID, buildNotification())
+        notificationService.ensureRuntimeChannel()
+        startForeground(NOTIFICATION_ID, notificationService.buildRuntimeNotification())
 
         scope.launch {
             repository.observeRules()
@@ -85,40 +82,6 @@ class AutomationForegroundService :
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    private fun buildNotification(): Notification {
-        val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
-        val contentIntent = launchIntent?.let {
-            PendingIntent.getActivity(
-                this,
-                0,
-                it,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-            )
-        }
-
-        return NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_popup_sync)
-            .setContentTitle("Automation service running")
-            .setContentText("Listening for time, battery, and geofence events")
-            .setOngoing(true)
-            .setSilent(true)
-            .setCategory(NotificationCompat.CATEGORY_SERVICE)
-            .setContentIntent(contentIntent)
-            .build()
-    }
-
-    private fun createNotificationChannel() {
-        val notificationManager = getSystemService(NotificationManager::class.java)
-        val channel = NotificationChannel(
-            NOTIFICATION_CHANNEL_ID,
-            "Automation runtime",
-            NotificationManager.IMPORTANCE_LOW,
-        ).apply {
-            description = "Keeps Orkestr listening for automation triggers."
-        }
-        notificationManager.createNotificationChannel(channel)
-    }
-
     private fun unregisterReceiverSafely(receiver: TriggerReceiver) {
         receiver.onUnregister(this)
         runCatching { unregisterReceiver(receiver) }
@@ -148,7 +111,6 @@ class AutomationForegroundService :
     }
 
     companion object {
-        private const val NOTIFICATION_CHANNEL_ID = "automation_runtime"
         private const val NOTIFICATION_ID = 1001
         private const val ACTION_START_SERVICE = "com.tomtruyen.automation.action.START_FOREGROUND_SERVICE"
         private const val ACTION_STOP_SERVICE = "com.tomtruyen.automation.action.STOP_FOREGROUND_SERVICE"
