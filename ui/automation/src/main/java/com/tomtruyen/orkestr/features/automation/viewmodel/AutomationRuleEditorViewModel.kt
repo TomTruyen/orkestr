@@ -193,6 +193,13 @@ class AutomationRuleEditorViewModel(
                 ),
             )
         }
+        triggerEvent(
+            AutomationEditorEvent.NavigateToDefinitionConfiguration(
+                section = picker.section,
+                typeKey = current.type.name,
+                editingIndex = picker.editingIndex,
+            ),
+        )
     }
 
     fun openSelectedCustomConfigurationFlow() {

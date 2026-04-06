@@ -392,24 +392,9 @@ fun AutomationNavGraph(
                         R.string.automation_action_choose_different,
                         stringResource(pickerState.section.singularTitleRes),
                     ),
-                    saveLabel = if (pickerState.editingIndex == null) {
-                        stringResource(
-                            R.string.automation_action_add_node,
-                            stringResource(pickerState.section.singularTitleRes),
-                        )
-                    } else {
-                        stringResource(R.string.automation_action_save_changes)
-                    },
-                    errors = pickerState.errors,
                     config = editorViewModel.currentSetWallpaperActionConfig(),
-                    onFieldChanged = { fieldId, value ->
-                        editorViewModel.onAction(AutomationEditorAction.PickerFieldChanged(fieldId, value))
-                    },
-                    onSave = {
-                        editorViewModel.onAction(AutomationEditorAction.SavePickerClicked)
-                    },
+                    onConfirm = editorViewModel::applySelectedWallpaper,
                     onChooseDifferent = editorViewModel::chooseDifferentDefinition,
-                    onWallpaperSelected = editorViewModel::applySelectedWallpaper,
                     modifier = modifier,
                 )
             }

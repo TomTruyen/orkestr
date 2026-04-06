@@ -192,6 +192,7 @@ fun AutomationDefinitionConfigurationScreen(viewModel: AutomationRuleEditorViewM
     val definition = viewModel.selectedDefinitionItem() ?: return
     val draftConfig = pickerState.draftConfig
     val customConfigurationButtonLabel = viewModel.selectedCustomConfigurationButtonLabel()
+    val customConfigurationButtonFieldId = customConfigurationButtonAnchorFieldId(pickerState.selectedTypeKey)
     val showConfigurationCard = definition.fields.isNotEmpty() ||
         pickerState.errors.isNotEmpty() ||
         customConfigurationButtonLabel != null
@@ -253,9 +254,25 @@ fun AutomationDefinitionConfigurationScreen(viewModel: AutomationRuleEditorViewM
                                     onFieldChanged = { fieldId, value ->
                                         viewModel.onAction(AutomationEditorAction.PickerFieldChanged(fieldId, value))
                                     },
+                                    contentAfterField = { field ->
+                                        if (
+                                            customConfigurationButtonLabel != null &&
+                                            customConfigurationButtonFieldId == field.id
+                                        ) {
+                                            OutlinedButton(
+                                                onClick = viewModel::openSelectedCustomConfigurationFlow,
+                                                modifier = Modifier.fillMaxWidth(),
+                                            ) {
+                                                Text(customConfigurationButtonLabel)
+                                            }
+                                        }
+                                    },
                                 )
                             }
-                            if (customConfigurationButtonLabel != null) {
+                            if (
+                                customConfigurationButtonLabel != null &&
+                                customConfigurationButtonFieldId == null
+                            ) {
                                 OutlinedButton(
                                     onClick = viewModel::openSelectedCustomConfigurationFlow,
                                     modifier = Modifier.fillMaxWidth(),
@@ -272,4 +289,11 @@ fun AutomationDefinitionConfigurationScreen(viewModel: AutomationRuleEditorViewM
             }
         }
     }
+}
+
+private fun customConfigurationButtonAnchorFieldId(typeKey: String?): String? = when (typeKey) {
+    "APPLICATION_LIFECYCLE",
+    "NOTIFICATION_RECEIVED" -> "package_name"
+    "LAUNCH_APPLICATION" -> "packageName"
+    else -> null
 }

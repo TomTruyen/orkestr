@@ -49,6 +49,7 @@ fun AutomationFieldForm(
     fields: List<AutomationFieldDefinition>,
     config: AutomationConfig<*>?,
     onFieldChanged: (String, String) -> Unit,
+    contentAfterField: @Composable ((AutomationFieldDefinition) -> Unit)? = null,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         fields.forEach { field ->
@@ -119,6 +120,7 @@ fun AutomationFieldForm(
                     )
                 }
             }
+            contentAfterField?.invoke(field)
         }
     }
 }

@@ -1,35 +1,53 @@
 package com.tomtruyen.orkestr.features.wallpaper.screen
 
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.os.Build
 import android.provider.OpenableColumns
+import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.Image
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import com.tomtruyen.automation.core.model.WallpaperTarget
 import com.tomtruyen.automation.features.actions.config.SetWallpaperActionConfig
 import com.tomtruyen.orkestr.common.component.AutomationCardColumn
 import com.tomtruyen.orkestr.common.component.AutomationDefinitionHeaderCard
 import com.tomtruyen.orkestr.common.component.EmptyStateCard
-import com.tomtruyen.orkestr.common.component.ValidationCard
 import com.tomtruyen.orkestr.ui.wallpaper.R
 
 @Composable
@@ -39,16 +57,38 @@ fun WallpaperActionConfigurationScreen(
     isBeta: Boolean,
     requiredMinSdk: Int?,
     chooseDifferentLabel: String?,
-    saveLabel: String,
-    errors: List<String>,
     config: SetWallpaperActionConfig,
-    onFieldChanged: (String, String) -> Unit,
-    onSave: () -> Unit,
+    onConfirm: (imageUri: String, imageLabel: String) -> Unit,
     onChooseDifferent: (() -> Unit)?,
-    onWallpaperSelected: (imageUri: String, imageLabel: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val configuration = LocalConfiguration.current
+    val inspectionMode = LocalInspectionMode.current
+    val deviceAspectRatio = if (configuration.screenWidthDp > 0) {
+        configuration.screenHeightDp.toFloat() / configuration.screenWidthDp.toFloat()
+    } else {
+        16f / 9f
+    }
+    var selectedImageUri by rememberSaveable(config.imageUri) { mutableStateOf(config.imageUri) }
+    var selectedImageLabel by rememberSaveable(config.imageLabel) { mutableStateOf(config.imageLabel) }
+    val previewBitmap by produceState<Bitmap?>(initialValue = null, selectedImageUri, inspectionMode) {
+        value = if (inspectionMode || selectedImageUri.isBlank()) {
+            null
+        } else {
+            runCatching {
+                val uri = selectedImageUri.toUri()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    ImageDecoder.decodeBitmap(
+                        ImageDecoder.createSource(context.contentResolver, uri),
+                    )
+                } else {
+                    @Suppress("DEPRECATION")
+                    MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+                }
+            }.getOrNull()
+        }
+    }
     val imagePickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
         runCatching {
@@ -68,10 +108,8 @@ fun WallpaperActionConfigurationScreen(
             if (cursor.moveToFirst() && nameIndex >= 0) cursor.getString(nameIndex) else null
         }.orEmpty()
 
-        onWallpaperSelected(
-            uri.toString(),
-            imageLabel.ifBlank { uri.lastPathSegment.orEmpty() },
-        )
+        selectedImageUri = uri.toString()
+        selectedImageLabel = imageLabel.ifBlank { uri.lastPathSegment.orEmpty() }
     }
 
     Scaffold(
@@ -79,12 +117,17 @@ fun WallpaperActionConfigurationScreen(
         bottomBar = {
             Card {
                 Button(
-                    onClick = onSave,
+                    onClick = {
+                        if (selectedImageUri.isNotBlank()) {
+                            onConfirm(selectedImageUri, selectedImageLabel)
+                        }
+                    },
+                    enabled = selectedImageUri.isNotBlank(),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
                 ) {
-                    Text(saveLabel)
+                    Text(stringResource(R.string.automation_action_confirm_wallpaper))
                 }
             }
         },
@@ -121,62 +164,60 @@ fun WallpaperActionConfigurationScreen(
                         OutlinedButton(onClick = { imagePickerLauncher.launch(arrayOf("image/*")) }) {
                             Text(stringResource(R.string.automation_action_choose_image))
                         }
-                        if (config.imageUri.isBlank()) {
+                        if (selectedImageUri.isBlank()) {
                             EmptyStateCard(
                                 title = stringResource(R.string.automation_empty_wallpaper_title),
                                 description = stringResource(R.string.automation_empty_wallpaper_description),
                             )
                         } else {
+                            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                                val previewHeight = maxWidth * deviceAspectRatio
+                                if (inspectionMode || previewBitmap == null) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(previewHeight)
+                                            .clip(RoundedCornerShape(20.dp))
+                                            .background(MaterialTheme.colorScheme.surfaceContainerHighest),
+                                    ) {
+                                        Text(
+                                            text = selectedImageLabel.ifBlank {
+                                                selectedImageUri.toUri().lastPathSegment.orEmpty()
+                                            },
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(24.dp),
+                                            style = MaterialTheme.typography.titleMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            textAlign = TextAlign.Center,
+                                        )
+                                    }
+                                } else {
+                                    Image(
+                                        bitmap = previewBitmap!!.asImageBitmap(),
+                                        contentDescription = selectedImageLabel,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(previewHeight)
+                                            .clip(RoundedCornerShape(20.dp)),
+                                        contentScale = ContentScale.Crop,
+                                    )
+                                }
+                            }
                             Text(
                                 text = stringResource(R.string.automation_wallpaper_selected_image_label),
                                 style = MaterialTheme.typography.labelLarge,
                             )
                             Text(
-                                text = config.imageLabel.ifBlank { config.imageUri.toUri().lastPathSegment.orEmpty() },
+                                text = selectedImageLabel.ifBlank {
+                                    selectedImageUri.toUri().lastPathSegment.orEmpty()
+                                },
                                 style = MaterialTheme.typography.bodyLarge,
                             )
                         }
                     }
                 }
             }
-
-            item {
-                OutlinedCard(modifier = Modifier.fillMaxWidth()) {
-                    AutomationCardColumn {
-                        Text(
-                            text = stringResource(R.string.automation_wallpaper_apply_to_label),
-                            style = MaterialTheme.typography.labelLarge,
-                        )
-                        androidx.compose.foundation.layout.FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            WallpaperTarget.entries.forEach { target ->
-                                FilterChip(
-                                    selected = config.target == target,
-                                    onClick = { onFieldChanged("target", target.toFieldValue()) },
-                                    label = { Text(text = stringResource(target.toLabelRes())) },
-                                )
-                            }
-                        }
-                        if (errors.isNotEmpty()) {
-                            ValidationCard(errors = errors)
-                        }
-                    }
-                }
-            }
         }
     }
-}
-
-private fun WallpaperTarget.toFieldValue(): String = when (this) {
-    WallpaperTarget.HOME_SCREEN -> "home"
-    WallpaperTarget.LOCK_SCREEN -> "lock"
-    WallpaperTarget.HOME_AND_LOCK_SCREEN -> "home_and_lock"
-}
-
-private fun WallpaperTarget.toLabelRes(): Int = when (this) {
-    WallpaperTarget.HOME_SCREEN -> com.tomtruyen.orkestr.ui.wallpaper.R.string.automation_wallpaper_option_home
-    WallpaperTarget.LOCK_SCREEN -> com.tomtruyen.orkestr.ui.wallpaper.R.string.automation_wallpaper_option_lock
-    WallpaperTarget.HOME_AND_LOCK_SCREEN -> com.tomtruyen.orkestr.ui.wallpaper.R.string.automation_wallpaper_option_home_and_lock
 }

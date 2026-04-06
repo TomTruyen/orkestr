@@ -1,11 +1,8 @@
 <resources>
     <string name="automation_wallpaper_picker_hint">Uses Android’s document picker so the selected image can come from the gallery or any installed document provider.</string>
     <string name="automation_wallpaper_selected_image_label">Selected image</string>
-    <string name="automation_wallpaper_apply_to_label">Apply to</string>
     <string name="automation_empty_wallpaper_title">No image selected</string>
     <string name="automation_empty_wallpaper_description">Pick a wallpaper image from your gallery or document provider before saving this action.</string>
     <string name="automation_action_choose_image">Choose Image</string>
-    <string name="automation_wallpaper_option_home">Home screen</string>
-    <string name="automation_wallpaper_option_lock">Lock screen</string>
-    <string name="automation_wallpaper_option_home_and_lock">Home and lock screen</string>
+    <string name="automation_action_confirm_wallpaper">Confirm Wallpaper</string>
 </resources>

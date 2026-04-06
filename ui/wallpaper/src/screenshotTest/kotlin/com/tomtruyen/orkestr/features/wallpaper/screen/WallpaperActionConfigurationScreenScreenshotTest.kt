@@ -5,7 +5,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.android.tools.screenshot.PreviewTest
 
 @PreviewTest
-@Preview(showBackground = true, widthDp = 420)
+@Preview(showBackground = true, widthDp = 420, heightDp = 940)
 @Composable
 internal fun WallpaperActionConfigurationScreenshotTest() {
     WallpaperActionConfigurationComposePreview()
