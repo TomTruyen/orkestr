@@ -98,9 +98,8 @@ class GeofenceRegistrationReceiver(
         }
     }
 
-    private fun hasRequiredLocationPermissions(): Boolean =
-        FineLocationPermission.isGranted(appContext) &&
-            BackgroundLocationPermission.isGranted(appContext)
+    private fun hasRequiredLocationPermissions(): Boolean = FineLocationPermission.isGranted(appContext) &&
+        BackgroundLocationPermission.isGranted(appContext)
 
     private fun RegisteredGeofence.toGoogleGeofence(): Geofence = Geofence.Builder()
         .setRequestId(geofence.id)

@@ -10,6 +10,14 @@ import com.tomtruyen.automation.features.triggers.config.BatteryLevelTriggerConf
 class BatteryLevelTriggerDelegate : TriggerDelegate<BatteryLevelTriggerConfig> {
     override val type: TriggerType = TriggerType.BATTERY_LEVEL
 
-    override fun matches(config: BatteryLevelTriggerConfig, event: AutomationEvent): Boolean =
-        event is BatteryChangedEvent && config.operator.matches(event.percentage, config.value)
+    override fun matches(config: BatteryLevelTriggerConfig, event: AutomationEvent): Boolean {
+        if (event !is BatteryChangedEvent) return false
+
+        val matchesCurrent = config.operator.matches(event.percentage, config.value)
+        val matchedPrevious = event.previousPercentage?.let { previousPercentage ->
+            config.operator.matches(previousPercentage, config.value)
+        } ?: false
+
+        return matchesCurrent && !matchedPrevious
+    }
 }

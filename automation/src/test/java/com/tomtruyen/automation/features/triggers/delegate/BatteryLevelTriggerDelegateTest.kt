@@ -15,16 +15,33 @@ internal class BatteryLevelTriggerDelegateTest {
     private val delegate = BatteryLevelTriggerDelegate()
 
     @Test
-    fun matches_whenBatteryPercentageMatches_returnsTrue() {
+    fun matches_whenBatteryPercentageCrossesIntoMatch_returnsTrue() {
         val config = BatteryLevelTriggerConfig(operator = ComparisonOperator.LESS_THAN_OR_EQUAL, value = 20)
         val event = BatteryChangedEvent(
             level = 20,
             scale = 100,
             chargeState = BatteryChargeState.DISCHARGING,
             plugStatus = BatteryPlugStatus.UNPLUGGED,
+            previousLevel = 21,
+            previousScale = 100,
         )
 
         assertTrue(delegate.matches(config, event))
+    }
+
+    @Test
+    fun matches_whenBatteryPercentageAlreadyMatchedPreviously_returnsFalse() {
+        val config = BatteryLevelTriggerConfig(operator = ComparisonOperator.LESS_THAN_OR_EQUAL, value = 20)
+        val event = BatteryChangedEvent(
+            level = 20,
+            scale = 100,
+            chargeState = BatteryChargeState.DISCHARGING,
+            plugStatus = BatteryPlugStatus.UNPLUGGED,
+            previousLevel = 20,
+            previousScale = 100,
+        )
+
+        assertFalse(delegate.matches(config, event))
     }
 
     @Test

@@ -11,5 +11,7 @@ class ChargeStateTriggerDelegate : TriggerDelegate<BatteryChangedTriggerConfig> 
     override val type: TriggerType = TriggerType.CHARGE_STATE
 
     override fun matches(config: BatteryChangedTriggerConfig, event: AutomationEvent): Boolean =
-        event is BatteryChangedEvent && event.chargeState == config.state
+        event is BatteryChangedEvent &&
+            event.chargeState == config.state &&
+            event.previousChargeState != config.state
 }

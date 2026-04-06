@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
+import android.util.Log
 import androidx.core.content.ContextCompat
 import com.tomtruyen.automation.codegen.GenerateReceiverFactory
 import com.tomtruyen.automation.core.AutomationLogger
@@ -19,6 +20,8 @@ class BatteryChangedReceiver(
     override val scope: CoroutineScope,
     override val logger: AutomationLogger,
 ) : TriggerReceiver() {
+    private var lastState: BatteryStateSnapshot? = null
+
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != Intent.ACTION_BATTERY_CHANGED) return
 
@@ -29,6 +32,29 @@ class BatteryChangedReceiver(
 
         val chargeState = BatteryChargeState.fromBatteryManagerState(rawStatus)
         val plugStatus = BatteryPlugStatus.fromBatteryManagerPluggedStatus(rawPlugged)
+        val currentState = BatteryStateSnapshot(
+            level = level,
+            scale = scale,
+            chargeState = chargeState,
+            plugStatus = plugStatus,
+        )
+        val previousState = lastState
+        lastState = currentState
+
+        if (previousState == null) {
+            logger.log(
+                """
+                    Ignoring initial battery snapshot:
+                    level=$level
+                    scale=$scale
+                    chargeState=$chargeState
+                    plugStatus=$plugStatus
+                    rawStatus=$rawStatus
+                    rawPlugged=$rawPlugged
+                """.trimIndent(),
+            )
+            return
+        }
 
         logger.log(
             """
@@ -49,6 +75,10 @@ class BatteryChangedReceiver(
                     scale = scale,
                     chargeState = chargeState,
                     plugStatus = plugStatus,
+                    previousLevel = previousState.level,
+                    previousScale = previousState.scale,
+                    previousChargeState = previousState.chargeState,
+                    previousPlugStatus = previousState.plugStatus,
                 ),
             )
         }
@@ -66,6 +96,8 @@ class BatteryChangedReceiver(
         ): TriggerReceiver {
             val receiver = BatteryChangedReceiver(service, scope, logger)
 
+            Log.d("@@@", "Register battery receiver")
+
             ContextCompat.registerReceiver(
                 context,
                 receiver,
@@ -77,3 +109,10 @@ class BatteryChangedReceiver(
         }
     }
 }
+
+private data class BatteryStateSnapshot(
+    val level: Int,
+    val scale: Int,
+    val chargeState: BatteryChargeState,
+    val plugStatus: BatteryPlugStatus,
+)

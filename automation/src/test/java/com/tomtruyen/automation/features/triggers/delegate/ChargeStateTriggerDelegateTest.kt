@@ -14,18 +14,35 @@ internal class ChargeStateTriggerDelegateTest {
     private val delegate = ChargeStateTriggerDelegate()
 
     @Test
-    fun matches_whenEventChargeStateMatchesConfig_returnsTrue() {
+    fun matches_whenEventEntersConfiguredChargeState_returnsTrue() {
         val config = BatteryChangedTriggerConfig(state = BatteryChargeState.CHARGING)
         val event = BatteryChangedEvent(
             level = 20,
             scale = 100,
             chargeState = BatteryChargeState.CHARGING,
             plugStatus = BatteryPlugStatus.AC,
+            previousChargeState = BatteryChargeState.DISCHARGING,
         )
 
         val result = delegate.matches(config, event)
 
         assertTrue(result)
+    }
+
+    @Test
+    fun matches_whenEventRemainsInConfiguredChargeState_returnsFalse() {
+        val config = BatteryChangedTriggerConfig(state = BatteryChargeState.CHARGING)
+        val event = BatteryChangedEvent(
+            level = 20,
+            scale = 100,
+            chargeState = BatteryChargeState.CHARGING,
+            plugStatus = BatteryPlugStatus.AC,
+            previousChargeState = BatteryChargeState.CHARGING,
+        )
+
+        val result = delegate.matches(config, event)
+
+        assertFalse(result)
     }
 
     @Test
@@ -36,6 +53,7 @@ internal class ChargeStateTriggerDelegateTest {
             scale = 100,
             chargeState = BatteryChargeState.CHARGING,
             plugStatus = BatteryPlugStatus.AC,
+            previousChargeState = BatteryChargeState.DISCHARGING,
         )
 
         val result = delegate.matches(config, event)

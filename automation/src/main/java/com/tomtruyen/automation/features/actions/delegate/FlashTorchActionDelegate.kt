@@ -3,6 +3,7 @@ package com.tomtruyen.automation.features.actions.delegate
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
+import android.util.Log
 import com.tomtruyen.automation.codegen.GenerateActionDelegate
 import com.tomtruyen.automation.core.event.AutomationEvent
 import com.tomtruyen.automation.features.actions.ActionType
@@ -15,6 +16,8 @@ class FlashTorchActionDelegate(private val context: Context) : ActionDelegate<Fl
 
     override suspend fun execute(config: FlashTorchActionConfig, event: AutomationEvent) {
         if (!config.requiredPermissions.all { it.isGranted(context) }) return
+
+        Log.d("@@@", "Trigger flash torch action")
 
         val cameraManager = context.getSystemService(CameraManager::class.java) ?: return
         val cameraId = cameraManager.cameraIdList.firstOrNull { id ->

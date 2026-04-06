@@ -70,6 +70,45 @@ internal class BatteryChangedReceiverTest {
     fun onReceive_whenBatteryIntentIsReceived_logsAndForwardsEvent() = runTest {
         val scope = TestScope(StandardTestDispatcher(testScheduler))
         val receiver = BatteryChangedReceiver(service, scope, logger)
+        val baselineIntent = Intent(Intent.ACTION_BATTERY_CHANGED).apply {
+            putExtra(BatteryManager.EXTRA_LEVEL, 49)
+            putExtra(BatteryManager.EXTRA_SCALE, 100)
+            putExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_DISCHARGING)
+            putExtra(BatteryManager.EXTRA_PLUGGED, 0)
+        }
+        val intent = Intent(Intent.ACTION_BATTERY_CHANGED).apply {
+            putExtra(BatteryManager.EXTRA_LEVEL, 50)
+            putExtra(BatteryManager.EXTRA_SCALE, 100)
+            putExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_CHARGING)
+            putExtra(BatteryManager.EXTRA_PLUGGED, BatteryManager.BATTERY_PLUGGED_AC)
+        }
+
+        receiver.onReceive(context, baselineIntent)
+        receiver.onReceive(context, intent)
+        advanceUntilIdle()
+
+        verify { logger.log(match { it.contains("Ignoring initial battery snapshot") }) }
+        verify { logger.log(match { it.contains("Received battery change event") }) }
+        coVerify {
+            service.handleEvent(
+                BatteryChangedEvent(
+                    level = 50,
+                    scale = 100,
+                    chargeState = BatteryChargeState.CHARGING,
+                    plugStatus = BatteryPlugStatus.AC,
+                    previousLevel = 49,
+                    previousScale = 100,
+                    previousChargeState = BatteryChargeState.DISCHARGING,
+                    previousPlugStatus = BatteryPlugStatus.UNPLUGGED,
+                ),
+            )
+        }
+    }
+
+    @Test
+    fun onReceive_whenFirstBatteryIntentIsReceived_onlyStoresBaseline() = runTest {
+        val scope = TestScope(StandardTestDispatcher(testScheduler))
+        val receiver = BatteryChangedReceiver(service, scope, logger)
         val intent = Intent(Intent.ACTION_BATTERY_CHANGED).apply {
             putExtra(BatteryManager.EXTRA_LEVEL, 50)
             putExtra(BatteryManager.EXTRA_SCALE, 100)
@@ -80,17 +119,8 @@ internal class BatteryChangedReceiverTest {
         receiver.onReceive(context, intent)
         advanceUntilIdle()
 
-        verify { logger.log(match { it.contains("Received battery change event") }) }
-        coVerify {
-            service.handleEvent(
-                BatteryChangedEvent(
-                    level = 50,
-                    scale = 100,
-                    chargeState = BatteryChargeState.CHARGING,
-                    plugStatus = BatteryPlugStatus.AC,
-                ),
-            )
-        }
+        verify { logger.log(match { it.contains("Ignoring initial battery snapshot") }) }
+        coVerify(exactly = 0) { service.handleEvent(any()) }
     }
 
     @Test

@@ -1,10 +1,10 @@
 package com.tomtruyen.automation.features.triggers.receiver
 
 import android.app.PendingIntent
-import android.content.pm.PackageManager
 import android.content.Context
-import androidx.test.core.app.ApplicationProvider
+import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
+import androidx.test.core.app.ApplicationProvider
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
