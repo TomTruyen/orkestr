@@ -1,6 +1,7 @@
 package com.tomtruyen.automation.core.notification
 
 import android.app.Notification
+import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import androidx.core.app.NotificationManagerCompat
@@ -18,8 +19,8 @@ internal class AutomationNotificationServiceTest {
     private val factory = mockk<AutomationNotificationFactory>()
     private val notificationManager = mockk<NotificationManager>(relaxed = true)
     private val notificationManagerCompat = mockk<NotificationManagerCompat>()
-    private val runtimeChannel = mockk<android.app.NotificationChannel>()
-    private val actionChannel = mockk<android.app.NotificationChannel>()
+    private val runtimeChannel = mockk<NotificationChannel>()
+    private val actionChannel = mockk<NotificationChannel>()
     private val notification = mockk<Notification>()
 
     private val service = AutomationNotificationService(

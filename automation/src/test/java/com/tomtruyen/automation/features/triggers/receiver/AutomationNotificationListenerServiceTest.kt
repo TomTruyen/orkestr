@@ -1,5 +1,6 @@
 package com.tomtruyen.automation.features.triggers.receiver
 
+import android.R
 import android.app.Notification
 import android.content.Context
 import android.service.notification.StatusBarNotification
@@ -64,7 +65,7 @@ internal class AutomationNotificationListenerServiceTest {
         val notification = Notification.Builder(context, "channel")
             .setContentTitle("Title")
             .setContentText("Body")
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(R.drawable.ic_dialog_info)
             .build()
         val sbn = mockk<StatusBarNotification>()
         every { sbn.packageName } returns context.packageName
@@ -83,7 +84,7 @@ internal class AutomationNotificationListenerServiceTest {
         val notification = Notification.Builder(context, "channel")
             .setContentTitle("Title")
             .setContentText("Body")
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(R.drawable.ic_dialog_info)
             .build()
         val sbn = mockk<StatusBarNotification>()
         every { sbn.packageName } returns "com.whatsapp"

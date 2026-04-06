@@ -1,7 +1,9 @@
 package com.tomtruyen.automation.core.permission
 
+import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.provider.Settings
 import androidx.core.content.ContextCompat
 import com.tomtruyen.automation.core.permission.PermissionIntent.AppSettings
 import io.mockk.MockKAnnotations
@@ -37,7 +39,7 @@ internal class AutomationPermissionTest {
     fun runtimeIsGranted_whenPermissionIsGranted_returnsTrue() {
         mockkStatic(ContextCompat::class)
         every {
-            ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS)
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
         } returns PackageManager.PERMISSION_GRANTED
 
         assertTrue(PostNotificationPermission.isGranted(context))
@@ -47,7 +49,7 @@ internal class AutomationPermissionTest {
     fun runtimeIsGranted_whenPermissionIsDenied_returnsFalse() {
         mockkStatic(ContextCompat::class)
         every {
-            ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS)
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
         } returns PackageManager.PERMISSION_DENIED
 
         assertFalse(PostNotificationPermission.isGranted(context))
@@ -59,7 +61,7 @@ internal class AutomationPermissionTest {
 
         val intent = AppSettings.createIntent(context)
 
-        assertEquals("android.settings.APPLICATION_DETAILS_SETTINGS", intent.action)
+        assertEquals(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, intent.action)
         assertEquals("package:com.tomtruyen.automation.test", intent.dataString)
     }
 }

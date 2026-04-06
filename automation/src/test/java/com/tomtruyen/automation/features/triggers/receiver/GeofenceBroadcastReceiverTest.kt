@@ -2,6 +2,7 @@ package com.tomtruyen.automation.features.triggers.receiver
 
 import android.content.Context
 import android.content.Intent
+import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofenceStatusCodes
 import com.google.android.gms.location.GeofencingEvent
 import com.tomtruyen.automation.core.AutomationLogger
@@ -106,10 +107,10 @@ internal class GeofenceBroadcastReceiverTest {
     fun onReceive_whenTransitionIsValid_logsAndForwardsEvents() = runTest {
         mockkStatic(GeofencingEvent::class)
         val event = mockk<GeofencingEvent>()
-        val triggeringGeofence = mockk<com.google.android.gms.location.Geofence>()
+        val triggeringGeofence = mockk<Geofence>()
         every { GeofencingEvent.fromIntent(any()) } returns event
         every { event.hasError() } returns false
-        every { event.geofenceTransition } returns com.google.android.gms.location.Geofence.GEOFENCE_TRANSITION_ENTER
+        every { event.geofenceTransition } returns Geofence.GEOFENCE_TRANSITION_ENTER
         every { event.triggeringGeofences } returns listOf(triggeringGeofence)
         every { triggeringGeofence.requestId } returns "home"
 

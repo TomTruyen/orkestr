@@ -17,6 +17,7 @@ import com.google.devtools.ksp.symbol.KSValueParameter
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import java.io.ByteArrayOutputStream
 
 internal class ProcessorTestSupport {
@@ -73,7 +74,7 @@ internal class ProcessorTestSupport {
 
     fun output(fileName: String): String = outputs.getValue(fileName).toString()
 
-    fun requiredType(): KSType = io.mockk.mockk {
+    fun requiredType(): KSType = mockk {
         every { isAssignableFrom(any()) } returns true
     }
 
@@ -93,11 +94,11 @@ internal class ProcessorTestSupport {
             classKind = ClassKind.CLASS,
             implementedType = constructorParameterTypes.firstOrNull() ?: requiredType(),
         )
-        val constructor = io.mockk.mockk<KSFunctionDeclaration> {
+        val constructor = mockk<KSFunctionDeclaration> {
             every { parameters } returns constructorParameterTypes.map {
-                io.mockk.mockk<KSValueParameter> {
-                    every { type } returns io.mockk.mockk<KSTypeReference> {
-                        every { resolve() } returns io.mockk.mockk {
+                mockk<KSValueParameter> {
+                    every { type } returns mockk<KSTypeReference> {
+                        every { resolve() } returns mockk {
                             every { declaration } returns contextDeclaration
                         }
                     }
@@ -113,7 +114,7 @@ internal class ProcessorTestSupport {
         )
     }
 
-    private fun requiredDeclaration(type: KSType): KSClassDeclaration = io.mockk.mockk {
+    private fun requiredDeclaration(type: KSType): KSClassDeclaration = mockk {
         every { asStarProjectedType() } returns type
     }
 
@@ -123,8 +124,8 @@ internal class ProcessorTestSupport {
         implementedType: KSType,
         primaryConstructor: KSFunctionDeclaration? = null,
     ): KSClassDeclaration {
-        val file = io.mockk.mockk<KSFile>()
-        val declaration = io.mockk.mockk<KSClassDeclaration> {
+        val file = mockk<KSFile>()
+        val declaration = mockk<KSClassDeclaration> {
             every { this@mockk.classKind } returns classKind
             every { this@mockk.qualifiedName } returns ksName(qualifiedName)
             every { this@mockk.simpleName } returns ksName(qualifiedName.substringAfterLast('.'))
@@ -139,7 +140,7 @@ internal class ProcessorTestSupport {
         return declaration
     }
 
-    private fun ksName(value: String): KSName = io.mockk.mockk {
+    private fun ksName(value: String): KSName = mockk {
         every { asString() } returns value
         every { getQualifier() } returns value.substringBeforeLast('.', "")
         every { getShortName() } returns value.substringAfterLast('.')

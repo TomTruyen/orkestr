@@ -1,6 +1,7 @@
 package com.tomtruyen.automation.core.notification
 
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ActivityInfo
@@ -15,7 +16,7 @@ import org.robolectric.Shadows.shadowOf
 
 @RunWith(RobolectricTestRunner::class)
 internal class AutomationNotificationFactoryTest {
-    private val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+    private val context = ApplicationProvider.getApplicationContext<Context>()
     private val factory = AutomationNotificationFactory(context)
 
     @Test

@@ -12,6 +12,7 @@ import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.gms.tasks.Task
 import com.tomtruyen.automation.core.AutomationLogger
+import com.tomtruyen.automation.core.AutomationRule
 import com.tomtruyen.automation.core.AutomationRuntimeService
 import com.tomtruyen.automation.core.model.AutomationGeofence
 import com.tomtruyen.automation.core.model.GeofenceUpdateRate
@@ -21,6 +22,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.just
+import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.runs
 import io.mockk.slot
@@ -59,7 +61,7 @@ internal class GeofenceRegistrationReceiverClassTest {
     private lateinit var logger: AutomationLogger
 
     private lateinit var context: Context
-    private lateinit var rulesFlow: MutableStateFlow<List<com.tomtruyen.automation.core.AutomationRule>>
+    private lateinit var rulesFlow: MutableStateFlow<List<AutomationRule>>
     private lateinit var geofencesFlow: MutableStateFlow<List<AutomationGeofence>>
     private lateinit var scope: TestScope
 
@@ -166,10 +168,10 @@ internal class GeofenceRegistrationReceiverClassTest {
         address = null,
     )
 
-    private fun immediateTask(): Task<Void> = io.mockk.mockk(relaxed = true)
+    private fun immediateTask(): Task<Void> = mockk(relaxed = true)
 
     private fun immediateCompleteTask(): Task<Void> {
-        val task = io.mockk.mockk<Task<Void>>(relaxed = true)
+        val task = mockk<Task<Void>>(relaxed = true)
         every { task.addOnCompleteListener(any<OnCompleteListener<Void>>()) } answers {
             firstArg<OnCompleteListener<Void>>().onComplete(task)
             task
@@ -178,7 +180,7 @@ internal class GeofenceRegistrationReceiverClassTest {
     }
 
     private fun immediateSuccessTask(): Task<Void> {
-        val task = io.mockk.mockk<Task<Void>>(relaxed = true)
+        val task = mockk<Task<Void>>(relaxed = true)
         every { task.addOnSuccessListener(any<OnSuccessListener<in Void>>()) } answers {
             firstArg<OnSuccessListener<Void>>().onSuccess(null)
             task

@@ -1,5 +1,6 @@
 package com.tomtruyen.orkestr.features.timebased.component
 
+import android.R as AndroidR
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -36,7 +37,7 @@ fun AutomationTimePickerDialog(hour: Int, minute: Int, onDismiss: () -> Unit, on
         },
         dismissButton = {
             Button(onClick = onDismiss) {
-                Text(stringResource(android.R.string.cancel))
+                Text(stringResource(AndroidR.string.cancel))
             }
         },
     )
