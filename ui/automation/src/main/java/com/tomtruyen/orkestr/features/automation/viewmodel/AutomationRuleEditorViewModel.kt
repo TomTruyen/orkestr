@@ -387,50 +387,63 @@ class AutomationRuleEditorViewModel(
             RuleSection.TRIGGERS -> {
                 val definition = definitions.trigger(TriggerType.valueOf(typeKey)) ?: return
                 if (!saveNodeSelection(
-                    picker = picker,
-                    editor = editor,
-                    definition = definition,
-                    updateEditor = { currentEditor, config ->
-                        currentEditor.copy(
-                            triggers = replaceAt(currentEditor.triggers, picker.editingIndex, config as TriggerConfig),
-                            validation = RuleValidationState(),
-                        )
-                    },
-                )) return
+                        picker = picker,
+                        editor = editor,
+                        definition = definition,
+                        updateEditor = { currentEditor, config ->
+                            currentEditor.copy(
+                                triggers = replaceAt(
+                                    currentEditor.triggers,
+                                    picker.editingIndex,
+                                    config as TriggerConfig,
+                                ),
+                                validation = RuleValidationState(),
+                            )
+                        },
+                    )
+                ) {
+                    return
+                }
             }
 
             RuleSection.CONSTRAINTS -> {
                 val definition = definitions.constraint(ConstraintType.valueOf(typeKey)) ?: return
                 if (!saveNodeSelection(
-                    picker = picker,
-                    editor = editor,
-                    definition = definition,
-                    updateEditor = { currentEditor, config ->
-                        currentEditor.copy(
-                            constraints = replaceAt(
-                                currentEditor.constraints,
-                                picker.editingIndex,
-                                config as ConstraintConfig,
-                            ),
-                            validation = RuleValidationState(),
-                        )
-                    },
-                )) return
+                        picker = picker,
+                        editor = editor,
+                        definition = definition,
+                        updateEditor = { currentEditor, config ->
+                            currentEditor.copy(
+                                constraints = replaceAt(
+                                    currentEditor.constraints,
+                                    picker.editingIndex,
+                                    config as ConstraintConfig,
+                                ),
+                                validation = RuleValidationState(),
+                            )
+                        },
+                    )
+                ) {
+                    return
+                }
             }
 
             RuleSection.ACTIONS -> {
                 val definition = definitions.action(ActionType.valueOf(typeKey)) ?: return
                 if (!saveNodeSelection(
-                    picker = picker,
-                    editor = editor,
-                    definition = definition,
-                    updateEditor = { currentEditor, config ->
-                        currentEditor.copy(
-                            actions = replaceAt(currentEditor.actions, picker.editingIndex, config as ActionConfig),
-                            validation = RuleValidationState(),
-                        )
-                    },
-                )) return
+                        picker = picker,
+                        editor = editor,
+                        definition = definition,
+                        updateEditor = { currentEditor, config ->
+                            currentEditor.copy(
+                                actions = replaceAt(currentEditor.actions, picker.editingIndex, config as ActionConfig),
+                                validation = RuleValidationState(),
+                            )
+                        },
+                    )
+                ) {
+                    return
+                }
             }
         }
 
@@ -530,14 +543,12 @@ class AutomationRuleEditorViewModel(
         triggerEvent(defaultConfigurationEvent(picker, definitionKeyOf(config)))
     }
 
-    private fun defaultConfigurationEvent(
-        picker: DefinitionPickerState,
-        typeKey: String,
-    ) = AutomationEditorEvent.NavigateToDefinitionConfiguration(
-        section = picker.section,
-        typeKey = typeKey,
-        editingIndex = picker.editingIndex,
-    )
+    private fun defaultConfigurationEvent(picker: DefinitionPickerState, typeKey: String) =
+        AutomationEditorEvent.NavigateToDefinitionConfiguration(
+            section = picker.section,
+            typeKey = typeKey,
+            editingIndex = picker.editingIndex,
+        )
 
     private fun customNavigationEventFor(section: RuleSection, typeKey: String): AutomationEditorEvent? {
         if (section != RuleSection.TRIGGERS) {

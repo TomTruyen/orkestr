@@ -302,42 +302,8 @@ fun AutomationNavGraph(
                     editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
                 },
             ) { modifier ->
-                val pickerState = editorViewModel.uiState.collectAsState().value.pickerState ?: return@AutomationScaffold
-                val definition = editorViewModel.selectedDefinitionItem() ?: return@AutomationScaffold
-                TimeBasedTriggerConfigurationScreen(
-                    title = stringResource(definition.titleRes),
-                    description = stringResource(definition.descriptionRes),
-                    isBeta = definition.isBeta,
-                    requiredMinSdk = definition.requiredMinSdk,
-                    chooseDifferentLabel = if (pickerState.launchedFromSelection) {
-                        stringResource(
-                            R.string.automation_action_choose_different,
-                            stringResource(pickerState.section.singularTitleRes),
-                        )
-                    } else {
-                        null
-                    },
-                    saveLabel = if (pickerState.editingIndex == null) {
-                        stringResource(
-                            R.string.automation_action_add_node,
-                            stringResource(pickerState.section.singularTitleRes),
-                        )
-                    } else {
-                        stringResource(R.string.automation_action_save_changes)
-                    },
-                    errors = pickerState.errors,
-                    config = editorViewModel.currentTimeBasedTriggerConfig(),
-                    onFieldChanged = { fieldId, value ->
-                        editorViewModel.onAction(AutomationEditorAction.PickerFieldChanged(fieldId, value))
-                    },
-                    onSave = {
-                        editorViewModel.onAction(AutomationEditorAction.SavePickerClicked)
-                    },
-                    onChooseDifferent = if (pickerState.launchedFromSelection) {
-                        { editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked) }
-                    } else {
-                        null
-                    },
+                TimeBasedTriggerRouteScreen(
+                    editorViewModel = editorViewModel,
                     modifier = modifier,
                 )
             }
@@ -381,38 +347,8 @@ fun AutomationNavGraph(
                     editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
                 },
             ) { modifier ->
-                val pickerState = editorViewModel.uiState.collectAsState().value.pickerState
-                val definition = editorViewModel.selectedDefinitionItem()
-                WifiTriggerSelectionScreen(
-                    currentConfig = editorViewModel.currentWifiTriggerConfig(),
-                    title = if (pickerState?.launchedFromSelection == true) {
-                        definition?.let { stringResource(it.titleRes) }
-                            ?: stringResource(R.string.automation_title_select_wifi_network)
-                    } else {
-                        null
-                    },
-                    description = if (pickerState?.launchedFromSelection == true) {
-                        definition?.let { stringResource(it.descriptionRes) }
-                            ?: stringResource(R.string.automation_title_select_wifi_network)
-                    } else {
-                        null
-                    },
-                    isBeta = definition?.isBeta == true,
-                    requiredMinSdk = definition?.requiredMinSdk,
-                    chooseDifferentLabel = if (pickerState?.launchedFromSelection == true) {
-                        stringResource(
-                            R.string.automation_action_choose_different,
-                            stringResource(R.string.automation_singular_trigger),
-                        )
-                    } else {
-                        null
-                    },
-                    onChooseDifferent = if (pickerState?.launchedFromSelection == true) {
-                        { editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked) }
-                    } else {
-                        null
-                    },
-                    onWifiSelected = editorViewModel::applySelectedWifiTrigger,
+                WifiTriggerRouteScreen(
+                    editorViewModel = editorViewModel,
                     modifier = modifier,
                 )
             }
@@ -486,6 +422,110 @@ private fun AutomationScaffold(
     ) { innerPadding ->
         content(Modifier.padding(innerPadding))
     }
+}
+
+@Composable
+private fun TimeBasedTriggerRouteScreen(
+    editorViewModel: AutomationRuleEditorViewModel,
+    modifier: Modifier = Modifier,
+) {
+    val pickerState = editorViewModel.uiState.collectAsState().value.pickerState ?: return
+    val definition = editorViewModel.selectedDefinitionItem() ?: return
+
+    TimeBasedTriggerConfigurationScreen(
+        title = stringResource(definition.titleRes),
+        description = stringResource(definition.descriptionRes),
+        isBeta = definition.isBeta,
+        requiredMinSdk = definition.requiredMinSdk,
+        chooseDifferentLabel = chooseDifferentLabel(pickerState),
+        saveLabel = saveLabel(pickerState),
+        errors = pickerState.errors,
+        config = editorViewModel.currentTimeBasedTriggerConfig(),
+        onFieldChanged = { fieldId, value ->
+            editorViewModel.onAction(AutomationEditorAction.PickerFieldChanged(fieldId, value))
+        },
+        onSave = {
+            editorViewModel.onAction(AutomationEditorAction.SavePickerClicked)
+        },
+        onChooseDifferent = chooseDifferentAction(pickerState, editorViewModel),
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun WifiTriggerRouteScreen(editorViewModel: AutomationRuleEditorViewModel, modifier: Modifier = Modifier) {
+    val pickerState = editorViewModel.uiState.collectAsState().value.pickerState
+    val definition = editorViewModel.selectedDefinitionItem()
+
+    WifiTriggerSelectionScreen(
+        currentConfig = editorViewModel.currentWifiTriggerConfig(),
+        title = wifiHeaderTitle(pickerState, definition),
+        description = wifiHeaderDescription(pickerState, definition),
+        isBeta = definition?.isBeta == true,
+        requiredMinSdk = definition?.requiredMinSdk,
+        chooseDifferentLabel = chooseDifferentLabel(pickerState),
+        onChooseDifferent = chooseDifferentAction(pickerState, editorViewModel),
+        onWifiSelected = editorViewModel::applySelectedWifiTrigger,
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun chooseDifferentLabel(
+    pickerState: com.tomtruyen.orkestr.features.automation.state.DefinitionPickerState?,
+): String? {
+    if (pickerState?.launchedFromSelection != true) {
+        return null
+    }
+    return stringResource(
+        R.string.automation_action_choose_different,
+        stringResource(pickerState.section.singularTitleRes),
+    )
+}
+
+@Composable
+private fun saveLabel(pickerState: com.tomtruyen.orkestr.features.automation.state.DefinitionPickerState): String =
+    if (pickerState.editingIndex == null) {
+        stringResource(
+            R.string.automation_action_add_node,
+            stringResource(pickerState.section.singularTitleRes),
+        )
+    } else {
+        stringResource(R.string.automation_action_save_changes)
+    }
+
+private fun chooseDifferentAction(
+    pickerState: com.tomtruyen.orkestr.features.automation.state.DefinitionPickerState?,
+    editorViewModel: AutomationRuleEditorViewModel,
+): (() -> Unit)? {
+    if (pickerState?.launchedFromSelection != true) {
+        return null
+    }
+    return { editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked) }
+}
+
+@Composable
+private fun wifiHeaderTitle(
+    pickerState: com.tomtruyen.orkestr.features.automation.state.DefinitionPickerState?,
+    definition: com.tomtruyen.orkestr.features.automation.state.DefinitionListItem?,
+): String? {
+    if (pickerState?.launchedFromSelection != true) {
+        return null
+    }
+    return definition?.let { stringResource(it.titleRes) }
+        ?: stringResource(R.string.automation_title_select_wifi_network)
+}
+
+@Composable
+private fun wifiHeaderDescription(
+    pickerState: com.tomtruyen.orkestr.features.automation.state.DefinitionPickerState?,
+    definition: com.tomtruyen.orkestr.features.automation.state.DefinitionListItem?,
+): String? {
+    if (pickerState?.launchedFromSelection != true) {
+        return null
+    }
+    return definition?.let { stringResource(it.descriptionRes) }
+        ?: stringResource(R.string.automation_title_select_wifi_network)
 }
 
 private inline fun <reified T : NavKey> popBackStackUntil(backStack: NavBackStack<NavKey>) {
