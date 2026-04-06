@@ -21,6 +21,7 @@ Each rule is stored in Room as:
 - one or more triggers
 - zero or more constraints
 - one or more actions
+- an action execution mode, defaulting to parallel
 
 For testing, the rules list also exposes a manual `Run now` action. It bypasses triggers and evaluates the rule’s constraints before executing actions.
 
@@ -52,7 +53,7 @@ At runtime, the foreground service keeps only the necessary trigger integrations
 6. Receivers and services emit `AutomationEvent` instances into `AutomationRuntimeService`.
 7. `TriggerMatcher` checks whether any trigger in the rule matches the event.
 8. `ConstraintEvaluator` checks all configured constraints.
-9. `ActionExecutor` runs the configured actions.
+9. `ActionExecutor` runs the configured actions using the rule's execution mode. Parallel is the default; sequential is available when action order matters.
 
 ### Generated registration
 

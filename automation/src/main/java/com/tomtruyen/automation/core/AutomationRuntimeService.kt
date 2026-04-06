@@ -32,6 +32,10 @@ class AutomationRuntimeService(
         if (!ignoreTriggers && !triggerMatcher.matches(rule.triggers, event)) return
         if (!constraintEvaluator.evaluateAll(rule.constraints, event)) return
 
-        actionExecutor.executeAll(rule.actions, event)
+        actionExecutor.executeAll(
+            actions = rule.actions,
+            event = event,
+            executionMode = rule.actionExecutionMode,
+        )
     }
 }

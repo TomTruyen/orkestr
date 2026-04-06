@@ -4,6 +4,7 @@ import com.tomtruyen.automation.core.event.AutomationEvent
 import com.tomtruyen.automation.core.event.ManualAutomationEvent
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
 import com.tomtruyen.automation.features.actions.ActionExecutor
+import com.tomtruyen.automation.features.actions.ActionExecutionMode
 import com.tomtruyen.automation.features.actions.config.ActionConfig
 import com.tomtruyen.automation.features.constraints.ConstraintEvaluator
 import com.tomtruyen.automation.features.triggers.TriggerMatcher
@@ -46,7 +47,7 @@ internal class AutomationRuntimeServiceTest {
             actionExecutor = actionExecutor,
         )
 
-        coEvery { actionExecutor.executeAll(any(), any()) } just Runs
+        coEvery { actionExecutor.executeAll(any(), any(), any()) } just Runs
     }
 
     @Test
@@ -58,7 +59,7 @@ internal class AutomationRuntimeServiceTest {
 
         coVerify(exactly = 0) { triggerMatcher.matches(any(), any()) }
         coVerify(exactly = 0) { constraintEvaluator.evaluateAll(any(), any()) }
-        coVerify(exactly = 0) { actionExecutor.executeAll(any(), any()) }
+        coVerify(exactly = 0) { actionExecutor.executeAll(any(), any(), any()) }
     }
 
     @Test
@@ -73,7 +74,7 @@ internal class AutomationRuntimeServiceTest {
 
         coVerify { triggerMatcher.matches(rule.triggers, event) }
         coVerify(exactly = 0) { constraintEvaluator.evaluateAll(any(), any()) }
-        coVerify(exactly = 0) { actionExecutor.executeAll(any(), any()) }
+        coVerify(exactly = 0) { actionExecutor.executeAll(any(), any(), any()) }
     }
 
     @Test
@@ -89,7 +90,7 @@ internal class AutomationRuntimeServiceTest {
 
         coVerify { triggerMatcher.matches(rule.triggers, event) }
         coVerify { constraintEvaluator.evaluateAll(rule.constraints, event) }
-        coVerify(exactly = 0) { actionExecutor.executeAll(any(), any()) }
+        coVerify(exactly = 0) { actionExecutor.executeAll(any(), any(), any()) }
     }
 
     @Test
@@ -99,6 +100,7 @@ internal class AutomationRuntimeServiceTest {
         val actions = listOf(mockk<ActionConfig>())
         val rule = mockk<AutomationRule> {
             every { this@mockk.actions } returns actions
+            every { this@mockk.actionExecutionMode } returns ActionExecutionMode.SEQUENTIAL
         }
 
         coEvery { repository.getEnabledRules() } returns listOf(rule)
@@ -107,7 +109,7 @@ internal class AutomationRuntimeServiceTest {
 
         service.handleEvent(event)
 
-        coVerify { actionExecutor.executeAll(any(), event) }
+        coVerify { actionExecutor.executeAll(actions, event, ActionExecutionMode.SEQUENTIAL) }
     }
 
     @Test
@@ -117,16 +119,19 @@ internal class AutomationRuntimeServiceTest {
         val actions1 = listOf(mockk<ActionConfig>())
         val rule1 = mockk<AutomationRule> {
             every { this@mockk.actions } returns actions1
+            every { this@mockk.actionExecutionMode } returns ActionExecutionMode.PARALLEL
         }
 
         val actions2 = listOf(mockk<ActionConfig>())
         val rule2 = mockk<AutomationRule> {
             every { this@mockk.actions } returns actions2
+            every { this@mockk.actionExecutionMode } returns ActionExecutionMode.PARALLEL
         }
 
         val actions3 = listOf(mockk<ActionConfig>())
         val rule3 = mockk<AutomationRule> {
             every { this@mockk.actions } returns actions3
+            every { this@mockk.actionExecutionMode } returns ActionExecutionMode.PARALLEL
         }
 
         coEvery { repository.getEnabledRules() } returns listOf(rule1, rule2, rule3)
@@ -144,9 +149,9 @@ internal class AutomationRuntimeServiceTest {
 
         service.handleEvent(event)
 
-        coVerify { actionExecutor.executeAll(actions1, event) }
-        coVerify(exactly = 0) { actionExecutor.executeAll(actions2, event) }
-        coVerify(exactly = 0) { actionExecutor.executeAll(actions2, event) }
+        coVerify { actionExecutor.executeAll(actions1, event, ActionExecutionMode.PARALLEL) }
+        coVerify(exactly = 0) { actionExecutor.executeAll(actions2, event, any()) }
+        coVerify(exactly = 0) { actionExecutor.executeAll(actions3, event, any()) }
     }
 
     @Test
@@ -156,11 +161,13 @@ internal class AutomationRuntimeServiceTest {
         val actions1 = listOf(mockk<ActionConfig>())
         val rule1 = mockk<AutomationRule>(relaxed = true) {
             every { this@mockk.actions } returns actions1
+            every { this@mockk.actionExecutionMode } returns ActionExecutionMode.PARALLEL
         }
 
         val actions2 = listOf(mockk<ActionConfig>())
         val rule2 = mockk<AutomationRule>(relaxed = true) {
             every { this@mockk.actions } returns actions2
+            every { this@mockk.actionExecutionMode } returns ActionExecutionMode.SEQUENTIAL
         }
 
         coEvery { repository.getEnabledRules() } returns listOf(rule1, rule2)
@@ -170,8 +177,8 @@ internal class AutomationRuntimeServiceTest {
 
         service.handleEvent(event)
 
-        coVerify { actionExecutor.executeAll(actions1, event) }
-        coVerify { actionExecutor.executeAll(actions2, event) }
+        coVerify { actionExecutor.executeAll(actions1, event, ActionExecutionMode.PARALLEL) }
+        coVerify { actionExecutor.executeAll(actions2, event, ActionExecutionMode.SEQUENTIAL) }
     }
 
     @Test
@@ -181,6 +188,7 @@ internal class AutomationRuntimeServiceTest {
         val rule = mockk<AutomationRule> {
             every { this@mockk.actions } returns actions
             every { this@mockk.constraints } returns emptyList()
+            every { this@mockk.actionExecutionMode } returns ActionExecutionMode.PARALLEL
         }
 
         coEvery { repository.getEnabledRules() } returns listOf(rule)
@@ -189,7 +197,7 @@ internal class AutomationRuntimeServiceTest {
 
         service.handleEvent(event)
 
-        coVerify { actionExecutor.executeAll(actions, event) }
+        coVerify { actionExecutor.executeAll(actions, event, ActionExecutionMode.PARALLEL) }
     }
 
     @Test
@@ -199,6 +207,7 @@ internal class AutomationRuntimeServiceTest {
             every { this@mockk.id } returns "rule-1"
             every { this@mockk.actions } returns actions
             every { this@mockk.constraints } returns emptyList()
+            every { this@mockk.actionExecutionMode } returns ActionExecutionMode.SEQUENTIAL
         }
 
         coEvery { constraintEvaluator.evaluateAll(emptyList(), any()) } returns true
@@ -216,6 +225,7 @@ internal class AutomationRuntimeServiceTest {
             actionExecutor.executeAll(
                 actions,
                 withArg { event -> assertTrue(event is ManualAutomationEvent && event.ruleId == "rule-1") },
+                ActionExecutionMode.SEQUENTIAL,
             )
         }
     }
@@ -232,6 +242,6 @@ internal class AutomationRuntimeServiceTest {
         service.runRuleNow(rule)
 
         coVerify(exactly = 0) { triggerMatcher.matches(any(), any()) }
-        coVerify(exactly = 0) { actionExecutor.executeAll(any(), any()) }
+        coVerify(exactly = 0) { actionExecutor.executeAll(any(), any(), any()) }
     }
 }

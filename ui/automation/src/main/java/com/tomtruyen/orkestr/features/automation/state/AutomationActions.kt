@@ -1,6 +1,7 @@
 package com.tomtruyen.orkestr.features.automation.state
 
 import com.tomtruyen.automation.core.AutomationRule
+import com.tomtruyen.automation.features.actions.ActionExecutionMode
 
 sealed interface AutomationRulesAction {
     data object CreateRuleClicked : AutomationRulesAction
@@ -16,6 +17,7 @@ sealed interface AutomationEditorAction {
     data object BackToPickerSelectionClicked : AutomationEditorAction
     data class RuleNameChanged(val name: String) : AutomationEditorAction
     data class RuleEnabledChanged(val enabled: Boolean) : AutomationEditorAction
+    data class RuleActionExecutionModeChanged(val executionMode: ActionExecutionMode) : AutomationEditorAction
     data object SaveRuleClicked : AutomationEditorAction
     data class AddNodeClicked(val section: RuleSection) : AutomationEditorAction
     data class EditNodeClicked(val section: RuleSection, val index: Int) : AutomationEditorAction

@@ -33,6 +33,10 @@
     <string name="automation_rule_name_placeholder">Pause notifications while charging</string>
     <string name="automation_label_rule_enabled">Rule enabled</string>
     <string name="automation_rule_enabled_helper">Disabled rules stay in the database but will not run.</string>
+    <string name="automation_actions_execution_mode_label">Action execution</string>
+    <string name="automation_actions_execution_mode_helper">Parallel runs actions together and continues if one fails. Sequential keeps the listed order when the order matters.</string>
+    <string name="automation_actions_execution_mode_parallel">Parallel</string>
+    <string name="automation_actions_execution_mode_sequential">Sequential</string>
 
     <!-- Automation search -->
     <string name="automation_search_label">Search %1$s</string>
@@ -77,7 +81,7 @@
     <string name="automation_section_constraints_title">Only If</string>
     <string name="automation_section_constraints_helper">Constraints refine when the rule is allowed to continue.</string>
     <string name="automation_section_actions_title">Then</string>
-    <string name="automation_section_actions_helper">Add one or more actions that should run.</string>
+    <string name="automation_section_actions_helper">Add one or more actions that should run. Parallel is the default; use sequential when order matters.</string>
     <string name="automation_singular_trigger">Trigger</string>
     <string name="automation_singular_constraint">Constraint</string>
     <string name="automation_singular_action">Action</string>

@@ -3,6 +3,7 @@ package com.tomtruyen.automation.data.repository
 import com.tomtruyen.automation.core.AutomationRule
 import com.tomtruyen.automation.data.dao.AutomationRuleDao
 import com.tomtruyen.automation.data.entity.AutomationRuleEntity
+import com.tomtruyen.automation.features.actions.ActionExecutionMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -48,6 +49,7 @@ private fun AutomationRuleEntity.toDomain(): AutomationRule = AutomationRule(
     triggers = triggers,
     constraints = constraints,
     actions = actions,
+    actionExecutionMode = actionExecutionMode.toActionExecutionMode(),
 )
 
 private fun AutomationRule.toEntity(): AutomationRuleEntity = AutomationRuleEntity(
@@ -57,5 +59,9 @@ private fun AutomationRule.toEntity(): AutomationRuleEntity = AutomationRuleEnti
     triggers = triggers,
     constraints = constraints,
     actions = actions,
+    actionExecutionMode = actionExecutionMode.name,
     updatedAtEpochMillis = System.currentTimeMillis(),
 )
+
+private fun String.toActionExecutionMode(): ActionExecutionMode =
+    runCatching { ActionExecutionMode.valueOf(this) }.getOrDefault(ActionExecutionMode.PARALLEL)

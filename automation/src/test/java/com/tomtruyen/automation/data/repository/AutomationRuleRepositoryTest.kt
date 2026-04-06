@@ -3,6 +3,7 @@ package com.tomtruyen.automation.data.repository
 import com.tomtruyen.automation.core.AutomationRule
 import com.tomtruyen.automation.data.dao.AutomationRuleDao
 import com.tomtruyen.automation.data.entity.AutomationRuleEntity
+import com.tomtruyen.automation.features.actions.ActionExecutionMode
 import com.tomtruyen.automation.features.actions.config.LogMessageActionConfig
 import com.tomtruyen.automation.features.constraints.config.BatteryLevelConstraintConfig
 import com.tomtruyen.automation.features.triggers.config.BatteryChangedTriggerConfig
@@ -74,6 +75,7 @@ internal class AutomationRuleRepositoryTest {
         assertEquals("rule-id", slot.captured.id)
         assertEquals("Rule", slot.captured.name)
         assertEquals(listOf(BatteryChangedTriggerConfig()), slot.captured.triggers)
+        assertEquals(ActionExecutionMode.PARALLEL.name, slot.captured.actionExecutionMode)
         assertTrue(slot.captured.updatedAtEpochMillis in before..after)
     }
 
@@ -112,6 +114,7 @@ internal class AutomationRuleRepositoryTest {
         triggers = listOf(BatteryChangedTriggerConfig()),
         constraints = listOf(BatteryLevelConstraintConfig()),
         actions = listOf(LogMessageActionConfig()),
+        actionExecutionMode = ActionExecutionMode.PARALLEL,
     )
 
     private fun sampleEntity(enabled: Boolean = false): AutomationRuleEntity = AutomationRuleEntity(
@@ -121,6 +124,7 @@ internal class AutomationRuleRepositoryTest {
         triggers = listOf(BatteryChangedTriggerConfig()),
         constraints = listOf(BatteryLevelConstraintConfig()),
         actions = listOf(LogMessageActionConfig()),
+        actionExecutionMode = ActionExecutionMode.PARALLEL.name,
         updatedAtEpochMillis = 123L,
     )
 }

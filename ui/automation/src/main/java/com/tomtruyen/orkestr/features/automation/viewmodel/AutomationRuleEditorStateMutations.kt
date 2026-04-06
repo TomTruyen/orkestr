@@ -2,6 +2,7 @@ package com.tomtruyen.orkestr.features.automation.viewmodel
 
 import com.tomtruyen.automation.core.config.AutomationConfig
 import com.tomtruyen.automation.core.permission.AutomationPermission
+import com.tomtruyen.automation.features.actions.ActionExecutionMode
 import com.tomtruyen.automation.features.actions.config.ActionConfig
 import com.tomtruyen.automation.features.constraints.config.ConstraintConfig
 import com.tomtruyen.automation.features.triggers.config.TriggerConfig
@@ -34,6 +35,11 @@ internal fun RuleEditorState.withConstraint(config: ConstraintConfig, index: Int
 
 internal fun RuleEditorState.withAction(config: ActionConfig, index: Int?): RuleEditorState = copy(
     actions = actions.replaceAt(index, config),
+    validation = RuleValidationState(),
+)
+
+internal fun RuleEditorState.withActionExecutionMode(executionMode: ActionExecutionMode): RuleEditorState = copy(
+    actionExecutionMode = executionMode,
     validation = RuleValidationState(),
 )
 

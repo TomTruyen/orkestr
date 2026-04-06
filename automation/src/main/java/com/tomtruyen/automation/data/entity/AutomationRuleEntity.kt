@@ -3,6 +3,7 @@ package com.tomtruyen.automation.data.entity
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.tomtruyen.automation.features.actions.ActionExecutionMode
 import com.tomtruyen.automation.features.actions.config.ActionConfig
 import com.tomtruyen.automation.features.constraints.config.ConstraintConfig
 import com.tomtruyen.automation.features.triggers.config.TriggerConfig
@@ -15,5 +16,6 @@ data class AutomationRuleEntity(
     @ColumnInfo(name = "triggersJson") val triggers: List<TriggerConfig>,
     @ColumnInfo(name = "constraintsJson") val constraints: List<ConstraintConfig>,
     @ColumnInfo(name = "actionsJson") val actions: List<ActionConfig>,
+    @ColumnInfo(name = "actionExecutionMode") val actionExecutionMode: String = ActionExecutionMode.PARALLEL.name,
     val updatedAtEpochMillis: Long,
 )

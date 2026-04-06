@@ -56,7 +56,13 @@ val automationModule = module {
     // Runtime Service
     single { TriggerMatcher(GeneratedTriggerProvider.delegates()) }
     single { ConstraintEvaluator(GeneratedConstraintProvider.delegates()) }
-    single { ActionExecutor(androidContext(), GeneratedActionProvider.delegates(androidContext())) }
+    single {
+        ActionExecutor(
+            context = androidContext(),
+            delegates = GeneratedActionProvider.delegates(androidContext()),
+            logger = get(),
+        )
+    }
 
     single<AutomationRuntimeService> {
         AutomationRuntimeService(

@@ -6,6 +6,7 @@ import com.tomtruyen.automation.core.definition.AutomationDefinitionRegistry
 import com.tomtruyen.automation.core.definition.AutomationNodeDefinition
 import com.tomtruyen.automation.core.permission.AutomationPermission
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
+import com.tomtruyen.automation.features.actions.ActionExecutionMode
 import com.tomtruyen.automation.features.actions.ActionType
 import com.tomtruyen.automation.features.actions.config.ActionConfig
 import com.tomtruyen.automation.features.constraints.ConstraintType
@@ -64,6 +65,7 @@ class AutomationRuleEditorViewModel private constructor(
             AutomationEditorAction.BackToPickerSelectionClicked -> navigateBackFromConfiguration()
             is AutomationEditorAction.RuleNameChanged -> updateRuleName(action.name)
             is AutomationEditorAction.RuleEnabledChanged -> updateRuleEnabled(action.enabled)
+            is AutomationEditorAction.RuleActionExecutionModeChanged -> updateActionExecutionMode(action.executionMode)
             AutomationEditorAction.SaveRuleClicked -> saveRule()
             is AutomationEditorAction.AddNodeClicked -> startAddingNode(action.section)
             is AutomationEditorAction.EditNodeClicked -> editNode(action.section, action.index)
@@ -94,6 +96,7 @@ class AutomationRuleEditorViewModel private constructor(
                     triggers = rule.triggers,
                     constraints = rule.constraints,
                     actions = rule.actions,
+                    actionExecutionMode = rule.actionExecutionMode,
                 ),
                 pickerState = null,
             )
@@ -170,6 +173,11 @@ class AutomationRuleEditorViewModel private constructor(
     private fun updateRuleEnabled(enabled: Boolean) {
         val editor = uiState.value.editorState ?: return
         updateState { it.copy(editorState = editor.copy(enabled = enabled)) }
+    }
+
+    private fun updateActionExecutionMode(executionMode: ActionExecutionMode) {
+        val editor = uiState.value.editorState ?: return
+        updateState { it.copy(editorState = editor.withActionExecutionMode(executionMode)) }
     }
 
     private fun startAddingNode(section: RuleSection) {
@@ -302,6 +310,7 @@ class AutomationRuleEditorViewModel private constructor(
                     triggers = current.triggers,
                     constraints = current.constraints,
                     actions = current.actions,
+                    actionExecutionMode = current.actionExecutionMode,
                 ),
             )
             closeEditor()

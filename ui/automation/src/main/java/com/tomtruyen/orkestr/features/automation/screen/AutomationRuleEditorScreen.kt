@@ -35,12 +35,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.tomtruyen.automation.features.actions.ActionExecutionMode
 import com.tomtruyen.orkestr.common.component.AutomationCardColumn
 import com.tomtruyen.orkestr.common.component.AutomationTintedColumn
 import com.tomtruyen.orkestr.common.component.AutomationTitleRow
 import com.tomtruyen.orkestr.common.component.EmptyStateCard
 import com.tomtruyen.orkestr.common.component.ValidationCard
 import com.tomtruyen.orkestr.common.permission.AutomationPermissionManager
+import com.tomtruyen.orkestr.features.automation.component.ActionExecutionModeSelector
 import com.tomtruyen.orkestr.features.automation.component.NodeListItem
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorAction
 import com.tomtruyen.orkestr.features.automation.state.RuleSection
@@ -156,6 +158,14 @@ fun AutomationRuleEditorScreen(viewModel: AutomationRuleEditorViewModel, modifie
                     tint = MaterialTheme.colorScheme.secondaryContainer,
                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                     onAddNode = { viewModel.onAction(AutomationEditorAction.AddNodeClicked(RuleSection.ACTIONS)) },
+                    headerContent = {
+                        ActionExecutionModeSelector(
+                            selectedMode = state.actionExecutionMode,
+                            onModeSelected = {
+                                viewModel.onAction(AutomationEditorAction.RuleActionExecutionModeChanged(it))
+                            },
+                        )
+                    },
                     onNodeClick = {
                         permissionManager.request(
                             permissions = viewModel.requiredPermissionsForNode(RuleSection.ACTIONS, it),
@@ -202,6 +212,7 @@ private fun RuleSectionEditorCard(
     tint: Color,
     contentColor: Color,
     onAddNode: () -> Unit,
+    headerContent: @Composable (() -> Unit)? = null,
     onNodeClick: (Int) -> Unit,
     onNodeLongClick: (Int, String) -> Unit,
 ) {
@@ -242,6 +253,8 @@ private fun RuleSectionEditorCard(
                 color = contentColor.copy(alpha = 0.8f),
             )
         }
+
+        headerContent?.invoke()
 
         if (entries.isEmpty()) {
             EmptyStateCard(
