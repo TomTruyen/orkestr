@@ -14,6 +14,8 @@ import com.tomtruyen.automation.core.AutomationLogger
 import com.tomtruyen.automation.core.AutomationRule
 import com.tomtruyen.automation.core.AutomationRuntimeService
 import com.tomtruyen.automation.core.model.AutomationGeofence
+import com.tomtruyen.automation.core.permission.BackgroundLocationPermission
+import com.tomtruyen.automation.core.permission.FineLocationPermission
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
 import com.tomtruyen.automation.data.repository.GeofenceRepository
 import com.tomtruyen.automation.features.triggers.config.GeofenceTriggerConfig
@@ -58,6 +60,15 @@ class GeofenceRegistrationReceiver(
 
     @SuppressLint("MissingPermission")
     private fun syncGeofences(geofences: List<RegisteredGeofence>) {
+        if (!hasRequiredLocationPermissions()) {
+            if (activeGeofenceIds.isNotEmpty()) {
+                geofencingClient.removeGeofences(activeGeofenceIds.toList())
+                activeGeofenceIds = emptySet()
+            }
+            logger.log("Skipped geofence registration because location permissions are missing")
+            return
+        }
+
         val targetIds = geofences.map { it.geofence.id }.toSet()
         val staleIds = activeGeofenceIds - targetIds
 
@@ -86,6 +97,10 @@ class GeofenceRegistrationReceiver(
                 }
         }
     }
+
+    private fun hasRequiredLocationPermissions(): Boolean =
+        FineLocationPermission.isGranted(appContext) &&
+            BackgroundLocationPermission.isGranted(appContext)
 
     private fun RegisteredGeofence.toGoogleGeofence(): Geofence = Geofence.Builder()
         .setRequestId(geofence.id)

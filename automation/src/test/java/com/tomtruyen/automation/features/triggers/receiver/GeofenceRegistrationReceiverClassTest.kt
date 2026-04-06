@@ -1,8 +1,10 @@
 package com.tomtruyen.automation.features.triggers.receiver
 
 import android.app.PendingIntent
+import android.content.pm.PackageManager
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
+import androidx.core.content.ContextCompat
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
@@ -74,7 +76,9 @@ internal class GeofenceRegistrationReceiverClassTest {
         scope = TestScope()
 
         mockkStatic(LocationServices::class)
+        mockkStatic(ContextCompat::class)
         every { LocationServices.getGeofencingClient(any()) } returns geofencingClient
+        every { ContextCompat.checkSelfPermission(any(), any()) } returns PackageManager.PERMISSION_GRANTED
         every { geofenceRepository.observeGeofences() } returns geofencesFlow
         every { ruleRepository.observeRules() } returns rulesFlow
         every { logger.log(any()) } just runs
@@ -159,6 +163,31 @@ internal class GeofenceRegistrationReceiverClassTest {
         verify { geofencingClient.removeGeofences(listOf("home")) }
     }
 
+    @Test
+    fun syncGeofences_whenLocationPermissionsMissing_skipsRegistrationAndClearsActiveIds() = runTest {
+        every { ContextCompat.checkSelfPermission(any(), any()) } returns PackageManager.PERMISSION_DENIED
+        val receiver = receiver()
+
+        setActiveGeofenceIds(receiver, setOf("home"))
+
+        invokeSyncGeofences(
+            receiver = receiver,
+            geofences = listOf(
+                RegisteredGeofence(
+                    geofence = sampleGeofence("home"),
+                    transitionMask = Geofence.GEOFENCE_TRANSITION_ENTER,
+                    notificationResponsivenessMillis = GeofenceUpdateRate.BALANCED.notificationResponsivenessMillis,
+                ),
+            ),
+        )
+
+        verify { geofencingClient.removeGeofences(listOf("home")) }
+        verify(exactly = 0) { geofencingClient.removeGeofences(any<PendingIntent>()) }
+        verify(exactly = 0) { geofencingClient.addGeofences(any(), any<PendingIntent>()) }
+        verify { logger.log(match { it.contains("location permissions are missing") }) }
+        assertEquals(emptySet<String>(), activeGeofenceIds(receiver))
+    }
+
     private fun sampleGeofence(id: String): AutomationGeofence = AutomationGeofence(
         id = id,
         name = id.replaceFirstChar { it.uppercase() },
@@ -202,6 +231,13 @@ internal class GeofenceRegistrationReceiverClassTest {
         val field = GeofenceRegistrationReceiver::class.java.getDeclaredField("activeGeofenceIds")
         field.isAccessible = true
         field.set(receiver, ids)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun activeGeofenceIds(receiver: GeofenceRegistrationReceiver): Set<String> {
+        val field = GeofenceRegistrationReceiver::class.java.getDeclaredField("activeGeofenceIds")
+        field.isAccessible = true
+        return field.get(receiver) as Set<String>
     }
 
     private fun receiver(): GeofenceRegistrationReceiver = GeofenceRegistrationReceiver(
