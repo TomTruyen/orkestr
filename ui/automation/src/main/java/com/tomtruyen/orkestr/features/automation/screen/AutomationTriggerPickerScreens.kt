@@ -183,6 +183,7 @@ fun AutomationWifiTriggerSelectionScreen(
                     description = definition?.let { stringResource(it.descriptionRes) }
                         ?: stringResource(R.string.automation_wifi_section_discovered_description),
                     isBeta = definition?.isBeta == true,
+                    requiredMinSdk = definition?.requiredMinSdk,
                     chooseDifferentLabel = stringResource(
                         R.string.automation_action_choose_different,
                         stringResource(R.string.automation_singular_trigger),

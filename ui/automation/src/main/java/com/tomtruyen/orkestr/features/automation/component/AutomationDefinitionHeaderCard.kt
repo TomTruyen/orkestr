@@ -2,6 +2,7 @@ package com.tomtruyen.orkestr.features.automation.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
@@ -21,6 +22,7 @@ fun AutomationDefinitionHeaderCard(
     title: String,
     description: String,
     isBeta: Boolean,
+    requiredMinSdk: Int?,
     chooseDifferentLabel: String?,
     onChooseDifferent: (() -> Unit)?,
     modifier: Modifier = Modifier,
@@ -33,8 +35,16 @@ fun AutomationDefinitionHeaderCard(
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.SemiBold,
                 )
-                if (isBeta) {
-                    AutomationBetaChip()
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    if (isBeta) {
+                        AutomationBetaChip()
+                    }
+                    if (requiredMinSdk != null) {
+                        AutomationRequiredSdkChip(requiredMinSdk = requiredMinSdk)
+                    }
                 }
             }
             Text(
@@ -60,6 +70,22 @@ fun AutomationBetaChip(modifier: Modifier = Modifier) {
         label = {
             Text(
                 text = stringResource(R.string.automation_label_beta),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        },
+    )
+}
+
+@Composable
+fun AutomationRequiredSdkChip(requiredMinSdk: Int, modifier: Modifier = Modifier) {
+    AssistChip(
+        onClick = {},
+        enabled = false,
+        modifier = modifier,
+        label = {
+            Text(
+                text = stringResource(R.string.automation_label_required_sdk, requiredMinSdk),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

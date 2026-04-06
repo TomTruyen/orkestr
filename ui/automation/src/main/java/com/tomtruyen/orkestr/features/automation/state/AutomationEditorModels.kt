@@ -28,6 +28,7 @@ data class DefinitionListItem(
     val category: AutomationCategory,
     val fields: List<AutomationFieldDefinition>,
     val permissions: List<AutomationPermission> = emptyList(),
+    val requiredMinSdk: Int? = null,
     val isBeta: Boolean = false,
 )
 

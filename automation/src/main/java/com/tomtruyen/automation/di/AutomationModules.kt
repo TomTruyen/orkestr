@@ -3,7 +3,7 @@ package com.tomtruyen.automation.di
 import androidx.room.Room
 import com.tomtruyen.automation.core.AutomationLogger
 import com.tomtruyen.automation.core.AutomationRuntimeService
-import com.tomtruyen.automation.core.LogcatAutomationLogger
+import com.tomtruyen.automation.core.PersistingAutomationLogger
 import com.tomtruyen.automation.data.AutomationDatabase
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
 import com.tomtruyen.automation.data.repository.AutomationRuleRepositoryImpl
@@ -35,6 +35,7 @@ val automationModule = module {
     // Dao
     single { get<AutomationDatabase>().automationRuleDao() }
     single { get<AutomationDatabase>().geofenceDao() }
+    single { get<AutomationDatabase>().automationLogDao() }
 
     // Repository
     single<AutomationRuleRepository> { AutomationRuleRepositoryImpl(get()) }
@@ -46,7 +47,7 @@ val automationModule = module {
     }
 
     // Logger
-    single<AutomationLogger> { LogcatAutomationLogger() }
+    single<AutomationLogger> { PersistingAutomationLogger(get()) }
 
     single<List<TriggerReceiver.TriggerFactory>> {
         GeneratedReceiverProvider.factories

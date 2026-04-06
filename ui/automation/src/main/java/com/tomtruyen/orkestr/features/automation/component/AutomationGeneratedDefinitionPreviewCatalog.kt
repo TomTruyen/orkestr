@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
@@ -219,11 +218,10 @@ private fun AutomationDefinitionPreviewCard(definition: AutomationNodeDefinition
                                 style = MaterialTheme.typography.titleLarge,
                             )
                             if (definition.isBeta) {
-                                AssistChip(
-                                    onClick = {},
-                                    enabled = false,
-                                    label = { Text(stringResource(R.string.automation_label_beta)) },
-                                )
+                                AutomationBetaChip()
+                            }
+                            definition.requiredMinSdk?.let { requiredMinSdk ->
+                                AutomationRequiredSdkChip(requiredMinSdk = requiredMinSdk)
                             }
                         }
                     }

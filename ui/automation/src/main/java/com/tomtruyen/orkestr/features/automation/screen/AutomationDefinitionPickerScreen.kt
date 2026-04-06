@@ -40,6 +40,7 @@ import com.tomtruyen.orkestr.common.permission.AutomationPermissionManager
 import com.tomtruyen.orkestr.features.automation.component.AutomationBetaChip
 import com.tomtruyen.orkestr.features.automation.component.AutomationDefinitionHeaderCard
 import com.tomtruyen.orkestr.features.automation.component.AutomationFieldForm
+import com.tomtruyen.orkestr.features.automation.component.AutomationRequiredSdkChip
 import com.tomtruyen.orkestr.features.automation.component.DefinitionFieldPreview
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorAction
 import com.tomtruyen.orkestr.features.automation.viewmodel.AutomationRuleEditorViewModel
@@ -154,8 +155,13 @@ fun AutomationDefinitionSelectionScreen(viewModel: AutomationRuleEditorViewModel
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.SemiBold,
                                 )
-                                if (item.isBeta) {
-                                    AutomationBetaChip()
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    if (item.isBeta) {
+                                        AutomationBetaChip()
+                                    }
+                                    item.requiredMinSdk?.let { requiredMinSdk ->
+                                        AutomationRequiredSdkChip(requiredMinSdk = requiredMinSdk)
+                                    }
                                 }
                             }
                             Text(
@@ -219,6 +225,7 @@ fun AutomationDefinitionConfigurationScreen(viewModel: AutomationRuleEditorViewM
                     title = stringResource(definition.titleRes),
                     description = stringResource(definition.descriptionRes),
                     isBeta = definition.isBeta,
+                    requiredMinSdk = definition.requiredMinSdk,
                     chooseDifferentLabel = if (pickerState.launchedFromSelection) {
                         stringResource(
                             R.string.automation_action_choose_different,

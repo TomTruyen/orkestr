@@ -1,5 +1,6 @@
 package com.tomtruyen.automation.core.definition
 
+import android.os.Build
 import androidx.annotation.StringRes
 import com.tomtruyen.automation.core.config.AutomationCategory
 import com.tomtruyen.automation.core.config.AutomationConfig
@@ -15,6 +16,9 @@ interface AutomationNodeDefinition<C : AutomationConfig<T>, T : Enum<T>> {
         get() = defaultConfig.type
     val requiredPermissions: List<AutomationPermission>
         get() = defaultConfig.requiredPermissions
+
+    val requiredMinSdk: Int?
+        get() = requiredPermissions.maxOfOrNull { it.minSdk }?.takeIf { it > Build.VERSION_CODES.BASE }
 
     @get:StringRes
     val titleRes: Int

@@ -22,6 +22,7 @@
     <string name="automation_action_use_selected_app">Use App</string>
     <string name="automation_action_use_selected_wifi">Use Network</string>
     <string name="automation_label_beta">Beta</string>
+    <string name="automation_label_required_sdk">SDK %1$d+</string>
 
     <!-- Automation rule editor -->
     <string name="automation_label_rule_name">Rule name</string>

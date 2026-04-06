@@ -33,8 +33,7 @@ class ApplicationLifecycleReceiver(
     }
 
     override fun onUnregister(context: Context) {
-        monitorJob?.cancel()
-        monitorJob = null
+        stopMonitoring()
     }
 
     internal fun startMonitoring() {
@@ -48,6 +47,11 @@ class ApplicationLifecycleReceiver(
                 pollForegroundPackage()
             }
         }
+    }
+
+    internal fun stopMonitoring() {
+        monitorJob?.cancel()
+        monitorJob = null
     }
 
     internal suspend fun pollForegroundPackage() {

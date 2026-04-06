@@ -19,6 +19,7 @@ internal class AutomationNodeDefinitionTest {
         assertEquals(TestNodeType.NODE, TestNodeDefinition.type)
         assertEquals(AutomationCategory.UTILITY, TestNodeDefinition.category)
         assertEquals(listOf(NotificationPolicyAccessPermission), TestNodeDefinition.requiredPermissions)
+        assertEquals(NotificationPolicyAccessPermission.minSdk, TestNodeDefinition.requiredMinSdk)
         assertEquals(TestNodeConfig(), TestNodeDefinition.initialConfig())
     }
 
