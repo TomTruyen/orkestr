@@ -1,4 +1,4 @@
-package com.tomtruyen.orkestr.features.automation.component
+package com.tomtruyen.orkestr.features.timebased.component
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.tomtruyen.automation.core.model.Weekday
 import com.tomtruyen.automation.features.triggers.config.TimeBasedTriggerConfig
 import com.tomtruyen.orkestr.common.component.AutomationCardColumn
-import com.tomtruyen.orkestr.ui.automation.R
+import com.tomtruyen.orkestr.ui.timebased.R
 
 @Composable
 fun TimeBasedTriggerConfigurationForm(config: TimeBasedTriggerConfig, onFieldChanged: (String, String) -> Unit) {

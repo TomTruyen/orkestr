@@ -34,13 +34,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tomtruyen.orkestr.common.component.AutomationCardColumn
+import com.tomtruyen.orkestr.common.component.AutomationBetaChip
+import com.tomtruyen.orkestr.common.component.AutomationDefinitionHeaderCard
+import com.tomtruyen.orkestr.common.component.AutomationRequiredSdkChip
 import com.tomtruyen.orkestr.common.component.EmptyStateCard
 import com.tomtruyen.orkestr.common.component.ValidationCard
 import com.tomtruyen.orkestr.common.permission.AutomationPermissionManager
-import com.tomtruyen.orkestr.features.automation.component.AutomationBetaChip
-import com.tomtruyen.orkestr.features.automation.component.AutomationDefinitionHeaderCard
 import com.tomtruyen.orkestr.features.automation.component.AutomationFieldForm
-import com.tomtruyen.orkestr.features.automation.component.AutomationRequiredSdkChip
 import com.tomtruyen.orkestr.features.automation.component.DefinitionFieldPreview
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorAction
 import com.tomtruyen.orkestr.features.automation.viewmodel.AutomationRuleEditorViewModel

@@ -4,9 +4,9 @@ import com.tomtruyen.automation.core.definition.AutomationDefinitionRegistry
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
 import com.tomtruyen.orkestr.common.StringResolver
 import com.tomtruyen.orkestr.features.automation.service.InstalledAppService
-import com.tomtruyen.orkestr.features.automation.service.WifiNetworkService
 import com.tomtruyen.orkestr.features.automation.viewmodel.AutomationRuleEditorViewModel
 import com.tomtruyen.orkestr.features.automation.viewmodel.AutomationRulesViewModel
+import com.tomtruyen.orkestr.features.wifi.service.WifiNetworkService
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module

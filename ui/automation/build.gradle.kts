@@ -15,6 +15,8 @@ dependencies {
     implementation(project(":automation"))
     implementation(project(":ui:common"))
     implementation(project(":ui:geofence"))
+    implementation(project(":ui:timebased"))
+    implementation(project(":ui:wifi"))
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.navigation3.runtime)

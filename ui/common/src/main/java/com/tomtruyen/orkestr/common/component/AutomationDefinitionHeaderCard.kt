@@ -1,4 +1,4 @@
-package com.tomtruyen.orkestr.features.automation.component
+package com.tomtruyen.orkestr.common.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,8 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.tomtruyen.orkestr.common.component.AutomationCardColumn
-import com.tomtruyen.orkestr.ui.automation.R
+import com.tomtruyen.orkestr.ui.common.R
 
 @Composable
 fun AutomationDefinitionHeaderCard(

@@ -87,18 +87,7 @@ class AutomationRuleEditorViewModel(
                 stringResolver.resolve(definition.titleRes).contains(query, ignoreCase = true) ||
                 stringResolver.resolve(definition.descriptionRes).contains(query, ignoreCase = true)
         }
-        .map { definition ->
-            DefinitionListItem(
-                key = definition.key,
-                titleRes = definition.titleRes,
-                descriptionRes = definition.descriptionRes,
-                category = definition.category,
-                fields = definition.fields,
-                permissions = definition.requiredPermissions,
-                requiredMinSdk = definition.requiredMinSdk,
-                isBeta = definition.isBeta,
-            )
-        }
+        .map(::toDefinitionListItem)
 
     fun definitionCategoryGroups(section: RuleSection, query: String): List<DefinitionCategoryGroup> = definitionItems(
         section = section,
@@ -129,16 +118,7 @@ class AutomationRuleEditorViewModel(
         val picker = uiState.value.pickerState ?: return null
         val typeKey = picker.selectedTypeKey ?: return null
         val definition = definitionFor(picker.section, typeKey) ?: return null
-        return DefinitionListItem(
-            key = definition.key,
-            titleRes = definition.titleRes,
-            descriptionRes = definition.descriptionRes,
-            category = definition.category,
-            fields = definition.fields,
-            permissions = definition.requiredPermissions,
-            requiredMinSdk = definition.requiredMinSdk,
-            isBeta = definition.isBeta,
-        )
+        return toDefinitionListItem(definition)
     }
 
     fun currentGeofenceTriggerConfig(): GeofenceTriggerConfig {
@@ -175,46 +155,18 @@ class AutomationRuleEditorViewModel(
         return draft as? ApplicationLifecycleTriggerConfig ?: ApplicationLifecycleTriggerConfig()
     }
 
-    fun applySelectedApplication(packageName: String) {
-        val picker = uiState.value.pickerState ?: return
-        val current = currentApplicationLifecycleTriggerConfig()
-        val updated = current.copy(packageName = packageName)
-        updateState {
-            it.copy(
-                pickerState = picker.copy(
-                    draftConfig = updated,
-                    errors = emptyList(),
-                ),
-            )
-        }
-        triggerEvent(
-            AutomationEditorEvent.NavigateToDefinitionConfiguration(
-                section = picker.section,
-                typeKey = updated.type.name,
-                editingIndex = picker.editingIndex,
-            ),
-        )
-    }
+    fun applySelectedApp(selectedTriggerType: String?, packageName: String) {
+        when (selectedTriggerType) {
+            TriggerType.APPLICATION_LIFECYCLE.name -> {
+                val current = currentApplicationLifecycleTriggerConfig()
+                applyDraftConfigAndOpenConfiguration(current.copy(packageName = packageName))
+            }
 
-    fun applySelectedNotificationApp(packageName: String) {
-        val picker = uiState.value.pickerState ?: return
-        val current = currentNotificationTriggerConfig()
-        val updated = current.copy(packageName = packageName)
-        updateState {
-            it.copy(
-                pickerState = picker.copy(
-                    draftConfig = updated,
-                    errors = emptyList(),
-                ),
-            )
+            else -> {
+                val current = currentNotificationTriggerConfig()
+                applyDraftConfigAndOpenConfiguration(current.copy(packageName = packageName))
+            }
         }
-        triggerEvent(
-            AutomationEditorEvent.NavigateToDefinitionConfiguration(
-                section = picker.section,
-                typeKey = updated.type.name,
-                editingIndex = picker.editingIndex,
-            ),
-        )
     }
 
     fun currentWifiTriggerConfig(): WifiSsidTriggerConfig {
@@ -223,22 +175,7 @@ class AutomationRuleEditorViewModel(
     }
 
     fun applySelectedWifiTrigger(config: WifiSsidTriggerConfig) {
-        val picker = uiState.value.pickerState ?: return
-        updateState {
-            it.copy(
-                pickerState = picker.copy(
-                    draftConfig = config,
-                    errors = emptyList(),
-                ),
-            )
-        }
-        triggerEvent(
-            AutomationEditorEvent.NavigateToDefinitionConfiguration(
-                section = picker.section,
-                typeKey = config.type.name,
-                editingIndex = picker.editingIndex,
-            ),
-        )
+        applyDraftConfigAndOpenConfiguration(config)
     }
 
     fun currentTimeBasedTriggerConfig(): TimeBasedTriggerConfig {
@@ -390,33 +327,7 @@ class AutomationRuleEditorViewModel(
     private fun navigateToConfiguration(typeKey: String) {
         openConfiguration(typeKey)
         val picker = uiState.value.pickerState ?: return
-        if (picker.section == RuleSection.TRIGGERS && typeKey == TriggerType.GEOFENCE.name) {
-            triggerEvent(AutomationEditorEvent.NavigateToGeofenceConfiguration)
-            return
-        }
-        if (picker.section == RuleSection.TRIGGERS && typeKey == TriggerType.TIME_BASED.name) {
-            triggerEvent(AutomationEditorEvent.NavigateToTimeBasedTriggerConfiguration)
-            return
-        }
-        if (picker.section == RuleSection.TRIGGERS && typeKey == TriggerType.APPLICATION_LIFECYCLE.name) {
-            triggerEvent(AutomationEditorEvent.NavigateToApplicationTriggerAppSelection)
-            return
-        }
-        if (picker.section == RuleSection.TRIGGERS && typeKey == TriggerType.NOTIFICATION_RECEIVED.name) {
-            triggerEvent(AutomationEditorEvent.NavigateToNotificationTriggerAppSelection)
-            return
-        }
-        if (picker.section == RuleSection.TRIGGERS && typeKey == TriggerType.WIFI_SSID_IN_RANGE.name) {
-            triggerEvent(AutomationEditorEvent.NavigateToWifiTriggerSelection)
-            return
-        }
-        triggerEvent(
-            AutomationEditorEvent.NavigateToDefinitionConfiguration(
-                section = picker.section,
-                typeKey = typeKey,
-                editingIndex = picker.editingIndex,
-            ),
-        )
+        triggerEvent(customNavigationEventFor(picker.section, typeKey) ?: defaultConfigurationEvent(picker, typeKey))
     }
 
     private fun navigateBackFromConfiguration() {
@@ -475,59 +386,51 @@ class AutomationRuleEditorViewModel(
         when (picker.section) {
             RuleSection.TRIGGERS -> {
                 val definition = definitions.trigger(TriggerType.valueOf(typeKey)) ?: return
-                val errors = definition.validateAny(picker.draftConfig, stringResolver)
-                if (errors.isNotEmpty()) {
-                    updateState { it.copy(pickerState = picker.copy(errors = errors)) }
-                    return
-                }
-                val config = definition.cast(picker.draftConfig) ?: definition.initialConfig()
-                updateState {
-                    it.copy(
-                        editorState = editor.copy(
-                            triggers = replaceAt(editor.triggers, picker.editingIndex, config),
+                if (!saveNodeSelection(
+                    picker = picker,
+                    editor = editor,
+                    definition = definition,
+                    updateEditor = { currentEditor, config ->
+                        currentEditor.copy(
+                            triggers = replaceAt(currentEditor.triggers, picker.editingIndex, config as TriggerConfig),
                             validation = RuleValidationState(),
-                        ),
-                        pickerState = null,
-                    )
-                }
+                        )
+                    },
+                )) return
             }
 
             RuleSection.CONSTRAINTS -> {
                 val definition = definitions.constraint(ConstraintType.valueOf(typeKey)) ?: return
-                val errors = definition.validateAny(picker.draftConfig, stringResolver)
-                if (errors.isNotEmpty()) {
-                    updateState { it.copy(pickerState = picker.copy(errors = errors)) }
-                    return
-                }
-                val config = definition.cast(picker.draftConfig) ?: definition.initialConfig()
-                updateState {
-                    it.copy(
-                        editorState = editor.copy(
-                            constraints = replaceAt(editor.constraints, picker.editingIndex, config),
+                if (!saveNodeSelection(
+                    picker = picker,
+                    editor = editor,
+                    definition = definition,
+                    updateEditor = { currentEditor, config ->
+                        currentEditor.copy(
+                            constraints = replaceAt(
+                                currentEditor.constraints,
+                                picker.editingIndex,
+                                config as ConstraintConfig,
+                            ),
                             validation = RuleValidationState(),
-                        ),
-                        pickerState = null,
-                    )
-                }
+                        )
+                    },
+                )) return
             }
 
             RuleSection.ACTIONS -> {
                 val definition = definitions.action(ActionType.valueOf(typeKey)) ?: return
-                val errors = definition.validateAny(picker.draftConfig, stringResolver)
-                if (errors.isNotEmpty()) {
-                    updateState { it.copy(pickerState = picker.copy(errors = errors)) }
-                    return
-                }
-                val config = definition.cast(picker.draftConfig) ?: definition.initialConfig()
-                updateState {
-                    it.copy(
-                        editorState = editor.copy(
-                            actions = replaceAt(editor.actions, picker.editingIndex, config),
+                if (!saveNodeSelection(
+                    picker = picker,
+                    editor = editor,
+                    definition = definition,
+                    updateEditor = { currentEditor, config ->
+                        currentEditor.copy(
+                            actions = replaceAt(currentEditor.actions, picker.editingIndex, config as ActionConfig),
                             validation = RuleValidationState(),
-                        ),
-                        pickerState = null,
-                    )
-                }
+                        )
+                    },
+                )) return
             }
         }
 
@@ -588,6 +491,17 @@ class AutomationRuleEditorViewModel(
         else -> error("Unsupported config type: ${config::class.qualifiedName}")
     }
 
+    private fun toDefinitionListItem(definition: AutomationNodeDefinition<*, *>) = DefinitionListItem(
+        key = definition.key,
+        titleRes = definition.titleRes,
+        descriptionRes = definition.descriptionRes,
+        category = definition.category,
+        fields = definition.fields,
+        permissions = definition.requiredPermissions,
+        requiredMinSdk = definition.requiredMinSdk,
+        isBeta = definition.isBeta,
+    )
+
     private fun defaultConfig(section: RuleSection, typeKey: String): AutomationConfig<*>? =
         definitionFor(section, typeKey)?.initialConfig()
 
@@ -601,6 +515,64 @@ class AutomationRuleEditorViewModel(
         RuleSection.TRIGGERS -> definitions.triggers
         RuleSection.CONSTRAINTS -> definitions.constraints
         RuleSection.ACTIONS -> definitions.actions
+    }
+
+    private fun applyDraftConfigAndOpenConfiguration(config: AutomationConfig<*>) {
+        val picker = uiState.value.pickerState ?: return
+        updateState {
+            it.copy(
+                pickerState = picker.copy(
+                    draftConfig = config,
+                    errors = emptyList(),
+                ),
+            )
+        }
+        triggerEvent(defaultConfigurationEvent(picker, definitionKeyOf(config)))
+    }
+
+    private fun defaultConfigurationEvent(
+        picker: DefinitionPickerState,
+        typeKey: String,
+    ) = AutomationEditorEvent.NavigateToDefinitionConfiguration(
+        section = picker.section,
+        typeKey = typeKey,
+        editingIndex = picker.editingIndex,
+    )
+
+    private fun customNavigationEventFor(section: RuleSection, typeKey: String): AutomationEditorEvent? {
+        if (section != RuleSection.TRIGGERS) {
+            return null
+        }
+        return when (typeKey) {
+            TriggerType.GEOFENCE.name -> AutomationEditorEvent.NavigateToGeofenceConfiguration
+            TriggerType.TIME_BASED.name -> AutomationEditorEvent.NavigateToTimeBasedTriggerConfiguration
+            TriggerType.APPLICATION_LIFECYCLE.name -> AutomationEditorEvent.NavigateToApplicationTriggerAppSelection
+            TriggerType.NOTIFICATION_RECEIVED.name -> AutomationEditorEvent.NavigateToNotificationTriggerAppSelection
+            TriggerType.WIFI_SSID_IN_RANGE.name -> AutomationEditorEvent.NavigateToWifiTriggerSelection
+            else -> null
+        }
+    }
+
+    private fun saveNodeSelection(
+        picker: DefinitionPickerState,
+        editor: RuleEditorState,
+        definition: AutomationNodeDefinition<*, *>,
+        updateEditor: (RuleEditorState, AutomationConfig<*>) -> RuleEditorState,
+    ): Boolean {
+        val errors = definition.validateAny(picker.draftConfig, stringResolver)
+        if (errors.isNotEmpty()) {
+            updateState { it.copy(pickerState = picker.copy(errors = errors)) }
+            return false
+        }
+
+        val config = definition.cast(picker.draftConfig) ?: definition.initialConfig()
+        updateState {
+            it.copy(
+                editorState = updateEditor(editor, config),
+                pickerState = null,
+            )
+        }
+        return true
     }
 
     companion object {

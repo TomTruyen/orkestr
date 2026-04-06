@@ -1,4 +1,4 @@
-package com.tomtruyen.orkestr.features.automation.component
+package com.tomtruyen.orkestr.features.timebased.component
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -9,7 +9,7 @@ import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import com.tomtruyen.orkestr.ui.automation.R
+import com.tomtruyen.orkestr.ui.timebased.R
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)

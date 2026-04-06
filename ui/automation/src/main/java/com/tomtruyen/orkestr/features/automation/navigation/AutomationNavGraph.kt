@@ -15,6 +15,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation3.runtime.NavBackStack
@@ -23,13 +24,12 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.tomtruyen.orkestr.common.component.LocalNavigationSharedTransitionScope
+import com.tomtruyen.orkestr.features.automation.screen.AutomationApplicationTriggerAppSelectionScreen
 import com.tomtruyen.orkestr.features.automation.screen.AutomationDefinitionConfigurationScreen
 import com.tomtruyen.orkestr.features.automation.screen.AutomationDefinitionSelectionScreen
 import com.tomtruyen.orkestr.features.automation.screen.AutomationHomeScreen
 import com.tomtruyen.orkestr.features.automation.screen.AutomationNotificationTriggerAppSelectionScreen
 import com.tomtruyen.orkestr.features.automation.screen.AutomationRuleEditorScreen
-import com.tomtruyen.orkestr.features.automation.screen.AutomationTimeBasedTriggerConfigurationScreen
-import com.tomtruyen.orkestr.features.automation.screen.AutomationWifiTriggerSelectionScreen
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorAction
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorEvent
 import com.tomtruyen.orkestr.features.automation.state.AutomationRulesEvent
@@ -44,6 +44,8 @@ import com.tomtruyen.orkestr.features.geofence.screen.AutomationGeofenceMapPicke
 import com.tomtruyen.orkestr.features.geofence.state.GeofenceTriggerAction
 import com.tomtruyen.orkestr.features.geofence.state.GeofenceTriggerEvent
 import com.tomtruyen.orkestr.features.geofence.viewmodel.GeofenceTriggerViewModel
+import com.tomtruyen.orkestr.features.timebased.screen.TimeBasedTriggerConfigurationScreen
+import com.tomtruyen.orkestr.features.wifi.screen.WifiTriggerSelectionScreen
 import com.tomtruyen.orkestr.ui.automation.R
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
@@ -300,8 +302,42 @@ fun AutomationNavGraph(
                     editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
                 },
             ) { modifier ->
-                AutomationTimeBasedTriggerConfigurationScreen(
-                    viewModel = editorViewModel,
+                val pickerState = editorViewModel.uiState.collectAsState().value.pickerState ?: return@AutomationScaffold
+                val definition = editorViewModel.selectedDefinitionItem() ?: return@AutomationScaffold
+                TimeBasedTriggerConfigurationScreen(
+                    title = stringResource(definition.titleRes),
+                    description = stringResource(definition.descriptionRes),
+                    isBeta = definition.isBeta,
+                    requiredMinSdk = definition.requiredMinSdk,
+                    chooseDifferentLabel = if (pickerState.launchedFromSelection) {
+                        stringResource(
+                            R.string.automation_action_choose_different,
+                            stringResource(pickerState.section.singularTitleRes),
+                        )
+                    } else {
+                        null
+                    },
+                    saveLabel = if (pickerState.editingIndex == null) {
+                        stringResource(
+                            R.string.automation_action_add_node,
+                            stringResource(pickerState.section.singularTitleRes),
+                        )
+                    } else {
+                        stringResource(R.string.automation_action_save_changes)
+                    },
+                    errors = pickerState.errors,
+                    config = editorViewModel.currentTimeBasedTriggerConfig(),
+                    onFieldChanged = { fieldId, value ->
+                        editorViewModel.onAction(AutomationEditorAction.PickerFieldChanged(fieldId, value))
+                    },
+                    onSave = {
+                        editorViewModel.onAction(AutomationEditorAction.SavePickerClicked)
+                    },
+                    onChooseDifferent = if (pickerState.launchedFromSelection) {
+                        { editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked) }
+                    } else {
+                        null
+                    },
                     modifier = modifier,
                 )
             }
@@ -330,7 +366,7 @@ fun AutomationNavGraph(
                     editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
                 },
             ) { modifier ->
-                AutomationNotificationTriggerAppSelectionScreen(
+                AutomationApplicationTriggerAppSelectionScreen(
                     viewModel = editorViewModel,
                     modifier = modifier,
                 )
@@ -345,8 +381,38 @@ fun AutomationNavGraph(
                     editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
                 },
             ) { modifier ->
-                AutomationWifiTriggerSelectionScreen(
-                    viewModel = editorViewModel,
+                val pickerState = editorViewModel.uiState.collectAsState().value.pickerState
+                val definition = editorViewModel.selectedDefinitionItem()
+                WifiTriggerSelectionScreen(
+                    currentConfig = editorViewModel.currentWifiTriggerConfig(),
+                    title = if (pickerState?.launchedFromSelection == true) {
+                        definition?.let { stringResource(it.titleRes) }
+                            ?: stringResource(R.string.automation_title_select_wifi_network)
+                    } else {
+                        null
+                    },
+                    description = if (pickerState?.launchedFromSelection == true) {
+                        definition?.let { stringResource(it.descriptionRes) }
+                            ?: stringResource(R.string.automation_title_select_wifi_network)
+                    } else {
+                        null
+                    },
+                    isBeta = definition?.isBeta == true,
+                    requiredMinSdk = definition?.requiredMinSdk,
+                    chooseDifferentLabel = if (pickerState?.launchedFromSelection == true) {
+                        stringResource(
+                            R.string.automation_action_choose_different,
+                            stringResource(R.string.automation_singular_trigger),
+                        )
+                    } else {
+                        null
+                    },
+                    onChooseDifferent = if (pickerState?.launchedFromSelection == true) {
+                        { editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked) }
+                    } else {
+                        null
+                    },
+                    onWifiSelected = editorViewModel::applySelectedWifiTrigger,
                     modifier = modifier,
                 )
             }

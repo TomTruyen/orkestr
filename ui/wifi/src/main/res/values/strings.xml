@@ -1,0 +1,14 @@
+<resources>
+    <string name="automation_wifi_section_trigger_type_title">Trigger behavior</string>
+    <string name="automation_wifi_section_trigger_type_description">Choose whether this trigger should fire when the network appears or disappears.</string>
+    <string name="automation_wifi_section_discovered_title">Discovered networks</string>
+    <string name="automation_wifi_section_discovered_description">Pick a nearby or previously seen network, or search the list below.</string>
+    <string name="automation_wifi_section_manual_title">Manual entry</string>
+    <string name="automation_wifi_section_manual_description">Enter an SSID manually if it is not listed.</string>
+    <string name="automation_wifi_search_label">Search Wi-Fi networks</string>
+    <string name="automation_wifi_search_placeholder">Filter discovered networks</string>
+    <string name="automation_empty_wifi_title">No networks found</string>
+    <string name="automation_empty_wifi_description">No matching Wi-Fi networks are available right now. You can still enter an SSID manually below.</string>
+    <string name="automation_wifi_manual_label">Wi-Fi network name</string>
+    <string name="automation_action_use_selected_wifi">Use this Wi-Fi network</string>
+</resources>

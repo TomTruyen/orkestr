@@ -2,6 +2,8 @@
     <string name="automation_action_back">Back</string>
     <string name="automation_action_close">Close</string>
     <string name="automation_action_search">Search</string>
+    <string name="automation_label_beta">Beta</string>
+    <string name="automation_label_required_sdk">SDK %1$d+</string>
     <string name="automation_validation_title">Needs attention</string>
     <string name="automation_permission_action_continue">Continue</string>
     <string name="automation_permission_action_retry">Retry</string>

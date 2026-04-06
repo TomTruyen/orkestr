@@ -1,4 +1,4 @@
-package com.tomtruyen.orkestr.features.automation.service
+package com.tomtruyen.orkestr.features.wifi.service
 
 import android.net.wifi.WifiManager
 

@@ -1,0 +1,9 @@
+<resources>
+    <string name="automation_action_save_changes">Save Changes</string>
+    <string name="automation_time_picker_dialog_title">Select time</string>
+    <string name="automation_time_picker_label">Time</string>
+    <string name="automation_time_picker_description">Choose the time this trigger should run.</string>
+    <string name="automation_time_picker_field_label">Selected time</string>
+    <string name="automation_time_days_label">Days</string>
+    <string name="automation_time_days_description">Choose one or more days for this trigger.</string>
+</resources>
