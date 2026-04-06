@@ -12,6 +12,7 @@ import com.tomtruyen.orkestr.features.automation.state.DefinitionCategoryGroup
 import com.tomtruyen.orkestr.features.automation.state.DefinitionListItem
 import com.tomtruyen.orkestr.features.automation.state.DefinitionPickerState
 import com.tomtruyen.orkestr.features.automation.state.RuleSection
+import com.tomtruyen.orkestr.ui.automation.R
 
 internal fun AutomationDefinitionRegistry.definitionItems(
     section: RuleSection,
@@ -83,6 +84,25 @@ internal fun AutomationDefinitionRegistry.customNavigationEventFor(
 
         RuleSection.CONSTRAINTS -> null
     }
+}
+
+internal fun customConfigurationButtonLabelRes(section: RuleSection, typeKey: String): Int? = when (section) {
+    RuleSection.TRIGGERS -> when (typeKey) {
+        TriggerType.GEOFENCE.name -> R.string.automation_action_open_geofence_flow
+        TriggerType.TIME_BASED.name -> R.string.automation_action_open_schedule_flow
+        TriggerType.APPLICATION_LIFECYCLE.name -> R.string.automation_action_open_app_picker_flow
+        TriggerType.NOTIFICATION_RECEIVED.name -> R.string.automation_action_open_app_picker_flow
+        TriggerType.WIFI_SSID_IN_RANGE.name -> R.string.automation_action_open_wifi_picker_flow
+        else -> null
+    }
+
+    RuleSection.ACTIONS -> when (typeKey) {
+        ActionType.LAUNCH_APPLICATION.name -> R.string.automation_action_open_app_picker_flow
+        ActionType.SET_WALLPAPER.name -> R.string.automation_action_open_wallpaper_picker_flow
+        else -> null
+    }
+
+    RuleSection.CONSTRAINTS -> null
 }
 
 private fun AutomationDefinitionRegistry.definitionsFor(section: RuleSection): List<AutomationNodeDefinition<*, *>> =

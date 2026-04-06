@@ -22,6 +22,11 @@
     <string name="automation_action_confirm_delete">Delete Rule</string>
     <string name="automation_action_use_selected_app">Use App</string>
     <string name="automation_action_run_now">Run Now</string>
+    <string name="automation_action_open_app_picker_flow">Select App</string>
+    <string name="automation_action_open_geofence_flow">Select Geofence</string>
+    <string name="automation_action_open_schedule_flow">Configure Schedule</string>
+    <string name="automation_action_open_wifi_picker_flow">Select Wi-Fi Network</string>
+    <string name="automation_action_open_wallpaper_picker_flow">Select Wallpaper</string>
 
     <!-- Automation rule editor -->
     <string name="automation_label_rule_name">Rule name</string>

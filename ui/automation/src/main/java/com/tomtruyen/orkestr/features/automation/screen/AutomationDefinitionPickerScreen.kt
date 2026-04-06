@@ -17,6 +17,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -190,7 +191,10 @@ fun AutomationDefinitionConfigurationScreen(viewModel: AutomationRuleEditorViewM
     pickerState.selectedTypeKey ?: return
     val definition = viewModel.selectedDefinitionItem() ?: return
     val draftConfig = pickerState.draftConfig
-    val showConfigurationCard = definition.fields.isNotEmpty() || pickerState.errors.isNotEmpty()
+    val customConfigurationButtonLabel = viewModel.selectedCustomConfigurationButtonLabel()
+    val showConfigurationCard = definition.fields.isNotEmpty() ||
+        pickerState.errors.isNotEmpty() ||
+        customConfigurationButtonLabel != null
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -230,19 +234,11 @@ fun AutomationDefinitionConfigurationScreen(viewModel: AutomationRuleEditorViewM
                     description = stringResource(definition.descriptionRes),
                     isBeta = definition.isBeta,
                     requiredMinSdk = definition.requiredMinSdk,
-                    chooseDifferentLabel = if (pickerState.launchedFromSelection) {
-                        stringResource(
-                            R.string.automation_action_choose_different,
-                            stringResource(pickerState.section.singularTitleRes),
-                        )
-                    } else {
-                        null
-                    },
-                    onChooseDifferent = if (pickerState.launchedFromSelection) {
-                        { viewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked) }
-                    } else {
-                        null
-                    },
+                    chooseDifferentLabel = stringResource(
+                        R.string.automation_action_choose_different,
+                        stringResource(pickerState.section.singularTitleRes),
+                    ),
+                    onChooseDifferent = viewModel::chooseDifferentDefinition,
                 )
             }
 
@@ -258,6 +254,14 @@ fun AutomationDefinitionConfigurationScreen(viewModel: AutomationRuleEditorViewM
                                         viewModel.onAction(AutomationEditorAction.PickerFieldChanged(fieldId, value))
                                     },
                                 )
+                            }
+                            if (customConfigurationButtonLabel != null) {
+                                OutlinedButton(
+                                    onClick = viewModel::openSelectedCustomConfigurationFlow,
+                                    modifier = Modifier.fillMaxWidth(),
+                                ) {
+                                    Text(customConfigurationButtonLabel)
+                                }
                             }
                             if (pickerState.errors.isNotEmpty()) {
                                 ValidationCard(errors = pickerState.errors)

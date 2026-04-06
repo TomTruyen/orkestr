@@ -103,6 +103,13 @@ class AutomationRuleEditorViewModel(
 
     fun selectedDefinitionItem(): DefinitionListItem? = definitions.selectedDefinitionItem(uiState.value.pickerState)
 
+    fun selectedCustomConfigurationButtonLabel(): String? {
+        val picker = uiState.value.pickerState ?: return null
+        val typeKey = picker.selectedTypeKey ?: return null
+        val labelRes = customConfigurationButtonLabelRes(picker.section, typeKey) ?: return null
+        return stringResolver.resolve(labelRes)
+    }
+
     fun currentGeofenceTriggerConfig(): GeofenceTriggerConfig {
         val draft = uiState.value.pickerState?.draftConfig
         return draft as? GeofenceTriggerConfig ?: GeofenceTriggerConfig()
@@ -188,6 +195,27 @@ class AutomationRuleEditorViewModel(
         }
     }
 
+    fun openSelectedCustomConfigurationFlow() {
+        val picker = uiState.value.pickerState ?: return
+        val typeKey = picker.selectedTypeKey ?: return
+        definitions.customNavigationEventFor(picker.section, typeKey)?.let(::triggerEvent)
+    }
+
+    fun chooseDifferentDefinition() {
+        val picker = uiState.value.pickerState ?: return
+        backToPickerList()
+        if (picker.launchedFromSelection) {
+            triggerEvent(AutomationEditorEvent.PopToDefinitionSelection)
+        } else {
+            triggerEvent(
+                AutomationEditorEvent.NavigateToDefinitionSelection(
+                    section = picker.section,
+                    editingIndex = picker.editingIndex,
+                ),
+            )
+        }
+    }
+
     fun currentTimeBasedTriggerConfig(): TimeBasedTriggerConfig {
         val draft = uiState.value.pickerState?.draftConfig
         return draft as? TimeBasedTriggerConfig ?: TimeBasedTriggerConfig()
@@ -257,7 +285,10 @@ class AutomationRuleEditorViewModel(
 
     private fun editNode(section: RuleSection, index: Int) {
         startSelection(section, index, launchedFromSelection = false)
-        uiState.value.pickerState?.selectedTypeKey?.let(::navigateToConfiguration)
+        val picker = uiState.value.pickerState ?: return
+        val typeKey = picker.selectedTypeKey ?: return
+        openConfiguration(typeKey)
+        triggerEvent(defaultConfigurationEvent(picker, typeKey))
     }
 
     private fun updatePickerQuery(query: String) {

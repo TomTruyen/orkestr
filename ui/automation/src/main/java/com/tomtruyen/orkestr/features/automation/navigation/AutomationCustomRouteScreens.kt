@@ -60,9 +60,7 @@ internal fun WifiTriggerRouteScreen(editorViewModel: AutomationRuleEditorViewMod
 
 @Composable
 private fun DefinitionPickerState?.chooseDifferentLabel(): String? {
-    if (this?.launchedFromSelection != true) {
-        return null
-    }
+    if (this == null) return null
     return stringResource(
         R.string.automation_action_choose_different,
         stringResource(section.singularTitleRes),
@@ -81,12 +79,7 @@ private fun DefinitionPickerState.saveLabel(): String = if (editingIndex == null
 
 private fun DefinitionPickerState?.chooseDifferentAction(
     editorViewModel: AutomationRuleEditorViewModel,
-): (() -> Unit)? {
-    if (this?.launchedFromSelection != true) {
-        return null
-    }
-    return { editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked) }
-}
+): (() -> Unit)? = if (this == null) null else editorViewModel::chooseDifferentDefinition
 
 @Composable
 private fun wifiHeaderTitle(pickerState: DefinitionPickerState?, definition: DefinitionListItem?): String? {

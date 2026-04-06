@@ -388,14 +388,10 @@ fun AutomationNavGraph(
                     description = stringResource(definition.descriptionRes),
                     isBeta = definition.isBeta,
                     requiredMinSdk = definition.requiredMinSdk,
-                    chooseDifferentLabel = if (pickerState.launchedFromSelection) {
-                        stringResource(
-                            R.string.automation_action_choose_different,
-                            stringResource(pickerState.section.singularTitleRes),
-                        )
-                    } else {
-                        null
-                    },
+                    chooseDifferentLabel = stringResource(
+                        R.string.automation_action_choose_different,
+                        stringResource(pickerState.section.singularTitleRes),
+                    ),
                     saveLabel = if (pickerState.editingIndex == null) {
                         stringResource(
                             R.string.automation_action_add_node,
@@ -412,11 +408,7 @@ fun AutomationNavGraph(
                     onSave = {
                         editorViewModel.onAction(AutomationEditorAction.SavePickerClicked)
                     },
-                    onChooseDifferent = if (pickerState.launchedFromSelection) {
-                        { editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked) }
-                    } else {
-                        null
-                    },
+                    onChooseDifferent = editorViewModel::chooseDifferentDefinition,
                     onWallpaperSelected = editorViewModel::applySelectedWallpaper,
                     modifier = modifier,
                 )

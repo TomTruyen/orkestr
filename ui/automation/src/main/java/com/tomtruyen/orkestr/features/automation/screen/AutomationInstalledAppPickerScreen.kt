@@ -111,19 +111,11 @@ private fun AutomationInstalledAppPickerScreen(
                 description = stringResource(definition.descriptionRes),
                 isBeta = definition.isBeta,
                 requiredMinSdk = definition.requiredMinSdk,
-                chooseDifferentLabel = if (pickerState.launchedFromSelection) {
-                    stringResource(
-                        R.string.automation_action_choose_different,
-                        stringResource(pickerState.section.singularTitleRes),
-                    )
-                } else {
-                    null
-                },
-                onChooseDifferent = if (pickerState.launchedFromSelection) {
-                    { viewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked) }
-                } else {
-                    null
-                },
+                chooseDifferentLabel = stringResource(
+                    R.string.automation_action_choose_different,
+                    stringResource(pickerState.section.singularTitleRes),
+                ),
+                onChooseDifferent = viewModel::chooseDifferentDefinition,
             )
         }
 
