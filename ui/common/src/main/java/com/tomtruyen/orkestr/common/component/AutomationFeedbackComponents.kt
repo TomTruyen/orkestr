@@ -20,7 +20,7 @@ fun EmptyStateCard(title: String, description: String, modifier: Modifier = Modi
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = CardDefaults.outlinedShape,
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        color = MaterialTheme.colorScheme.surfaceContainer,
     ) {
         Column(
             modifier = Modifier.padding(18.dp),
