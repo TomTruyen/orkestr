@@ -2,6 +2,7 @@ plugins {
     id("orkestr.android.library")
     alias(libs.plugins.kotlin.compose)
     id("orkestr.android.compose")
+    id("orkestr.android.compose.screenshot")
     id("orkestr.koin.android")
     alias(libs.plugins.kotlin.serialization)
 }

@@ -4,6 +4,7 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +22,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
@@ -34,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -69,18 +72,6 @@ fun AutomationGeofenceConfigurationScreen(viewModel: GeofenceTriggerViewModel, m
     Scaffold(
         modifier = modifier.fillMaxSize(),
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        bottomBar = {
-            Card {
-                Button(
-                    onClick = { viewModel.onAction(GeofenceTriggerAction.SaveConfigurationClicked) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                ) {
-                    Text(stringResource(R.string.geofence_action_save_trigger))
-                }
-            }
-        },
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -556,6 +547,41 @@ private fun geofenceMapHeroModifier(): Modifier = with(LocalNavigationSharedTran
         sharedContentState = rememberSharedContentState(GEOFENCE_MAP_HERO_KEY),
         animatedVisibilityScope = LocalNavAnimatedContentScope.current,
     )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun GeofenceSelectionListComposePreview() {
+    MaterialTheme {
+        Surface(modifier = Modifier.padding(16.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                GeofenceSelectionCard(
+                    geofence = AutomationGeofence(
+                        id = "home",
+                        name = "Home",
+                        latitude = 51.219448,
+                        longitude = 4.402464,
+                        radiusMeters = 150f,
+                        address = "Antwerp, Belgium",
+                    ),
+                    selected = true,
+                    onClick = {},
+                )
+                GeofenceSelectionCard(
+                    geofence = AutomationGeofence(
+                        id = "office",
+                        name = "Office",
+                        latitude = 50.850346,
+                        longitude = 4.351721,
+                        radiusMeters = 250f,
+                        address = "Brussels, Belgium",
+                    ),
+                    selected = false,
+                    onClick = {},
+                )
+            }
+        }
+    }
 }
 
 private const val GEOFENCE_MAP_HERO_KEY = "geofence_map_hero"

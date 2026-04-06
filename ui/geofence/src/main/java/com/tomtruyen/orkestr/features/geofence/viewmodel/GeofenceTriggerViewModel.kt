@@ -112,15 +112,17 @@ class GeofenceTriggerViewModel(
 
     private fun selectGeofence(geofenceId: String) {
         val geofence = uiState.value.geofences.firstOrNull { it.id == geofenceId } ?: return
+        val updatedConfig = uiState.value.config.copy(
+            geofenceId = geofence.id,
+            geofenceName = geofence.name,
+        )
         updateState { state ->
             state.copy(
-                config = state.config.copy(
-                    geofenceId = geofence.id,
-                    geofenceName = geofence.name,
-                ),
+                config = updatedConfig,
                 configErrors = emptyList(),
             )
         }
+        triggerEvent(GeofenceTriggerEvent.GeofenceSelected(updatedConfig))
     }
 
     private fun saveConfiguration() {

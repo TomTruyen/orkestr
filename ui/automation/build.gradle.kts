@@ -2,6 +2,7 @@ plugins {
     id("orkestr.android.library")
     alias(libs.plugins.kotlin.compose)
     id("orkestr.android.compose")
+    id("orkestr.android.compose.screenshot")
     id("orkestr.koin.android")
     alias(libs.plugins.kotlin.serialization)
 }
@@ -20,4 +21,5 @@ dependencies {
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.kotlinx.serialization.json)
+    testImplementation(libs.junit)
 }

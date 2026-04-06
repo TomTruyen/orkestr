@@ -5,19 +5,27 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tomtruyen.automation.core.config.AutomationConfig
 import com.tomtruyen.automation.core.definition.AutomationFieldDefinition
 import com.tomtruyen.automation.core.definition.AutomationFieldType
+import com.tomtruyen.automation.core.utils.ComparisonOperator
+import com.tomtruyen.automation.features.actions.config.LogMessageActionConfig
+import com.tomtruyen.automation.features.actions.definition.LogMessageActionDefinition
+import com.tomtruyen.automation.features.constraints.config.BatteryLevelConstraintConfig
+import com.tomtruyen.automation.features.constraints.definition.BatteryLevelConstraintDefinition
 
 @Composable
 fun DefinitionFieldPreview(fields: List<AutomationFieldDefinition>) {
@@ -111,6 +119,45 @@ fun AutomationFieldForm(
                     )
                 }
             }
+        }
+    }
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun DefinitionFieldPreviewComposePreview() {
+    AutomationDefinitionPreviewSurface {
+        DefinitionFieldPreview(fields = BatteryLevelConstraintDefinition.fields)
+    }
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun AutomationFieldFormComposePreview() {
+    AutomationDefinitionPreviewSurface {
+        Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
+            AutomationFieldForm(
+                fields = BatteryLevelConstraintDefinition.fields,
+                config = BatteryLevelConstraintConfig(
+                    operator = ComparisonOperator.LESS_THAN_OR_EQUAL,
+                    value = 25,
+                ),
+                onFieldChanged = { _, _ -> },
+            )
+            AutomationFieldForm(
+                fields = LogMessageActionDefinition.fields,
+                config = LogMessageActionConfig(message = "Battery is low, charging mode disabled."),
+                onFieldChanged = { _, _ -> },
+            )
+        }
+    }
+}
+
+@Composable
+private fun AutomationDefinitionPreviewSurface(content: @Composable () -> Unit) {
+    MaterialTheme {
+        Surface(modifier = Modifier.padding(16.dp)) {
+            content()
         }
     }
 }
