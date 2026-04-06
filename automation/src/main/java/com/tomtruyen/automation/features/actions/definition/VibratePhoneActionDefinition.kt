@@ -25,21 +25,28 @@ object VibratePhoneActionDefinition : ActionDefinition<VibratePhoneActionConfig>
             defaultValue = defaultConfig.durationMillis.toString(),
             placeholderRes = R.string.automation_definition_action_vibrate_phone_field_duration_placeholder,
             reader = { it.durationMillis.toString() },
-            updater = { config, value -> config.copy(durationMillis = value.toIntOrNull() ?: defaultConfig.durationMillis) },
+            updater = { config, value ->
+                config.copy(
+                    durationMillis = value.toIntOrNull() ?: defaultConfig.durationMillis,
+                )
+            },
         ),
     )
 
     override fun validate(config: VibratePhoneActionConfig, resolver: AutomationTextResolver): List<String> =
         buildList {
-            if (config.durationMillis !in 100..10_000) {
+            if (config.durationMillis !in MIN_DURATION_MILLIS..MAX_DURATION_MILLIS) {
                 add(resolver.resolve(R.string.automation_definition_action_vibrate_phone_error_range))
             }
         }
 
-    override fun summarize(config: VibratePhoneActionConfig, resolver: AutomationTextResolver): String = resolver.resolve(
-        R.string.automation_definition_action_vibrate_phone_summary,
-        listOf(config.durationMillis),
-    )
+    override fun summarize(config: VibratePhoneActionConfig, resolver: AutomationTextResolver): String =
+        resolver.resolve(
+            R.string.automation_definition_action_vibrate_phone_summary,
+            listOf(config.durationMillis),
+        )
 
     private const val FIELD_DURATION_MILLIS = "durationMillis"
+    private const val MIN_DURATION_MILLIS = 100
+    private const val MAX_DURATION_MILLIS = 10_000
 }

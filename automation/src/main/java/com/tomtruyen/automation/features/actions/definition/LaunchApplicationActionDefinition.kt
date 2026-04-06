@@ -36,10 +36,19 @@ object LaunchApplicationActionDefinition : ActionDefinition<LaunchApplicationAct
             }
         }
 
-    override fun summarize(config: LaunchApplicationActionConfig, resolver: AutomationTextResolver): String = resolver.resolve(
-        R.string.automation_definition_action_launch_application_summary,
-        listOf(config.appLabel.ifBlank { config.packageName.ifBlank { resolver.resolve(R.string.automation_definition_action_launch_application_unselected) } }),
-    )
+    override fun summarize(config: LaunchApplicationActionConfig, resolver: AutomationTextResolver): String =
+        resolver.resolve(
+            R.string.automation_definition_action_launch_application_summary,
+            listOf(
+                config.appLabel.ifBlank {
+                    config.packageName.ifBlank {
+                        resolver.resolve(
+                            R.string.automation_definition_action_launch_application_unselected,
+                        )
+                    }
+                },
+            ),
+        )
 
     private const val FIELD_PACKAGE_NAME = "packageName"
 }

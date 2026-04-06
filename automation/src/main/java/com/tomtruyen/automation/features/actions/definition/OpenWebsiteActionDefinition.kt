@@ -29,17 +29,19 @@ object OpenWebsiteActionDefinition : ActionDefinition<OpenWebsiteActionConfig>(
         ),
     )
 
-    override fun validate(config: OpenWebsiteActionConfig, resolver: AutomationTextResolver): List<String> =
-        buildList {
-            if (config.url.isBlank()) {
-                add(resolver.resolve(R.string.automation_definition_action_open_website_error_missing_url))
-            }
+    override fun validate(config: OpenWebsiteActionConfig, resolver: AutomationTextResolver): List<String> = buildList {
+        if (config.url.isBlank()) {
+            add(resolver.resolve(R.string.automation_definition_action_open_website_error_missing_url))
         }
+    }
 
-    override fun summarize(config: OpenWebsiteActionConfig, resolver: AutomationTextResolver): String = resolver.resolve(
-        R.string.automation_definition_action_open_website_summary,
-        listOf(config.url.ifBlank { resolver.resolve(R.string.automation_definition_action_open_website_unselected) }),
-    )
+    override fun summarize(config: OpenWebsiteActionConfig, resolver: AutomationTextResolver): String =
+        resolver.resolve(
+            R.string.automation_definition_action_open_website_summary,
+            listOf(
+                config.url.ifBlank { resolver.resolve(R.string.automation_definition_action_open_website_unselected) },
+            ),
+        )
 
     private const val FIELD_URL = "url"
 }

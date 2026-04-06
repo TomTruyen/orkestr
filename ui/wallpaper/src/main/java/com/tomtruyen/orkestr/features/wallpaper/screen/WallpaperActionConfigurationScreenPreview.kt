@@ -9,7 +9,10 @@ import com.tomtruyen.automation.features.actions.config.SetWallpaperActionConfig
 internal fun WallpaperActionConfigurationComposePreview() {
     WallpaperActionConfigurationScreen(
         title = "Set Wallpaper",
-        description = "Pick an image from the gallery or another document provider, preview it, and confirm before returning to the action settings.",
+        description = (
+            "Pick an image from the gallery or another document provider, preview it, " +
+                "and confirm before returning to the action settings."
+            ),
         isBeta = false,
         requiredMinSdk = 26,
         chooseDifferentLabel = "Choose Different Action",

@@ -22,9 +22,9 @@ class FlashTorchActionDelegate(private val context: Context) : ActionDelegate<Fl
             characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
         } ?: return
 
-        val pulseCount = config.pulseCount.coerceIn(1, 10)
-        val onDuration = config.onDurationMillis.toLong().coerceIn(50L, 5_000L)
-        val offDuration = config.offDurationMillis.toLong().coerceIn(50L, 5_000L)
+        val pulseCount = config.pulseCount.coerceIn(MIN_PULSE_COUNT, MAX_PULSE_COUNT)
+        val onDuration = config.onDurationMillis.toLong().coerceIn(MIN_DURATION_MILLIS, MAX_DURATION_MILLIS)
+        val offDuration = config.offDurationMillis.toLong().coerceIn(MIN_DURATION_MILLIS, MAX_DURATION_MILLIS)
 
         runCatching {
             repeat(pulseCount) { index ->
@@ -38,5 +38,12 @@ class FlashTorchActionDelegate(private val context: Context) : ActionDelegate<Fl
         }.also {
             runCatching { cameraManager.setTorchMode(cameraId, false) }
         }
+    }
+
+    private companion object {
+        const val MIN_PULSE_COUNT = 1
+        const val MAX_PULSE_COUNT = 10
+        const val MIN_DURATION_MILLIS = 50L
+        const val MAX_DURATION_MILLIS = 5_000L
     }
 }

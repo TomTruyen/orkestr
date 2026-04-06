@@ -1,7 +1,7 @@
 package com.tomtruyen.orkestr.features.automation.viewmodel
 
-import com.tomtruyen.automation.core.AutomationRuntimeService
 import androidx.lifecycle.viewModelScope
+import com.tomtruyen.automation.core.AutomationRuntimeService
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
 import com.tomtruyen.orkestr.common.BaseViewModel
 import com.tomtruyen.orkestr.features.automation.state.AutomationRulesAction
@@ -13,10 +13,9 @@ import kotlinx.coroutines.flow.onEach
 class AutomationRulesViewModel(
     private val repository: AutomationRuleRepository,
     private val runtimeService: AutomationRuntimeService,
-) :
-    BaseViewModel<AutomationRulesUiState, AutomationRulesEvent, AutomationRulesAction>(
-        initialState = AutomationRulesUiState(),
-    ) {
+) : BaseViewModel<AutomationRulesUiState, AutomationRulesEvent, AutomationRulesAction>(
+    initialState = AutomationRulesUiState(),
+) {
     init {
         observeAutomationRules()
     }

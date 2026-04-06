@@ -45,13 +45,18 @@ object SetWallpaperActionDefinition : ActionDefinition<SetWallpaperActionConfig>
             }
         }
 
-    override fun summarize(config: SetWallpaperActionConfig, resolver: AutomationTextResolver): String = resolver.resolve(
-        R.string.automation_definition_action_set_wallpaper_summary,
-        listOf(
-            config.imageLabel.ifBlank { resolver.resolve(R.string.automation_definition_action_set_wallpaper_unselected) },
-            resolver.resolve(config.target.toLabelRes()),
-        ),
-    )
+    override fun summarize(config: SetWallpaperActionConfig, resolver: AutomationTextResolver): String =
+        resolver.resolve(
+            R.string.automation_definition_action_set_wallpaper_summary,
+            listOf(
+                config.imageLabel.ifBlank {
+                    resolver.resolve(
+                        R.string.automation_definition_action_set_wallpaper_unselected,
+                    )
+                },
+                resolver.resolve(config.target.toLabelRes()),
+            ),
+        )
 
     private fun WallpaperTarget.toFieldValue(): String = when (this) {
         WallpaperTarget.HOME_SCREEN -> VALUE_HOME

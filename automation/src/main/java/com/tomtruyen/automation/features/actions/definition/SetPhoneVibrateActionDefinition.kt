@@ -33,18 +33,19 @@ object SetPhoneVibrateActionDefinition : ActionDefinition<SetPhoneVibrateActionC
         ),
     )
 
-    override fun summarize(config: SetPhoneVibrateActionConfig, resolver: AutomationTextResolver): String = resolver.resolve(
-        R.string.automation_definition_action_set_phone_vibrate_summary,
-        listOf(
-            resolver.resolve(
-                if (config.enabled) {
-                    R.string.automation_definition_action_set_phone_vibrate_option_on
-                } else {
-                    R.string.automation_definition_action_set_phone_vibrate_option_off
-                },
+    override fun summarize(config: SetPhoneVibrateActionConfig, resolver: AutomationTextResolver): String =
+        resolver.resolve(
+            R.string.automation_definition_action_set_phone_vibrate_summary,
+            listOf(
+                resolver.resolve(
+                    if (config.enabled) {
+                        R.string.automation_definition_action_set_phone_vibrate_option_on
+                    } else {
+                        R.string.automation_definition_action_set_phone_vibrate_option_off
+                    },
+                ),
             ),
-        ),
-    )
+        )
 
     private const val FIELD_ENABLED = "enabled"
     private const val VALUE_ON = "on"

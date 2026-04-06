@@ -6,8 +6,8 @@ import android.location.Location
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
-import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 
 class AutomationLocationRequester(context: Context) {
     private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)

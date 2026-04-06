@@ -2,13 +2,12 @@ package com.tomtruyen.automation.features.actions.delegate
 
 import android.app.WallpaperManager
 import android.content.Context
-import android.net.Uri
+import androidx.core.net.toUri
 import com.tomtruyen.automation.codegen.GenerateActionDelegate
 import com.tomtruyen.automation.core.event.AutomationEvent
 import com.tomtruyen.automation.core.model.WallpaperTarget
 import com.tomtruyen.automation.features.actions.ActionType
 import com.tomtruyen.automation.features.actions.config.SetWallpaperActionConfig
-import androidx.core.net.toUri
 
 @GenerateActionDelegate
 class SetWallpaperActionDelegate(private val context: Context) : ActionDelegate<SetWallpaperActionConfig> {

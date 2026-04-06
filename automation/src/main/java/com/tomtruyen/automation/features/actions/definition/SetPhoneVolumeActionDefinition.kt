@@ -43,24 +43,29 @@ object SetPhoneVolumeActionDefinition : ActionDefinition<SetPhoneVolumeActionCon
             defaultValue = defaultConfig.levelPercent.toString(),
             placeholderRes = R.string.automation_definition_action_set_phone_volume_field_level_placeholder,
             reader = { it.levelPercent.toString() },
-            updater = { config, value -> config.copy(levelPercent = value.toIntOrNull() ?: defaultConfig.levelPercent) },
+            updater = { config, value ->
+                config.copy(
+                    levelPercent = value.toIntOrNull() ?: defaultConfig.levelPercent,
+                )
+            },
         ),
     )
 
     override fun validate(config: SetPhoneVolumeActionConfig, resolver: AutomationTextResolver): List<String> =
         buildList {
-            if (config.levelPercent !in 0..100) {
+            if (config.levelPercent !in MIN_LEVEL_PERCENT..MAX_LEVEL_PERCENT) {
                 add(resolver.resolve(R.string.automation_definition_action_set_phone_volume_error_range))
             }
         }
 
-    override fun summarize(config: SetPhoneVolumeActionConfig, resolver: AutomationTextResolver): String = resolver.resolve(
-        R.string.automation_definition_action_set_phone_volume_summary,
-        listOf(
-            resolver.resolve(config.stream.toLabelRes()),
-            config.levelPercent,
-        ),
-    )
+    override fun summarize(config: SetPhoneVolumeActionConfig, resolver: AutomationTextResolver): String =
+        resolver.resolve(
+            R.string.automation_definition_action_set_phone_volume_summary,
+            listOf(
+                resolver.resolve(config.stream.toLabelRes()),
+                config.levelPercent,
+            ),
+        )
 
     private fun PhoneVolumeStream.toFieldValue(): String = when (this) {
         PhoneVolumeStream.MEDIA -> VALUE_MEDIA
@@ -85,4 +90,6 @@ object SetPhoneVolumeActionDefinition : ActionDefinition<SetPhoneVolumeActionCon
     private const val VALUE_MEDIA = "media"
     private const val VALUE_RING = "ring"
     private const val VALUE_CALL = "call"
+    private const val MIN_LEVEL_PERCENT = 0
+    private const val MAX_LEVEL_PERCENT = 100
 }

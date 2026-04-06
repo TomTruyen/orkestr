@@ -18,14 +18,23 @@ class SetPhoneVolumeActionDelegate(private val context: Context) : ActionDelegat
         val maxVolume = audioManager.getStreamMaxVolume(streamType)
         if (maxVolume <= 0) return
 
-        val volume = ((config.levelPercent.coerceIn(0, 100) / 100f) * maxVolume).toInt()
-            .coerceIn(0, maxVolume)
-        audioManager.setStreamVolume(streamType, volume, 0)
+        val volume = (
+            (config.levelPercent.coerceIn(MIN_LEVEL_PERCENT, MAX_LEVEL_PERCENT) / PERCENT_DIVISOR) * maxVolume
+            ).toInt().coerceIn(MIN_VOLUME, maxVolume)
+        audioManager.setStreamVolume(streamType, volume, VOLUME_FLAGS)
     }
 
     private fun PhoneVolumeStream.toAudioStream(): Int = when (this) {
         PhoneVolumeStream.MEDIA -> AudioManager.STREAM_MUSIC
         PhoneVolumeStream.RING -> AudioManager.STREAM_RING
         PhoneVolumeStream.CALL -> AudioManager.STREAM_VOICE_CALL
+    }
+
+    private companion object {
+        const val MIN_LEVEL_PERCENT = 0
+        const val MAX_LEVEL_PERCENT = 100
+        const val PERCENT_DIVISOR = 100f
+        const val MIN_VOLUME = 0
+        const val VOLUME_FLAGS = 0
     }
 }

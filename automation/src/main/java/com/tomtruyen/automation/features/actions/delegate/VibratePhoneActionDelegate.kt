@@ -15,7 +15,7 @@ class VibratePhoneActionDelegate(private val context: Context) : ActionDelegate<
     override val type: ActionType = ActionType.VIBRATE_PHONE
 
     override suspend fun execute(config: VibratePhoneActionConfig, event: AutomationEvent) {
-        val durationMillis = config.durationMillis.toLong().coerceIn(100L, 10_000L)
+        val durationMillis = config.durationMillis.toLong().coerceIn(MIN_DURATION_MILLIS, MAX_DURATION_MILLIS)
         val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             context.getSystemService(VibratorManager::class.java)?.defaultVibrator
         } else {
@@ -25,5 +25,10 @@ class VibratePhoneActionDelegate(private val context: Context) : ActionDelegate<
 
         val effect = VibrationEffect.createOneShot(durationMillis, VibrationEffect.DEFAULT_AMPLITUDE)
         vibrator.vibrate(effect)
+    }
+
+    private companion object {
+        const val MIN_DURATION_MILLIS = 100L
+        const val MAX_DURATION_MILLIS = 10_000L
     }
 }

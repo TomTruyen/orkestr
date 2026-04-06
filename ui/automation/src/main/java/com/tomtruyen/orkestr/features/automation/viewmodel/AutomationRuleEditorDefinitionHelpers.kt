@@ -65,25 +65,23 @@ internal fun AutomationDefinitionRegistry.definitionFor(
 internal fun AutomationDefinitionRegistry.customNavigationEventFor(
     section: RuleSection,
     typeKey: String,
-): AutomationEditorEvent? {
-    return when (section) {
-        RuleSection.TRIGGERS -> when (typeKey) {
-            TriggerType.GEOFENCE.name -> AutomationEditorEvent.NavigateToGeofenceConfiguration
-            TriggerType.TIME_BASED.name -> AutomationEditorEvent.NavigateToTimeBasedTriggerConfiguration
-            TriggerType.APPLICATION_LIFECYCLE.name -> AutomationEditorEvent.NavigateToApplicationTriggerAppSelection
-            TriggerType.NOTIFICATION_RECEIVED.name -> AutomationEditorEvent.NavigateToNotificationTriggerAppSelection
-            TriggerType.WIFI_SSID_IN_RANGE.name -> AutomationEditorEvent.NavigateToWifiTriggerSelection
-            else -> null
-        }
-
-        RuleSection.ACTIONS -> when (typeKey) {
-            ActionType.LAUNCH_APPLICATION.name -> AutomationEditorEvent.NavigateToLaunchApplicationActionAppSelection
-            ActionType.SET_WALLPAPER.name -> AutomationEditorEvent.NavigateToSetWallpaperActionConfiguration
-            else -> null
-        }
-
-        RuleSection.CONSTRAINTS -> null
+): AutomationEditorEvent? = when (section) {
+    RuleSection.TRIGGERS -> when (typeKey) {
+        TriggerType.GEOFENCE.name -> AutomationEditorEvent.NavigateToGeofenceConfiguration
+        TriggerType.TIME_BASED.name -> AutomationEditorEvent.NavigateToTimeBasedTriggerConfiguration
+        TriggerType.APPLICATION_LIFECYCLE.name -> AutomationEditorEvent.NavigateToApplicationTriggerAppSelection
+        TriggerType.NOTIFICATION_RECEIVED.name -> AutomationEditorEvent.NavigateToNotificationTriggerAppSelection
+        TriggerType.WIFI_SSID_IN_RANGE.name -> AutomationEditorEvent.NavigateToWifiTriggerSelection
+        else -> null
     }
+
+    RuleSection.ACTIONS -> when (typeKey) {
+        ActionType.LAUNCH_APPLICATION.name -> AutomationEditorEvent.NavigateToLaunchApplicationActionAppSelection
+        ActionType.SET_WALLPAPER.name -> AutomationEditorEvent.NavigateToSetWallpaperActionConfiguration
+        else -> null
+    }
+
+    RuleSection.CONSTRAINTS -> null
 }
 
 internal fun customConfigurationButtonLabelRes(section: RuleSection, typeKey: String): Int? = when (section) {

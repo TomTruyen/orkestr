@@ -31,7 +31,11 @@ object FlashTorchActionDefinition : ActionDefinition<FlashTorchActionConfig>(
             defaultValue = defaultConfig.onDurationMillis.toString(),
             placeholderRes = R.string.automation_definition_action_flash_torch_field_on_duration_placeholder,
             reader = { it.onDurationMillis.toString() },
-            updater = { config, value -> config.copy(onDurationMillis = value.toIntOrNull() ?: defaultConfig.onDurationMillis) },
+            updater = { config, value ->
+                config.copy(
+                    onDurationMillis = value.toIntOrNull() ?: defaultConfig.onDurationMillis,
+                )
+            },
         ),
         numberField(
             id = FIELD_OFF_DURATION,
@@ -40,18 +44,22 @@ object FlashTorchActionDefinition : ActionDefinition<FlashTorchActionConfig>(
             defaultValue = defaultConfig.offDurationMillis.toString(),
             placeholderRes = R.string.automation_definition_action_flash_torch_field_off_duration_placeholder,
             reader = { it.offDurationMillis.toString() },
-            updater = { config, value -> config.copy(offDurationMillis = value.toIntOrNull() ?: defaultConfig.offDurationMillis) },
+            updater = { config, value ->
+                config.copy(
+                    offDurationMillis = value.toIntOrNull() ?: defaultConfig.offDurationMillis,
+                )
+            },
         ),
     )
 
     override fun validate(config: FlashTorchActionConfig, resolver: AutomationTextResolver): List<String> = buildList {
-        if (config.pulseCount !in 1..10) {
+        if (config.pulseCount !in MIN_PULSE_COUNT..MAX_PULSE_COUNT) {
             add(resolver.resolve(R.string.automation_definition_action_flash_torch_error_pulse_count_range))
         }
-        if (config.onDurationMillis !in 50..5_000) {
+        if (config.onDurationMillis !in MIN_DURATION_MILLIS..MAX_DURATION_MILLIS) {
             add(resolver.resolve(R.string.automation_definition_action_flash_torch_error_duration_range))
         }
-        if (config.offDurationMillis !in 50..5_000) {
+        if (config.offDurationMillis !in MIN_DURATION_MILLIS..MAX_DURATION_MILLIS) {
             add(resolver.resolve(R.string.automation_definition_action_flash_torch_error_duration_range))
         }
     }
@@ -85,4 +93,8 @@ object FlashTorchActionDefinition : ActionDefinition<FlashTorchActionConfig>(
     private const val FIELD_PULSE_COUNT = "pulseCount"
     private const val FIELD_ON_DURATION = "onDurationMillis"
     private const val FIELD_OFF_DURATION = "offDurationMillis"
+    private const val MIN_PULSE_COUNT = 1
+    private const val MAX_PULSE_COUNT = 10
+    private const val MIN_DURATION_MILLIS = 50
+    private const val MAX_DURATION_MILLIS = 5_000
 }

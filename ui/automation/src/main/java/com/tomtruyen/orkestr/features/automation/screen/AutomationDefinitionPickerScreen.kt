@@ -293,7 +293,10 @@ fun AutomationDefinitionConfigurationScreen(viewModel: AutomationRuleEditorViewM
 
 private fun customConfigurationButtonAnchorFieldId(typeKey: String?): String? = when (typeKey) {
     "APPLICATION_LIFECYCLE",
-    "NOTIFICATION_RECEIVED" -> "package_name"
+    "NOTIFICATION_RECEIVED",
+    -> "package_name"
+
     "LAUNCH_APPLICATION" -> "packageName"
+
     else -> null
 }

@@ -7,10 +7,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @SerialName(LaunchApplicationActionConfig.DISCRIMINATOR)
-data class LaunchApplicationActionConfig(
-    val packageName: String = "",
-    val appLabel: String = "",
-) : ActionConfig {
+data class LaunchApplicationActionConfig(val packageName: String = "", val appLabel: String = "") : ActionConfig {
     override val type: ActionType = ActionType.LAUNCH_APPLICATION
     override val category: AutomationCategory = AutomationCategory.UTILITY
 

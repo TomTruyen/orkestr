@@ -4,10 +4,11 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.os.Build
-import android.provider.OpenableColumns
 import android.provider.MediaStore
+import android.provider.OpenableColumns
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,7 +20,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.Image
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -68,7 +68,7 @@ fun WallpaperActionConfigurationScreen(
     val deviceAspectRatio = if (configuration.screenWidthDp > 0) {
         configuration.screenHeightDp.toFloat() / configuration.screenWidthDp.toFloat()
     } else {
-        16f / 9f
+        DEFAULT_DEVICE_ASPECT_RATIO
     }
     var selectedImageUri by rememberSaveable(config.imageUri) { mutableStateOf(config.imageUri) }
     var selectedImageLabel by rememberSaveable(config.imageLabel) { mutableStateOf(config.imageLabel) }
@@ -221,3 +221,5 @@ fun WallpaperActionConfigurationScreen(
         }
     }
 }
+
+private const val DEFAULT_DEVICE_ASPECT_RATIO = 16f / 9f
