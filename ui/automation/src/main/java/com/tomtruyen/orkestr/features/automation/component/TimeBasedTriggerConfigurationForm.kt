@@ -28,10 +28,7 @@ import com.tomtruyen.orkestr.common.component.AutomationCardColumn
 import com.tomtruyen.orkestr.ui.automation.R
 
 @Composable
-fun TimeBasedTriggerConfigurationForm(
-    config: TimeBasedTriggerConfig,
-    onFieldChanged: (String, String) -> Unit,
-) {
+fun TimeBasedTriggerConfigurationForm(config: TimeBasedTriggerConfig, onFieldChanged: (String, String) -> Unit) {
     var showTimePickerDialog by rememberSaveable { mutableStateOf(false) }
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {

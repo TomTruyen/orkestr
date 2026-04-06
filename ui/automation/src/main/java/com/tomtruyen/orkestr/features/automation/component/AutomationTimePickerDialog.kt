@@ -13,12 +13,7 @@ import com.tomtruyen.orkestr.ui.automation.R
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun AutomationTimePickerDialog(
-    hour: Int,
-    minute: Int,
-    onDismiss: () -> Unit,
-    onConfirm: (Int, Int) -> Unit,
-) {
+fun AutomationTimePickerDialog(hour: Int, minute: Int, onDismiss: () -> Unit, onConfirm: (Int, Int) -> Unit) {
     val timePickerState = rememberTimePickerState(
         initialHour = hour,
         initialMinute = minute,

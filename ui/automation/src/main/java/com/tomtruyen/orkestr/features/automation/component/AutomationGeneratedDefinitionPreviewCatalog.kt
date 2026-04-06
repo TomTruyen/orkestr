@@ -48,7 +48,6 @@ import com.tomtruyen.automation.generated.GeneratedActionProvider
 import com.tomtruyen.automation.generated.GeneratedConstraintProvider
 import com.tomtruyen.automation.generated.GeneratedTriggerProvider
 import com.tomtruyen.orkestr.common.component.AutomationCardColumn
-import com.tomtruyen.orkestr.ui.automation.R
 
 internal object AutomationGeneratedDefinitionPreviewCatalog {
     val triggerTypes: Set<TriggerType> = GeneratedTriggerProvider.definitions.mapTo(linkedSetOf()) { it.type }
