@@ -22,6 +22,11 @@ The assistant should:
 - Avoid suggesting unreliable or hacky approaches
 - Balance **developer experience** and **end-user usability**
 - Design for **long-term maintainability and extensibility**
+- Follow the **existing architecture and conventions** of the codebase
+- Reuse existing abstractions before introducing new ones
+- Keep code **clean, readable, modular, and minimal**
+- Avoid unnecessary duplication
+- Avoid creating giant files or monolithic implementations
 
 ---
 
@@ -65,9 +70,9 @@ The assistant should:
 - Provide **implementation-ready suggestions**
 - Use structured outputs when helpful
 - Highlight:
-    - required permissions
-    - OS version constraints
-    - known limitations
+  - required permissions
+  - OS version constraints
+  - known limitations
 
 When relevant, include:
 - code examples
@@ -85,6 +90,7 @@ When multiple approaches exist, the assistant should prioritize:
 3. **Reliability over cleverness**
 4. **Maintainability over short-term speed**
 5. **Simplicity over unnecessary complexity**
+6. **Existing project conventions over inventing new patterns**
 
 ---
 
@@ -99,6 +105,9 @@ The assistant must NOT:
 - Assume behavior is consistent across all devices
 - Over-engineer early-stage features
 - Introduce unnecessary dependencies
+- Dump entire features into one giant file
+- Create excessive abstraction without a clear benefit
+- Add duplication when an existing pattern already fits
 
 ---
 
@@ -111,7 +120,9 @@ The assistant is effectively:
 Not:
 - a hackathon prototype builder
 - a theoretical architect
-- or a “just make it work somehow” assistant****
+- or a “just make it work somehow” assistant
+
+---
 
 ## Project Overview
 
@@ -119,10 +130,11 @@ Orkestr is a modern Android automation app inspired by tools like Tasker and Mac
 
 The goal is to let users build automations using:
 - **Triggers**
-- **Conditions**
+- **Constraints**
 - **Actions**
 
-Orkestr must only support functionality that works on **standard Android devices without root and without ADB-dependent setup**.  
+Orkestr must only support functionality that works on **standard Android devices without root and without ADB-dependent setup**.
+
 Do not propose, implement, or rely on features that require:
 - root access
 - Shizuku
@@ -168,6 +180,7 @@ Android automation has many platform limitations.
 The assistant must always respect them.
 
 ### Hard constraints
+
 Never assume the app can:
 - silently interact with arbitrary UI without Accessibility-based user-enabled support
 - toggle secure system settings unless Android officially allows it
@@ -177,6 +190,7 @@ Never assume the app can:
 - perform exact behavior on all OEMs the same way
 
 ### Important rule
+
 If a requested feature is partially possible, the assistant must:
 - clearly explain what **is** possible
 - clearly explain what **is not** possible
@@ -227,7 +241,7 @@ Use these defaults unless there is a strong reason not to:
 - **Background work:** WorkManager when appropriate
 - **Navigation:** Navigation Compose
 - **Serialization:** kotlinx.serialization where useful
-- **Testing:** JUnit, Turbine, Compose UI tests
+- **Testing:** JUnit, Turbine, Compose UI tests, Compose Preview Screenshot Tests
 
 Do not introduce legacy Android patterns unless necessary for platform APIs.
 
@@ -251,14 +265,16 @@ The UI should be:
 - easy to scale as more trigger/action types are added
 
 ### Compose expectations
+
 - Keep composables small and focused
 - Hoist state where appropriate
 - Avoid large monolithic screens
-- Use previewable composables when useful
+- Use previewable composables where useful
 - Prefer stateless composables with state passed in
 - Model screen state explicitly (`Loading`, `Empty`, `Error`, `Success` if applicable)
 
 ### Accessibility
+
 Always consider:
 - content descriptions
 - touch target sizes
@@ -267,12 +283,13 @@ Always consider:
 - clear wording for permissions and restrictions
 
 ### UX principles
+
 Automation can become confusing quickly.  
 Favor clarity over density.
 
 Always make it obvious:
 - what triggers an automation
-- what conditions must be true
+- what constraints must be true
 - what action will happen
 - whether the automation is enabled
 - whether a permission is missing
@@ -284,25 +301,16 @@ Always make it obvious:
 
 Orkestr revolves around:
 - **Triggers**
-- **Conditions**
+- **Constraints**
 - **Actions**
-- **Constraints / permissions / capability requirements**
+- **Permissions / capability requirements**
 - **Execution history / logs**
 
 When designing the domain, prefer explicit models over vague generic maps.
 
-Example direction:
-- `Automation`
-- `TriggerDefinition`
-- `ConditionDefinition`
-- `ActionDefinition`
-- `ExecutionResult`
-- `PermissionRequirement`
-- `CapabilityAvailability`
+The assistant should prefer extensible patterns so new trigger/action/constraint types can be added without rewriting the whole app.
 
-The assistant should prefer extensible patterns so new trigger/action types can be added without rewriting the whole app.
-
-Avoid deeply hardcoded screen-to-screen logic tied to one specific trigger type.
+Avoid deeply hardcoded screen-to-screen logic tied to one specific capability type.
 
 ---
 
@@ -358,7 +366,7 @@ When helping build the project, prioritize in this order:
 2. **Permission/capability modeling**
 3. **Reliable trigger execution architecture**
 4. **Clear user-facing flows**
-5. **Extensibility for new trigger/action types**
+5. **Extensibility for new trigger/action/constraint types**
 6. **Polish and advanced features**
 
 Avoid jumping into flashy features before the foundations are solid.
@@ -371,14 +379,14 @@ Unless told otherwise, optimize for a realistic MVP that could actually work wel
 
 Good MVP candidates:
 - time/date trigger
-- app opened trigger (if technically feasible within Android limitations)
+- app opened trigger where technically feasible within Android limitations
 - notification received trigger via Notification Listener
 - battery state / charging trigger
 - network connectivity trigger
 - headphone/Bluetooth connection trigger
 - location trigger
 - DND-related informational or user-assisted flows where allowed
-- simple conditions (time range, battery %, Wi-Fi connected, device charging)
+- simple constraints (time range, battery %, Wi-Fi connected, device charging)
 - simple actions (show notification, play sound, open app, send intent where supported, toggle app-internal state, clipboard read/write where allowed, etc.)
 
 Be cautious with:
@@ -411,6 +419,110 @@ These labels should be easy for both developers and users to notice.
 
 ---
 
+## Capability Implementation Workflow
+
+When asked to add a new automation capability, the assistant must first determine whether the requested feature belongs as:
+- an **Action**
+- a **Trigger**
+- a **Constraint**
+
+If ambiguous, choose the most architecturally correct interpretation and implement it consistently.
+
+The assistant must follow the existing project structure and implementation patterns.
+
+### Adding a New Action
+
+To add a new action:
+
+1. Add a new enum entry in `ActionType.kt`
+2. Add a serializable config model under `automation/features/actions/config` implementing `ActionConfig`
+3. Add an annotated definition object under `automation/features/actions/definition` with `@GenerateActionDefinition`
+4. Define fields through `TypedAutomationFieldDefinition` if the generic editor can configure it
+5. Add an annotated runtime delegate under `automation/features/actions/delegate` with `@GenerateActionDelegate`
+6. Add strings for title, description, field labels, option labels, and summaries
+7. Add unit tests for the delegate and any definition validation logic
+
+Reference implementation for a simple action:
+- `LogMessageActionDefinition.kt`
+- `LogMessageActionDelegate.kt`
+
+### Adding a New Constraint
+
+To add a new constraint:
+
+1. Add a new enum entry in `ConstraintType.kt`
+2. Add a serializable config model under `automation/features/constraints/config` implementing `ConstraintConfig`
+3. Add an annotated definition object under `automation/features/constraints/definition` with `@GenerateConstraintDefinition`
+4. Add an annotated runtime delegate under `automation/features/constraints/delegate` with `@GenerateConstraintDelegate`
+5. Add strings and validation rules
+6. Add unit tests for evaluation and definition validation
+
+Reference implementation:
+- `BatteryLevelConstraintDefinition.kt`
+- `BatteryLevelConstraintDelegate.kt`
+
+### Adding a New Trigger
+
+Triggers follow the same config / definition / delegate pattern, but may also need an event source and custom editor routing.
+
+To add a new trigger:
+
+1. Add a new enum entry in `TriggerType.kt`
+2. Add a serializable config model under `automation/features/triggers/config` implementing `TriggerConfig`
+3. If the trigger depends on a foreground receiver integration, add `requiredReceiverKeys` to the config and extend `TriggerReceiverKey.kt`
+4. Add an annotated definition object under `automation/features/triggers/definition` with `@GenerateTriggerDefinition`
+5. Add an annotated runtime delegate under `automation/features/triggers/delegate` with `@GenerateTriggerDelegate`
+6. If Android needs a broadcast receiver style integration, implement a `TriggerReceiver` and annotate its factory companion with `@GenerateReceiverFactory`
+7. If the trigger is driven by some other Android component, wire that component to emit `AutomationEvent` into `AutomationRuntimeService`
+8. If the generic field form is not enough, add a custom editor screen/module and route it from:
+  - `AutomationRuleEditorDefinitionHelpers.kt`
+  - `AutomationCustomRouteScreens.kt`
+9. Add strings, permissions, and tests for the definition, delegate, and receiver/event source
+
+Reference points by complexity:
+
+#### Generic trigger with receiver
+- `BatterySaverStateTriggerDefinition.kt`
+- `BatterySaverStateTriggerDelegate.kt`
+- `BatterySaverModeReceiver.kt`
+
+#### Trigger with custom editor UI
+- `TimeBasedTriggerConfig.kt`
+- `TimeBasedTriggerConfigurationScreen.kt`
+
+#### Trigger with repository-backed Android integration
+- `GeofenceTriggerConfig.kt`
+- `GeofenceRegistrationReceiver.kt`
+
+#### Trigger using a different Android component instead of a generated receiver factory
+- `NotificationReceivedTrigger`
+- `AutomationNotificationListenerService.kt`
+
+---
+
+## Module and File Organization Rules
+
+The assistant must keep files focused and reasonably small.
+
+### Default rule
+
+- If a feature is generic and fits an existing module, keep it there
+- If a feature is highly specific in UI, platform integration, configuration flow, or domain behavior, it should get its **own module**
+- Prefer a dedicated module when that keeps complexity isolated and prevents bloating generic automation modules
+
+Example:
+- a geofence-like capability with special UI, registration logic, or Android integration should live in a dedicated feature/module similar to the existing Geofence implementation
+
+### Avoid both extremes
+
+Do not:
+- dump everything into one giant file
+- split trivial logic into too many micro-files
+
+Prefer the smallest clean structure that fits the complexity of the feature.
+
+---
+
 ## Code Quality Rules
 
 All code generated for this project should be:
@@ -423,6 +535,7 @@ All code generated for this project should be:
 - free of unnecessary abstraction
 
 ### Prefer
+
 - descriptive names
 - small focused classes
 - interfaces only when they add clear value
@@ -430,28 +543,46 @@ All code generated for this project should be:
 - sealed hierarchies for finite behavior sets
 - explicit error handling
 - repository/use-case separation where useful
+- existing project patterns over novel abstractions
 
 ### Avoid
+
 - massive god classes
 - unnecessary inheritance
 - reflection-heavy approaches
 - stringly typed business logic
 - tightly coupling UI to platform/service implementations
 - adding libraries without clear need
+- giant composables or giant ViewModels
+- premature abstraction
+- code duplication when existing infrastructure already solves it
 
 ---
 
 ## Testing Expectations
 
-The assistant should encourage tests for:
-- automation execution logic
-- trigger/condition/action evaluation
-- version/capability gating
-- serialization/deserialization of automation definitions
-- ViewModel behavior
-- critical Compose UI states
+Tests are mandatory.
 
-Prefer unit tests for domain logic first.
+### For UI code
+
+For any new or changed:
+- UI definitions
+- editor screens
+- screen components
+- reusable composables
+
+the assistant must:
+- add **Compose Preview Screenshot Tests**
+- use the project’s **existing screenshot test infrastructure**
+- ensure previews exist where needed
+- generate/update screenshot tests after implementing the UI
+
+### For non-UI code
+
+For all other code, the assistant must:
+- add **Unit Tests**
+- use the project’s existing test infrastructure and conventions
+- cover delegate behavior, definition validation, config serialization/mapping, and receiver/event-source logic where relevant
 
 Important areas to test:
 - permission missing scenarios
@@ -459,6 +590,10 @@ Important areas to test:
 - disabled capability scenarios
 - automation ordering and evaluation
 - failure handling and retries where applicable
+
+Prefer unit tests for domain logic first.
+
+No new production feature should be left without appropriate tests.
 
 ---
 
@@ -471,8 +606,90 @@ Whenever implementing a feature, include or update documentation for:
 - what OEM limitations may apply
 - what fallback behavior exists if full support is unavailable
 
-Assume that Android automation features can be misunderstood easily.  
+Assume Android automation features can be misunderstood easily.  
 Documentation should remove ambiguity.
+
+---
+
+## README Maintenance Rules
+
+The assistant must treat the `README.md` as a **living source of truth** for the project.
+
+Whenever a new feature is added or an existing feature is modified, the assistant must:
+- update the README accordingly
+- ensure documentation reflects the current state of the app
+- avoid leaving outdated or incomplete information
+
+### When to Update the README
+
+The README must be updated when:
+- a new **Trigger**, **Constraint**, or **Action** is introduced
+- a feature gains new permissions or restrictions
+- OS-version support changes
+- behavior changes in a way that affects users or developers
+- new modules or architecture changes are introduced if relevant to contributors
+- setup or build steps change
+
+### Automation Feature Documentation Structure
+
+The README should contain clear sections for:
+
+#### Triggers
+Each trigger must include:
+- **Name**
+- **Description**
+- **Requirements** (permissions, services, etc.)
+- **OS Version Support**
+- **Restrictions / Notes** (OEM issues, reliability, limitations)
+
+#### Constraints
+Each constraint must include:
+- **Description**
+- **Any required permissions**
+- **OS/version constraints**
+- **Limitations if applicable**
+
+#### Actions
+Each action must include:
+- **Description**
+- **Requirements**
+- **OS Version Support**
+- **Restrictions / Notes**
+
+### Documentation Standards
+
+When updating the README:
+- be concise but clear
+- use consistent formatting across all entries
+- always include:
+  - permissions
+  - OS-version labels
+  - known limitations
+- do not assume behavior is universal across all devices
+- explicitly mention if something:
+  - requires user setup
+  - may not work on all OEM devices
+  - is limited by Android system restrictions
+
+### Accuracy Rule
+
+The README must never:
+- claim features that are not implemented
+- omit important restrictions or limitations
+- imply reliability where Android does not guarantee it
+
+If a feature is:
+- partially implemented → mark it clearly
+- experimental → label it
+- limited by platform behavior → explain it
+
+### Sync with Codebase
+
+The assistant should ensure:
+- feature names in README match code terminology
+- permission names are accurate and up-to-date
+- OS version claims are correct
+- removed features are also removed from README
 
 ---
 
@@ -527,7 +744,7 @@ Prefer a modular structure over time, for example:
 - `feature:executionlog` -> run history/logging
 - `automation:engine` -> evaluation and execution
 - `automation:triggers:*`
-- `automation:conditions:*`
+- `automation:constraints:*`
 - `automation:actions:*`
 
 Exact module names can evolve, but separation of concerns matters.
@@ -550,6 +767,32 @@ When acting as a coding companion for Orkestr, the assistant should:
 - mention tradeoffs honestly
 
 If asked to implement or design a feature that is not realistically possible on normal Android devices, the assistant should say so clearly and suggest supported alternatives.
+
+When asked to implement a new capability, the assistant should usually structure its response as:
+
+1. **Implementation plan**
+  - whether this is an action, trigger, or constraint
+  - which existing files/features are the closest references
+  - whether a custom UI, receiver, event source, or dedicated module is needed
+
+2. **Files to add/change**
+  - list all files to create or modify
+
+3. **Implementation**
+  - provide implementation-ready code changes
+
+4. **Tests**
+  - Compose Preview Screenshot Tests for UI
+  - Unit Tests for non-UI code
+
+5. **Documentation updates**
+  - README and any relevant docs
+
+6. **Notes**
+  - permissions added
+  - OS/version caveats
+  - generated pieces
+  - architectural tradeoffs
 
 ---
 
@@ -594,116 +837,3 @@ Build the best possible open-source Android automation app **within real platfor
 Be ambitious in architecture and UX.  
 Be honest about Android restrictions.  
 Never trade user trust for fake capability.
-
-## README Maintenance Rules
-
-The assistant must treat the `README.md` as a **living source of truth** for the project.
-
-Whenever a new feature is added or an existing feature is modified, the assistant must:
-- update the README accordingly
-- ensure documentation reflects the current state of the app
-- avoid leaving outdated or incomplete information
-
-### When to Update the README
-
-The README must be updated when:
-- a new **Trigger**, **Condition**, or **Action** is introduced
-- a feature gains new permissions or restrictions
-- OS-version support changes
-- behavior changes in a way that affects users or developers
-- new modules or architecture changes are introduced (if relevant to contributors)
-- setup or build steps change
-
----
-
-## Automation Feature Documentation Structure
-
-The README should contain clear sections for:
-
-### Triggers
-Each trigger must include:
-- **Name**
-- **Description**
-- **Requirements** (permissions, services, etc.)
-- **OS Version Support**
-- **Restrictions / Notes** (OEM issues, reliability, limitations)
-
-Example:
-
-#### Notification Received
-- **Description:** Triggers when a notification is posted
-- **Requires:** Notification Access
-- **OS Support:** Android 5.0+
-- **Notes:** Some OEMs may delay or suppress notifications in background
-
----
-
-### Conditions
-Each condition must include:
-- **Description**
-- **Any required permissions**
-- **OS/version constraints**
-- **Limitations if applicable**
-
----
-
-### Actions
-Each action must include:
-- **Description**
-- **Requirements**
-- **OS Version Support**
-- **Restrictions / Notes**
-
----
-
-## Documentation Standards
-
-When updating the README:
-
-- Be **concise but clear**
-- Use consistent formatting across all entries
-- Always include:
-    - permissions
-    - OS-version labels
-    - known limitations
-- Do not assume behavior is universal across all devices
-- Explicitly mention if something:
-    - requires user setup (e.g., enabling a service)
-    - may not work on all OEM devices
-    - is limited by Android system restrictions
-
----
-
-## Accuracy Rule
-
-The README must never:
-- claim features that are not implemented
-- omit important restrictions or limitations
-- imply reliability where Android does not guarantee it
-
-If a feature is:
-- partially implemented → mark it clearly
-- experimental → label it
-- limited by platform behavior → explain it
-
----
-
-## Sync with Codebase
-
-The assistant should ensure:
-- feature names in README match code terminology
-- permission names are accurate and up-to-date
-- OS version claims are correct
-- removed features are also removed from README
-
----
-
-## Guiding Principle
-
-The README should allow a new user or contributor to:
-- understand what Orkestr can and cannot do
-- know what permissions are required
-- understand platform limitations
-- quickly see available triggers, conditions, and actions
-
-If the README is outdated, the assistant must prioritize fixing it.
