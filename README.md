@@ -22,6 +22,8 @@ Each rule is stored in Room as:
 - zero or more constraints
 - one or more actions
 
+For testing, the rules list also exposes a manual `Run now` action. It bypasses triggers and evaluates the rule’s constraints before executing actions.
+
 At runtime, the foreground service keeps only the necessary trigger integrations active, forwards platform events into the automation engine, evaluates matching rules, and executes actions.
 
 ## Architecture
@@ -137,7 +139,7 @@ Reference points by complexity:
 | Battery Level | Matches battery percentage against a comparison operator. |
 | Power Connection | Matches power connected or disconnected events. |
 | Battery Saver State | Matches battery saver turning on or off. |
-| Application Lifecycle | Matches an app being launched or closed. Requires usage access. |
+| Application Lifecycle | Matches an app being launched or closed. Requires Usage Access special app access (`PACKAGE_USAGE_STATS`). |
 | Notification Received | Matches notifications from a selected app. Requires notification listener access. |
 | Wi-Fi SSID In Range | Matches a selected SSID entering or leaving range. Requires location and nearby Wi-Fi permissions. |
 | Geofence | Matches entry/exit for a saved geofence. Requires fine and background location. |
@@ -155,6 +157,14 @@ Reference points by complexity:
 | Show Notification | Posts a local notification. Requires `POST_NOTIFICATIONS` on Android 13+. |
 | Log Message | Writes a message to the automation logger. |
 | Do Not Disturb | Changes the public Android DND mode. Requires notification policy access. |
+| Launch Application | Opens a selected installed app. |
+| Open Website | Opens a configured URL in the default browser. |
+| Vibrate Phone | Vibrates the device for a configured duration. Requires `VIBRATE`. |
+| Flash Torch | Flashes the device torch in a burst pattern. Requires camera permission and hardware flash support. Behavior varies by device. |
+| Set Wallpaper | Applies a user-selected gallery/document image to the home screen, lock screen, or both. Requires `SET_WALLPAPER`. Available on Android 8.0+. Behavior may vary by OEM wallpaper implementation. |
+| Force Location Update | Requests a fresh location fix. Requires fine and background location. Best-effort only; Android may still delay or deny the update. |
+| Set Phone Volume | Sets media, ring, or call volume as a percentage of the stream max. Call volume behavior depends on device state and is most relevant while in a call. |
+| Set Phone Vibrate | Switches the ringer mode between vibrate and normal. Behavior may vary by OEM and current sound settings. |
 
 ## Persistence And Migrations
 

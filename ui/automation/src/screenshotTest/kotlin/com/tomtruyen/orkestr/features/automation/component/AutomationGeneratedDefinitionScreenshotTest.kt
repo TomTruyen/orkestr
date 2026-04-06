@@ -94,3 +94,59 @@ internal fun ShowNotificationActionDefinitionScreenshotTest() {
 internal fun LogMessageActionDefinitionScreenshotTest() {
     LogMessageActionDefinitionComposePreview()
 }
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun LaunchApplicationActionDefinitionScreenshotTest() {
+    LaunchApplicationActionDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun OpenWebsiteActionDefinitionScreenshotTest() {
+    OpenWebsiteActionDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun VibratePhoneActionDefinitionScreenshotTest() {
+    VibratePhoneActionDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun FlashTorchActionDefinitionScreenshotTest() {
+    FlashTorchActionDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun SetWallpaperActionDefinitionScreenshotTest() {
+    SetWallpaperActionDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun ForceLocationUpdateActionDefinitionScreenshotTest() {
+    ForceLocationUpdateActionDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun SetPhoneVolumeActionDefinitionScreenshotTest() {
+    SetPhoneVolumeActionDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun SetPhoneVibrateActionDefinitionScreenshotTest() {
+    SetPhoneVibrateActionDefinitionComposePreview()
+}

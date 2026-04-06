@@ -7,6 +7,7 @@ sealed interface AutomationRulesAction {
     data class EditRuleClicked(val rule: AutomationRule) : AutomationRulesAction
     data class DeleteRuleClicked(val rule: AutomationRule) : AutomationRulesAction
     data class ToggleRuleEnabled(val rule: AutomationRule, val enabled: Boolean) : AutomationRulesAction
+    data class RunRuleNowClicked(val rule: AutomationRule) : AutomationRulesAction
 }
 
 sealed interface AutomationEditorAction {

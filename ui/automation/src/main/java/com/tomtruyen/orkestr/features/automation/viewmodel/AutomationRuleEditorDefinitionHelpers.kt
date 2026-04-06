@@ -65,16 +65,23 @@ internal fun AutomationDefinitionRegistry.customNavigationEventFor(
     section: RuleSection,
     typeKey: String,
 ): AutomationEditorEvent? {
-    if (section != RuleSection.TRIGGERS) {
-        return null
-    }
-    return when (typeKey) {
-        TriggerType.GEOFENCE.name -> AutomationEditorEvent.NavigateToGeofenceConfiguration
-        TriggerType.TIME_BASED.name -> AutomationEditorEvent.NavigateToTimeBasedTriggerConfiguration
-        TriggerType.APPLICATION_LIFECYCLE.name -> AutomationEditorEvent.NavigateToApplicationTriggerAppSelection
-        TriggerType.NOTIFICATION_RECEIVED.name -> AutomationEditorEvent.NavigateToNotificationTriggerAppSelection
-        TriggerType.WIFI_SSID_IN_RANGE.name -> AutomationEditorEvent.NavigateToWifiTriggerSelection
-        else -> null
+    return when (section) {
+        RuleSection.TRIGGERS -> when (typeKey) {
+            TriggerType.GEOFENCE.name -> AutomationEditorEvent.NavigateToGeofenceConfiguration
+            TriggerType.TIME_BASED.name -> AutomationEditorEvent.NavigateToTimeBasedTriggerConfiguration
+            TriggerType.APPLICATION_LIFECYCLE.name -> AutomationEditorEvent.NavigateToApplicationTriggerAppSelection
+            TriggerType.NOTIFICATION_RECEIVED.name -> AutomationEditorEvent.NavigateToNotificationTriggerAppSelection
+            TriggerType.WIFI_SSID_IN_RANGE.name -> AutomationEditorEvent.NavigateToWifiTriggerSelection
+            else -> null
+        }
+
+        RuleSection.ACTIONS -> when (typeKey) {
+            ActionType.LAUNCH_APPLICATION.name -> AutomationEditorEvent.NavigateToLaunchApplicationActionAppSelection
+            ActionType.SET_WALLPAPER.name -> AutomationEditorEvent.NavigateToSetWallpaperActionConfiguration
+            else -> null
+        }
+
+        RuleSection.CONSTRAINTS -> null
     }
 }
 

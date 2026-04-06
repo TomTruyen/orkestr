@@ -20,15 +20,25 @@ import com.tomtruyen.automation.core.definition.AutomationNodeDefinition
 import com.tomtruyen.automation.core.model.AppLifecycleTransitionType
 import com.tomtruyen.automation.core.model.BatteryChargeState
 import com.tomtruyen.automation.core.model.DoNotDisturbMode
+import com.tomtruyen.automation.core.model.PhoneVolumeStream
 import com.tomtruyen.automation.core.model.GeofenceTransitionType
 import com.tomtruyen.automation.core.model.GeofenceUpdateRate
 import com.tomtruyen.automation.core.model.PowerConnectionState
+import com.tomtruyen.automation.core.model.WallpaperTarget
 import com.tomtruyen.automation.core.model.Weekday
 import com.tomtruyen.automation.core.utils.ComparisonOperator
 import com.tomtruyen.automation.features.actions.ActionType
+import com.tomtruyen.automation.features.actions.config.FlashTorchActionConfig
+import com.tomtruyen.automation.features.actions.config.ForceLocationUpdateActionConfig
 import com.tomtruyen.automation.features.actions.config.DoNotDisturbActionConfig
+import com.tomtruyen.automation.features.actions.config.LaunchApplicationActionConfig
 import com.tomtruyen.automation.features.actions.config.LogMessageActionConfig
+import com.tomtruyen.automation.features.actions.config.OpenWebsiteActionConfig
+import com.tomtruyen.automation.features.actions.config.SetPhoneVibrateActionConfig
+import com.tomtruyen.automation.features.actions.config.SetPhoneVolumeActionConfig
+import com.tomtruyen.automation.features.actions.config.SetWallpaperActionConfig
 import com.tomtruyen.automation.features.actions.config.ShowNotificationActionConfig
+import com.tomtruyen.automation.features.actions.config.VibratePhoneActionConfig
 import com.tomtruyen.automation.features.actions.definition.ActionDefinition
 import com.tomtruyen.automation.features.constraints.ConstraintType
 import com.tomtruyen.automation.features.constraints.config.BatteryLevelConstraintConfig
@@ -203,6 +213,85 @@ internal fun LogMessageActionDefinitionComposePreview() {
     )
 }
 
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun LaunchApplicationActionDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.action(ActionType.LAUNCH_APPLICATION),
+        config = LaunchApplicationActionConfig(
+            packageName = "com.spotify.music",
+            appLabel = "Spotify",
+        ),
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun OpenWebsiteActionDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.action(ActionType.OPEN_WEBSITE),
+        config = OpenWebsiteActionConfig(url = "https://orkestr.app"),
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun VibratePhoneActionDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.action(ActionType.VIBRATE_PHONE),
+        config = VibratePhoneActionConfig(durationMillis = 700),
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun FlashTorchActionDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.action(ActionType.FLASH_TORCH),
+        config = FlashTorchActionConfig(pulseCount = 4, onDurationMillis = 200, offDurationMillis = 150),
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun SetWallpaperActionDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.action(ActionType.SET_WALLPAPER),
+        config = SetWallpaperActionConfig(
+            imageUri = "content://media/external/images/media/42",
+            imageLabel = "sunrise.jpg",
+            target = WallpaperTarget.HOME_AND_LOCK_SCREEN,
+        ),
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun ForceLocationUpdateActionDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.action(ActionType.FORCE_LOCATION_UPDATE),
+        config = ForceLocationUpdateActionConfig(),
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun SetPhoneVolumeActionDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.action(ActionType.SET_PHONE_VOLUME),
+        config = SetPhoneVolumeActionConfig(stream = PhoneVolumeStream.MEDIA, levelPercent = 35),
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun SetPhoneVibrateActionDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.action(ActionType.SET_PHONE_VIBRATE),
+        config = SetPhoneVibrateActionConfig(enabled = true),
+    )
+}
+
 @Composable
 private fun AutomationDefinitionPreviewCard(definition: AutomationNodeDefinition<*, *>, config: AutomationConfig<*>?) {
     MaterialTheme {
@@ -231,11 +320,13 @@ private fun AutomationDefinitionPreviewCard(definition: AutomationNodeDefinition
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    AutomationFieldForm(
-                        fields = definition.fields,
-                        config = config,
-                        onFieldChanged = { _, _ -> },
-                    )
+                    if (definition.fields.isNotEmpty()) {
+                        AutomationFieldForm(
+                            fields = definition.fields,
+                            config = config,
+                            onFieldChanged = { _, _ -> },
+                        )
+                    }
                 }
             }
         }

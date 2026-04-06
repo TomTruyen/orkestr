@@ -8,6 +8,8 @@ import com.tomtruyen.automation.core.permission.AutomationPermission
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
 import com.tomtruyen.automation.features.actions.ActionType
 import com.tomtruyen.automation.features.actions.config.ActionConfig
+import com.tomtruyen.automation.features.actions.config.LaunchApplicationActionConfig
+import com.tomtruyen.automation.features.actions.config.SetWallpaperActionConfig
 import com.tomtruyen.automation.features.constraints.ConstraintType
 import com.tomtruyen.automation.features.constraints.config.ConstraintConfig
 import com.tomtruyen.automation.features.triggers.TriggerType
@@ -135,11 +137,26 @@ class AutomationRuleEditorViewModel(
         return draft as? ApplicationLifecycleTriggerConfig ?: ApplicationLifecycleTriggerConfig()
     }
 
-    fun applySelectedApp(selectedTriggerType: String?, packageName: String) {
-        when (selectedTriggerType) {
+    fun currentLaunchApplicationActionConfig(): LaunchApplicationActionConfig {
+        val draft = uiState.value.pickerState?.draftConfig
+        return draft as? LaunchApplicationActionConfig ?: LaunchApplicationActionConfig()
+    }
+
+    fun currentSetWallpaperActionConfig(): SetWallpaperActionConfig {
+        val draft = uiState.value.pickerState?.draftConfig
+        return draft as? SetWallpaperActionConfig ?: SetWallpaperActionConfig()
+    }
+
+    fun applySelectedApp(selectedTypeKey: String?, packageName: String, appLabel: String) {
+        when (selectedTypeKey) {
             TriggerType.APPLICATION_LIFECYCLE.name -> {
                 val current = currentApplicationLifecycleTriggerConfig()
                 applyDraftConfigAndOpenConfiguration(current.copy(packageName = packageName))
+            }
+
+            ActionType.LAUNCH_APPLICATION.name -> {
+                val current = currentLaunchApplicationActionConfig()
+                applyDraftConfigAndOpenConfiguration(current.copy(packageName = packageName, appLabel = appLabel))
             }
 
             else -> {
@@ -156,6 +173,19 @@ class AutomationRuleEditorViewModel(
 
     fun applySelectedWifiTrigger(config: WifiSsidTriggerConfig) {
         applyDraftConfigAndOpenConfiguration(config)
+    }
+
+    fun applySelectedWallpaper(imageUri: String, imageLabel: String) {
+        val current = currentSetWallpaperActionConfig()
+        val picker = uiState.value.pickerState ?: return
+        updateState {
+            it.copy(
+                pickerState = picker.copy(
+                    draftConfig = current.copy(imageUri = imageUri, imageLabel = imageLabel),
+                    errors = emptyList(),
+                ),
+            )
+        }
     }
 
     fun currentTimeBasedTriggerConfig(): TimeBasedTriggerConfig {

@@ -21,6 +21,8 @@ sealed interface AutomationEditorEvent {
     data object NavigateToTimeBasedTriggerConfiguration : AutomationEditorEvent
     data object NavigateToApplicationTriggerAppSelection : AutomationEditorEvent
     data object NavigateToNotificationTriggerAppSelection : AutomationEditorEvent
+    data object NavigateToLaunchApplicationActionAppSelection : AutomationEditorEvent
+    data object NavigateToSetWallpaperActionConfiguration : AutomationEditorEvent
     data object NavigateToWifiTriggerSelection : AutomationEditorEvent
     data object PopToDefinitionSelection : AutomationEditorEvent
     data object PopToEditor : AutomationEditorEvent

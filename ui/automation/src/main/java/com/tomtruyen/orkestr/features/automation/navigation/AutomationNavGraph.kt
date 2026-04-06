@@ -15,6 +15,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation3.runtime.NavBackStack
@@ -27,6 +28,7 @@ import com.tomtruyen.orkestr.features.automation.screen.AutomationApplicationTri
 import com.tomtruyen.orkestr.features.automation.screen.AutomationDefinitionConfigurationScreen
 import com.tomtruyen.orkestr.features.automation.screen.AutomationDefinitionSelectionScreen
 import com.tomtruyen.orkestr.features.automation.screen.AutomationHomeScreen
+import com.tomtruyen.orkestr.features.automation.screen.AutomationLaunchApplicationActionAppSelectionScreen
 import com.tomtruyen.orkestr.features.automation.screen.AutomationNotificationTriggerAppSelectionScreen
 import com.tomtruyen.orkestr.features.automation.screen.AutomationRuleEditorScreen
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorAction
@@ -43,6 +45,7 @@ import com.tomtruyen.orkestr.features.geofence.screen.AutomationGeofenceMapPicke
 import com.tomtruyen.orkestr.features.geofence.state.GeofenceTriggerAction
 import com.tomtruyen.orkestr.features.geofence.state.GeofenceTriggerEvent
 import com.tomtruyen.orkestr.features.geofence.viewmodel.GeofenceTriggerViewModel
+import com.tomtruyen.orkestr.features.wallpaper.screen.WallpaperActionConfigurationScreen
 import com.tomtruyen.orkestr.ui.automation.R
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
@@ -119,6 +122,14 @@ fun AutomationNavGraph(
                     backStack.add(NotificationTriggerAppSelectionRoute)
                 }
 
+                AutomationEditorEvent.NavigateToLaunchApplicationActionAppSelection -> {
+                    backStack.add(LaunchApplicationActionAppSelectionRoute)
+                }
+
+                AutomationEditorEvent.NavigateToSetWallpaperActionConfiguration -> {
+                    backStack.add(SetWallpaperActionConfigurationRoute)
+                }
+
                 AutomationEditorEvent.NavigateToWifiTriggerSelection -> {
                     backStack.add(WifiTriggerSelectionRoute)
                 }
@@ -177,6 +188,14 @@ fun AutomationNavGraph(
             }
 
             is NotificationTriggerAppSelectionRoute -> {
+                editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
+            }
+
+            is LaunchApplicationActionAppSelectionRoute -> {
+                editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
+            }
+
+            is SetWallpaperActionConfigurationRoute -> {
                 editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
             }
 
@@ -331,6 +350,74 @@ fun AutomationNavGraph(
             ) { modifier ->
                 AutomationApplicationTriggerAppSelectionScreen(
                     viewModel = editorViewModel,
+                    modifier = modifier,
+                )
+            }
+        }
+
+        entry<LaunchApplicationActionAppSelectionRoute> {
+            AutomationScaffold(
+                title = stringResource(R.string.automation_title_select_app_to_launch),
+                canNavigateBack = true,
+                onNavigateBack = {
+                    editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
+                },
+            ) { modifier ->
+                AutomationLaunchApplicationActionAppSelectionScreen(
+                    viewModel = editorViewModel,
+                    modifier = modifier,
+                )
+            }
+        }
+
+        entry<SetWallpaperActionConfigurationRoute> {
+            val pickerState = editorViewModel.uiState.collectAsState().value.pickerState ?: return@entry
+            val definition = editorViewModel.selectedDefinitionItem() ?: return@entry
+            AutomationScaffold(
+                title = stringResource(
+                    R.string.automation_title_configure_node,
+                    stringResource(R.string.automation_singular_action),
+                ),
+                canNavigateBack = true,
+                onNavigateBack = {
+                    editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
+                },
+            ) { modifier ->
+                WallpaperActionConfigurationScreen(
+                    title = stringResource(definition.titleRes),
+                    description = stringResource(definition.descriptionRes),
+                    isBeta = definition.isBeta,
+                    requiredMinSdk = definition.requiredMinSdk,
+                    chooseDifferentLabel = if (pickerState.launchedFromSelection) {
+                        stringResource(
+                            R.string.automation_action_choose_different,
+                            stringResource(pickerState.section.singularTitleRes),
+                        )
+                    } else {
+                        null
+                    },
+                    saveLabel = if (pickerState.editingIndex == null) {
+                        stringResource(
+                            R.string.automation_action_add_node,
+                            stringResource(pickerState.section.singularTitleRes),
+                        )
+                    } else {
+                        stringResource(R.string.automation_action_save_changes)
+                    },
+                    errors = pickerState.errors,
+                    config = editorViewModel.currentSetWallpaperActionConfig(),
+                    onFieldChanged = { fieldId, value ->
+                        editorViewModel.onAction(AutomationEditorAction.PickerFieldChanged(fieldId, value))
+                    },
+                    onSave = {
+                        editorViewModel.onAction(AutomationEditorAction.SavePickerClicked)
+                    },
+                    onChooseDifferent = if (pickerState.launchedFromSelection) {
+                        { editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked) }
+                    } else {
+                        null
+                    },
+                    onWallpaperSelected = editorViewModel::applySelectedWallpaper,
                     modifier = modifier,
                 )
             }

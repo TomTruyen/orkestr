@@ -124,7 +124,7 @@ internal class ProcessorTestSupport {
         primaryConstructor: KSFunctionDeclaration? = null,
     ): KSClassDeclaration {
         val file = io.mockk.mockk<KSFile>()
-        return io.mockk.mockk {
+        val declaration = io.mockk.mockk<KSClassDeclaration> {
             every { this@mockk.classKind } returns classKind
             every { this@mockk.qualifiedName } returns ksName(qualifiedName)
             every { this@mockk.simpleName } returns ksName(qualifiedName.substringAfterLast('.'))
@@ -135,6 +135,8 @@ internal class ProcessorTestSupport {
             every { this@mockk.asStarProjectedType() } returns implementedType
             every { this@mockk.accept<KSNode?, Boolean>(any(), any()) } returns true
         }
+        every { file.declarations } returns sequenceOf(declaration)
+        return declaration
     }
 
     private fun ksName(value: String): KSName = io.mockk.mockk {

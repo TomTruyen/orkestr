@@ -1,0 +1,42 @@
+package com.tomtruyen.automation.features.actions.delegate
+
+import android.content.Context
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraManager
+import com.tomtruyen.automation.codegen.GenerateActionDelegate
+import com.tomtruyen.automation.core.event.AutomationEvent
+import com.tomtruyen.automation.features.actions.ActionType
+import com.tomtruyen.automation.features.actions.config.FlashTorchActionConfig
+import kotlinx.coroutines.delay
+
+@GenerateActionDelegate
+class FlashTorchActionDelegate(private val context: Context) : ActionDelegate<FlashTorchActionConfig> {
+    override val type: ActionType = ActionType.FLASH_TORCH
+
+    override suspend fun execute(config: FlashTorchActionConfig, event: AutomationEvent) {
+        if (!config.requiredPermissions.all { it.isGranted(context) }) return
+
+        val cameraManager = context.getSystemService(CameraManager::class.java) ?: return
+        val cameraId = cameraManager.cameraIdList.firstOrNull { id ->
+            val characteristics = cameraManager.getCameraCharacteristics(id)
+            characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
+        } ?: return
+
+        val pulseCount = config.pulseCount.coerceIn(1, 10)
+        val onDuration = config.onDurationMillis.toLong().coerceIn(50L, 5_000L)
+        val offDuration = config.offDurationMillis.toLong().coerceIn(50L, 5_000L)
+
+        runCatching {
+            repeat(pulseCount) { index ->
+                cameraManager.setTorchMode(cameraId, true)
+                delay(onDuration)
+                cameraManager.setTorchMode(cameraId, false)
+                if (index < pulseCount - 1) {
+                    delay(offDuration)
+                }
+            }
+        }.also {
+            runCatching { cameraManager.setTorchMode(cameraId, false) }
+        }
+    }
+}

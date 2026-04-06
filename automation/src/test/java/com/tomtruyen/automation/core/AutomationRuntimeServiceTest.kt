@@ -1,6 +1,7 @@
 package com.tomtruyen.automation.core
 
 import com.tomtruyen.automation.core.event.AutomationEvent
+import com.tomtruyen.automation.core.event.ManualAutomationEvent
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
 import com.tomtruyen.automation.features.actions.ActionExecutor
 import com.tomtruyen.automation.features.actions.config.ActionConfig
@@ -16,6 +17,7 @@ import io.mockk.just
 import io.mockk.mockk
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -188,5 +190,48 @@ internal class AutomationRuntimeServiceTest {
         service.handleEvent(event)
 
         coVerify { actionExecutor.executeAll(actions, event) }
+    }
+
+    @Test
+    fun runRuleNow_skipsTriggerMatchingAndExecutesActionsWhenConstraintsPass() = runTest(StandardTestDispatcher()) {
+        val actions = listOf(mockk<ActionConfig>())
+        val rule = mockk<AutomationRule> {
+            every { this@mockk.id } returns "rule-1"
+            every { this@mockk.actions } returns actions
+            every { this@mockk.constraints } returns emptyList()
+        }
+
+        coEvery { constraintEvaluator.evaluateAll(emptyList(), any()) } returns true
+
+        service.runRuleNow(rule)
+
+        coVerify(exactly = 0) { triggerMatcher.matches(any(), any()) }
+        coVerify {
+            constraintEvaluator.evaluateAll(
+                emptyList(),
+                withArg { event -> assertTrue(event is ManualAutomationEvent && event.ruleId == "rule-1") },
+            )
+        }
+        coVerify {
+            actionExecutor.executeAll(
+                actions,
+                withArg { event -> assertTrue(event is ManualAutomationEvent && event.ruleId == "rule-1") },
+            )
+        }
+    }
+
+    @Test
+    fun runRuleNow_whenConstraintsFail_skipsActions() = runTest(StandardTestDispatcher()) {
+        val rule = mockk<AutomationRule> {
+            every { this@mockk.id } returns "rule-2"
+            every { this@mockk.constraints } returns emptyList()
+        }
+
+        coEvery { constraintEvaluator.evaluateAll(emptyList(), any()) } returns false
+
+        service.runRuleNow(rule)
+
+        coVerify(exactly = 0) { triggerMatcher.matches(any(), any()) }
+        coVerify(exactly = 0) { actionExecutor.executeAll(any(), any()) }
     }
 }

@@ -5,6 +5,7 @@
     <string name="automation_title_select_node">Select %1$s</string>
     <string name="automation_title_configure_node">Configure %1$s</string>
     <string name="automation_title_select_notification_app">Select App</string>
+    <string name="automation_title_select_app_to_launch">Select App To Launch</string>
     <string name="automation_title_select_wifi_network">Select Wi-Fi Network</string>
 
     <!-- Automation actions -->
@@ -20,6 +21,7 @@
     <string name="automation_action_save_changes">Save Changes</string>
     <string name="automation_action_confirm_delete">Delete Rule</string>
     <string name="automation_action_use_selected_app">Use App</string>
+    <string name="automation_action_run_now">Run Now</string>
 
     <!-- Automation rule editor -->
     <string name="automation_label_rule_name">Rule name</string>

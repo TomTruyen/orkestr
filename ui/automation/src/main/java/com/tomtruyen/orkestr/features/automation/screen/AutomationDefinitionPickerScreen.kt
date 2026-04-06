@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
@@ -98,78 +99,80 @@ fun AutomationDefinitionSelectionScreen(viewModel: AutomationRuleEditorViewModel
 
         groups.forEach { group ->
             item(key = "category-${group.category.name}") {
-                OutlinedCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            expandedCategories = if (group.category.name in expandedCategories) {
-                                expandedCategories - group.category.name
-                            } else {
-                                expandedCategories + group.category.name
-                            }
-                        },
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 18.dp, vertical = 16.dp),
-                    ) {
-                        Text(
-                            text = if (group.category.name in expandedCategories) "▾" else "▸",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold,
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            text = stringResource(group.category.titleRes),
-                            modifier = Modifier.weight(1f),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        Text(
-                            text = group.items.size.toString(),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-            }
-
-            if (group.category.name in expandedCategories) {
-                items(group.items, key = { it.key }) { item ->
-                    OutlinedCard(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                permissionManager.request(item.permissions) {
-                                    viewModel.onAction(AutomationEditorAction.DefinitionSelected(item.key))
-                                }
-                            },
-                    ) {
-                        AutomationCardColumn {
-                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text(
-                                    text = stringResource(item.titleRes),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.SemiBold,
-                                )
-                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    if (item.isBeta) {
-                                        AutomationBetaChip()
-                                    }
-                                    item.requiredMinSdk?.let { requiredMinSdk ->
-                                        AutomationRequiredSdkChip(requiredMinSdk = requiredMinSdk)
+                OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+                    Column {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    expandedCategories = if (group.category.name in expandedCategories) {
+                                        expandedCategories - group.category.name
+                                    } else {
+                                        expandedCategories + group.category.name
                                     }
                                 }
-                            }
+                                .padding(horizontal = 18.dp, vertical = 16.dp),
+                        ) {
                             Text(
-                                text = stringResource(item.descriptionRes),
+                                text = if (group.category.name in expandedCategories) "▾" else "▸",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = stringResource(group.category.titleRes),
+                                modifier = Modifier.weight(1f),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                            Text(
+                                text = group.items.size.toString(),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
-                            DefinitionFieldPreview(fields = item.fields)
+                        }
+
+                        if (group.category.name in expandedCategories) {
+                            group.items.forEachIndexed { index, item ->
+                                if (index > 0) {
+                                    HorizontalDivider()
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            permissionManager.request(item.permissions) {
+                                                viewModel.onAction(AutomationEditorAction.DefinitionSelected(item.key))
+                                            }
+                                        }
+                                        .padding(horizontal = 18.dp, vertical = 16.dp),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                                ) {
+                                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        Text(
+                                            text = stringResource(item.titleRes),
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.SemiBold,
+                                        )
+                                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                            if (item.isBeta) {
+                                                AutomationBetaChip()
+                                            }
+                                            item.requiredMinSdk?.let { requiredMinSdk ->
+                                                AutomationRequiredSdkChip(requiredMinSdk = requiredMinSdk)
+                                            }
+                                        }
+                                    }
+                                    Text(
+                                        text = stringResource(item.descriptionRes),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                    DefinitionFieldPreview(fields = item.fields)
+                                }
+                            }
                         }
                     }
                 }
@@ -187,6 +190,7 @@ fun AutomationDefinitionConfigurationScreen(viewModel: AutomationRuleEditorViewM
     pickerState.selectedTypeKey ?: return
     val definition = viewModel.selectedDefinitionItem() ?: return
     val draftConfig = pickerState.draftConfig
+    val showConfigurationCard = definition.fields.isNotEmpty() || pickerState.errors.isNotEmpty()
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -242,18 +246,22 @@ fun AutomationDefinitionConfigurationScreen(viewModel: AutomationRuleEditorViewM
                 )
             }
 
-            item {
-                OutlinedCard(modifier = Modifier.fillMaxWidth()) {
-                    AutomationCardColumn {
-                        AutomationFieldForm(
-                            fields = definition.fields,
-                            config = draftConfig,
-                            onFieldChanged = { fieldId, value ->
-                                viewModel.onAction(AutomationEditorAction.PickerFieldChanged(fieldId, value))
-                            },
-                        )
-                        if (pickerState.errors.isNotEmpty()) {
-                            ValidationCard(errors = pickerState.errors)
+            if (showConfigurationCard) {
+                item {
+                    OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+                        AutomationCardColumn {
+                            if (definition.fields.isNotEmpty()) {
+                                AutomationFieldForm(
+                                    fields = definition.fields,
+                                    config = draftConfig,
+                                    onFieldChanged = { fieldId, value ->
+                                        viewModel.onAction(AutomationEditorAction.PickerFieldChanged(fieldId, value))
+                                    },
+                                )
+                            }
+                            if (pickerState.errors.isNotEmpty()) {
+                                ValidationCard(errors = pickerState.errors)
+                            }
                         }
                     }
                 }

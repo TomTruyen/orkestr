@@ -5,7 +5,10 @@ import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.ClassKind
+import com.google.devtools.ksp.symbol.KSAnnotated
+import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.validate
@@ -125,7 +128,17 @@ internal fun collectAnnotatedClasses(
     requiredSuperType: String,
     allowedKinds: Set<ClassKind>,
 ): List<KSClassDeclaration>? {
-    val symbols = resolver.getSymbolsWithAnnotation(annotationName).toList()
+    val symbols: List<KSClassDeclaration> = (
+        resolver.getSymbolsWithAnnotation(annotationName).filterIsInstance<KSClassDeclaration>().toList() +
+            runCatching {
+                resolver.getAllFiles()
+                    .flatMap { file -> file.declarations.flatMap(KSDeclaration::allNestedDeclarations) }
+                    .filterIsInstance<KSClassDeclaration>()
+                    .filter { declaration -> declaration.hasAnnotation(annotationName) }
+                    .toList()
+            }.getOrDefault(emptyList())
+        )
+        .distinctBy { it.qualifiedName?.asString().orEmpty() }
     val deferred = symbols.filterNot { it.validate() }
     if (deferred.isNotEmpty()) return null
 
@@ -158,6 +171,21 @@ internal fun collectAnnotatedClasses(
         declaration
     }.sortedBy { it.qualifiedName?.asString().orEmpty() }
 }
+
+private fun KSDeclaration.allNestedDeclarations(): Sequence<KSDeclaration> = sequence {
+    yield(this@allNestedDeclarations)
+    if (this@allNestedDeclarations is KSClassDeclaration) {
+        this@allNestedDeclarations.declarations.forEach { nestedDeclaration ->
+            yieldAll(nestedDeclaration.allNestedDeclarations())
+        }
+    }
+}
+
+private fun KSAnnotated.hasAnnotation(annotationName: String): Boolean =
+    annotations.any { annotation -> annotation.matchesQualifiedName(annotationName) }
+
+private fun KSAnnotation.matchesQualifiedName(annotationName: String): Boolean =
+    (annotationType.resolve().declaration as? KSClassDeclaration)?.qualifiedName?.asString() == annotationName
 
 internal fun loadMigrationSpecs(options: Map<String, String>, logger: KSPLogger): List<SqlMigrationSpec> {
     val migrationDir = options[MIGRATION_DIR_OPTION]?.takeIf(String::isNotBlank) ?: return emptyList()

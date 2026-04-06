@@ -1,5 +1,6 @@
 package com.tomtruyen.orkestr.features.automation.viewmodel
 
+import com.tomtruyen.automation.core.AutomationRuntimeService
 import androidx.lifecycle.viewModelScope
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
 import com.tomtruyen.orkestr.common.BaseViewModel
@@ -9,7 +10,10 @@ import com.tomtruyen.orkestr.features.automation.state.AutomationRulesUiState
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class AutomationRulesViewModel(private val repository: AutomationRuleRepository) :
+class AutomationRulesViewModel(
+    private val repository: AutomationRuleRepository,
+    private val runtimeService: AutomationRuntimeService,
+) :
     BaseViewModel<AutomationRulesUiState, AutomationRulesEvent, AutomationRulesAction>(
         initialState = AutomationRulesUiState(),
     ) {
@@ -30,6 +34,10 @@ class AutomationRulesViewModel(private val repository: AutomationRuleRepository)
         repository.updateEnabled(id, enabled)
     }
 
+    private fun runRuleNow(rule: com.tomtruyen.automation.core.AutomationRule) = launch {
+        runtimeService.runRuleNow(rule)
+    }
+
     override fun onAction(action: AutomationRulesAction) {
         when (action) {
             AutomationRulesAction.CreateRuleClicked -> {
@@ -46,6 +54,8 @@ class AutomationRulesViewModel(private val repository: AutomationRuleRepository)
                 id = action.rule.id,
                 enabled = action.enabled,
             )
+
+            is AutomationRulesAction.RunRuleNowClicked -> runRuleNow(action.rule)
         }
     }
 }

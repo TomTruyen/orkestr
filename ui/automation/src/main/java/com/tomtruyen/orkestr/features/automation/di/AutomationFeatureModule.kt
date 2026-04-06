@@ -25,6 +25,7 @@ val automationFeatureModule = module {
     viewModel {
         AutomationRulesViewModel(
             repository = get<AutomationRuleRepository>(),
+            runtimeService = get(),
         )
     }
 

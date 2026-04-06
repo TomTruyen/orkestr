@@ -30,6 +30,12 @@ data object NotificationTriggerAppSelectionRoute : NavKey
 data object ApplicationTriggerAppSelectionRoute : NavKey
 
 @Serializable
+data object LaunchApplicationActionAppSelectionRoute : NavKey
+
+@Serializable
+data object SetWallpaperActionConfigurationRoute : NavKey
+
+@Serializable
 data object TimeBasedTriggerConfigurationRoute : NavKey
 
 @Serializable

@@ -122,6 +122,11 @@ fun AutomationHomeScreen(
                             Text(stringResource(R.string.automation_action_edit))
                         }
                         OutlinedButton(
+                            onClick = { viewModel.onAction(AutomationRulesAction.RunRuleNowClicked(rule)) },
+                        ) {
+                            Text(stringResource(R.string.automation_action_run_now))
+                        }
+                        OutlinedButton(
                             onClick = { pendingDelete = rule },
                         ) {
                             Text(stringResource(R.string.automation_action_delete))

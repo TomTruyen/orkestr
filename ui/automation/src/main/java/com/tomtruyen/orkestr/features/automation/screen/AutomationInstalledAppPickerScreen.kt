@@ -1,5 +1,7 @@
 package com.tomtruyen.orkestr.features.automation.screen
 
+import com.tomtruyen.automation.features.actions.ActionType
+import com.tomtruyen.automation.features.actions.config.LaunchApplicationActionConfig
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -24,9 +26,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.tomtruyen.automation.features.triggers.TriggerType
 import com.tomtruyen.orkestr.common.component.AutomationCardColumn
+import com.tomtruyen.orkestr.common.component.AutomationDefinitionHeaderCard
 import com.tomtruyen.orkestr.common.component.EmptyStateCard
 import com.tomtruyen.orkestr.features.automation.service.InstalledAppOption
 import com.tomtruyen.orkestr.features.automation.service.InstalledAppService
+import com.tomtruyen.orkestr.features.automation.state.AutomationEditorAction
 import com.tomtruyen.orkestr.features.automation.viewmodel.AutomationRuleEditorViewModel
 import com.tomtruyen.orkestr.ui.automation.R
 import org.koin.compose.koinInject
@@ -58,15 +62,31 @@ fun AutomationApplicationTriggerAppSelectionScreen(
 }
 
 @Composable
+fun AutomationLaunchApplicationActionAppSelectionScreen(
+    viewModel: AutomationRuleEditorViewModel,
+    modifier: Modifier = Modifier,
+    installedAppService: InstalledAppService = koinInject(),
+) {
+    AutomationInstalledAppPickerScreen(
+        viewModel = viewModel,
+        modifier = modifier,
+        installedAppService = installedAppService,
+    )
+}
+
+@Composable
 private fun AutomationInstalledAppPickerScreen(
     viewModel: AutomationRuleEditorViewModel,
     modifier: Modifier = Modifier,
     installedAppService: InstalledAppService,
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val selectedTriggerType = uiState.pickerState?.selectedTypeKey
-    val selectedPackageName = when (selectedTriggerType) {
+    val pickerState = uiState.pickerState ?: return
+    val definition = viewModel.selectedDefinitionItem() ?: return
+    val selectedTypeKey = uiState.pickerState?.selectedTypeKey
+    val selectedPackageName = when (selectedTypeKey) {
         TriggerType.APPLICATION_LIFECYCLE.name -> viewModel.currentApplicationLifecycleTriggerConfig().packageName
+        ActionType.LAUNCH_APPLICATION.name -> viewModel.currentLaunchApplicationActionConfig().packageName
         else -> viewModel.currentNotificationTriggerConfig().packageName
     }
     val apps = remember(installedAppService) { installedAppService.loadInstalledApps() }
@@ -85,6 +105,28 @@ private fun AutomationInstalledAppPickerScreen(
         contentPadding = PaddingValues(20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
+        item {
+            AutomationDefinitionHeaderCard(
+                title = stringResource(definition.titleRes),
+                description = stringResource(definition.descriptionRes),
+                isBeta = definition.isBeta,
+                requiredMinSdk = definition.requiredMinSdk,
+                chooseDifferentLabel = if (pickerState.launchedFromSelection) {
+                    stringResource(
+                        R.string.automation_action_choose_different,
+                        stringResource(pickerState.section.singularTitleRes),
+                    )
+                } else {
+                    null
+                },
+                onChooseDifferent = if (pickerState.launchedFromSelection) {
+                    { viewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked) }
+                } else {
+                    null
+                },
+            )
+        }
+
         item {
             OutlinedTextField(
                 value = query,
@@ -111,8 +153,9 @@ private fun AutomationInstalledAppPickerScreen(
                 isSelected = selectedPackageName == app.packageName,
                 onClick = {
                     viewModel.applySelectedApp(
-                        selectedTriggerType = selectedTriggerType,
+                        selectedTypeKey = selectedTypeKey,
                         packageName = app.packageName,
+                        appLabel = app.label,
                     )
                 },
             )
