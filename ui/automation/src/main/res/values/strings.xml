@@ -4,6 +4,8 @@
     <string name="automation_title_rule_editor">Rule Editor</string>
     <string name="automation_title_select_node">Select %1$s</string>
     <string name="automation_title_configure_node">Configure %1$s</string>
+    <string name="automation_title_select_notification_app">Select App</string>
+    <string name="automation_title_select_wifi_network">Select Wi-Fi Network</string>
 
     <!-- Automation actions -->
     <string name="automation_action_new_rule">New Rule</string>
@@ -16,6 +18,9 @@
     <string name="automation_action_choose_different">Choose Different %1$s</string>
     <string name="automation_action_add_node">Add %1$s</string>
     <string name="automation_action_save_changes">Save Changes</string>
+    <string name="automation_action_confirm_delete">Delete Rule</string>
+    <string name="automation_action_use_selected_app">Use App</string>
+    <string name="automation_action_use_selected_wifi">Use Network</string>
     <string name="automation_label_beta">Beta</string>
 
     <!-- Automation rule editor -->
@@ -39,6 +44,10 @@
     <string name="automation_empty_triggers_description">At least one trigger is required.</string>
     <string name="automation_empty_constraints_description">Constraints are optional.</string>
     <string name="automation_empty_actions_description">At least one action is required.</string>
+    <string name="automation_empty_apps_title">No apps found</string>
+    <string name="automation_empty_apps_description">No launchable apps were found on this device.</string>
+    <string name="automation_empty_wifi_title">No Wi-Fi networks found</string>
+    <string name="automation_empty_wifi_description">No nearby Wi-Fi networks were found. You can still enter an SSID manually.</string>
 
     <!-- Automation validation -->
     <string name="automation_validation_title">Rule needs attention</string>
@@ -54,6 +63,26 @@
     <string name="automation_summary_when">When</string>
     <string name="automation_summary_only_if">Only If</string>
     <string name="automation_summary_then">Then</string>
+    <string name="automation_delete_rule_title">Delete rule?</string>
+    <string name="automation_delete_rule_message">Delete "%1$s"? This cannot be undone.</string>
+    <string name="automation_notification_app_search_label">Search apps</string>
+    <string name="automation_notification_app_search_placeholder">Find an installed app</string>
+    <string name="automation_wifi_search_label">Search Wi-Fi networks</string>
+    <string name="automation_wifi_search_placeholder">Find a nearby SSID</string>
+    <string name="automation_wifi_manual_label">SSID</string>
+    <string name="automation_wifi_manual_description">Keep manual entry available if the network is not listed.</string>
+    <string name="automation_time_picker_label">Time</string>
+    <string name="automation_time_picker_description">Choose the exact time when the trigger should run.</string>
+    <string name="automation_time_picker_field_label">Selected time</string>
+    <string name="automation_time_picker_dialog_title">Pick time</string>
+    <string name="automation_time_days_label">Days</string>
+    <string name="automation_time_days_description">Select one or more days.</string>
+    <string name="automation_wifi_section_trigger_type_title">Trigger behavior</string>
+    <string name="automation_wifi_section_trigger_type_description">Choose whether the rule should run when the network appears or disappears.</string>
+    <string name="automation_wifi_section_discovered_title">Discovered networks</string>
+    <string name="automation_wifi_section_discovered_description">Pick a nearby or previously seen Wi-Fi network from the list below.</string>
+    <string name="automation_wifi_section_manual_title">Manual entry</string>
+    <string name="automation_wifi_section_manual_description">Enter the SSID yourself if it does not appear in the discovered list.</string>
 
     <!-- Automation sections -->
     <string name="automation_section_triggers_title">When</string>

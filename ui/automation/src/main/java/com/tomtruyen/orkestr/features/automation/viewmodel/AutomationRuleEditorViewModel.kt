@@ -11,8 +11,12 @@ import com.tomtruyen.automation.features.actions.config.ActionConfig
 import com.tomtruyen.automation.features.constraints.ConstraintType
 import com.tomtruyen.automation.features.constraints.config.ConstraintConfig
 import com.tomtruyen.automation.features.triggers.TriggerType
+import com.tomtruyen.automation.features.triggers.config.ApplicationLifecycleTriggerConfig
 import com.tomtruyen.automation.features.triggers.config.GeofenceTriggerConfig
+import com.tomtruyen.automation.features.triggers.config.NotificationReceivedTriggerConfig
+import com.tomtruyen.automation.features.triggers.config.TimeBasedTriggerConfig
 import com.tomtruyen.automation.features.triggers.config.TriggerConfig
+import com.tomtruyen.automation.features.triggers.config.WifiSsidTriggerConfig
 import com.tomtruyen.orkestr.common.BaseViewModel
 import com.tomtruyen.orkestr.common.StringResolver
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorAction
@@ -157,6 +161,87 @@ class AutomationRuleEditorViewModel(
                 editingIndex = picker.editingIndex,
             ),
         )
+    }
+
+    fun currentNotificationTriggerConfig(): NotificationReceivedTriggerConfig {
+        val draft = uiState.value.pickerState?.draftConfig
+        return draft as? NotificationReceivedTriggerConfig ?: NotificationReceivedTriggerConfig()
+    }
+
+    fun currentApplicationLifecycleTriggerConfig(): ApplicationLifecycleTriggerConfig {
+        val draft = uiState.value.pickerState?.draftConfig
+        return draft as? ApplicationLifecycleTriggerConfig ?: ApplicationLifecycleTriggerConfig()
+    }
+
+    fun applySelectedApplication(packageName: String) {
+        val picker = uiState.value.pickerState ?: return
+        val current = currentApplicationLifecycleTriggerConfig()
+        val updated = current.copy(packageName = packageName)
+        updateState {
+            it.copy(
+                pickerState = picker.copy(
+                    draftConfig = updated,
+                    errors = emptyList(),
+                ),
+            )
+        }
+        triggerEvent(
+            AutomationEditorEvent.NavigateToDefinitionConfiguration(
+                section = picker.section,
+                typeKey = updated.type.name,
+                editingIndex = picker.editingIndex,
+            ),
+        )
+    }
+
+    fun applySelectedNotificationApp(packageName: String) {
+        val picker = uiState.value.pickerState ?: return
+        val current = currentNotificationTriggerConfig()
+        val updated = current.copy(packageName = packageName)
+        updateState {
+            it.copy(
+                pickerState = picker.copy(
+                    draftConfig = updated,
+                    errors = emptyList(),
+                ),
+            )
+        }
+        triggerEvent(
+            AutomationEditorEvent.NavigateToDefinitionConfiguration(
+                section = picker.section,
+                typeKey = updated.type.name,
+                editingIndex = picker.editingIndex,
+            ),
+        )
+    }
+
+    fun currentWifiTriggerConfig(): WifiSsidTriggerConfig {
+        val draft = uiState.value.pickerState?.draftConfig
+        return draft as? WifiSsidTriggerConfig ?: WifiSsidTriggerConfig()
+    }
+
+    fun applySelectedWifiTrigger(config: WifiSsidTriggerConfig) {
+        val picker = uiState.value.pickerState ?: return
+        updateState {
+            it.copy(
+                pickerState = picker.copy(
+                    draftConfig = config,
+                    errors = emptyList(),
+                ),
+            )
+        }
+        triggerEvent(
+            AutomationEditorEvent.NavigateToDefinitionConfiguration(
+                section = picker.section,
+                typeKey = config.type.name,
+                editingIndex = picker.editingIndex,
+            ),
+        )
+    }
+
+    fun currentTimeBasedTriggerConfig(): TimeBasedTriggerConfig {
+        val draft = uiState.value.pickerState?.draftConfig
+        return draft as? TimeBasedTriggerConfig ?: TimeBasedTriggerConfig()
     }
 
     fun applyConfiguredTrigger(config: TriggerConfig) {
@@ -305,6 +390,22 @@ class AutomationRuleEditorViewModel(
         val picker = uiState.value.pickerState ?: return
         if (picker.section == RuleSection.TRIGGERS && typeKey == TriggerType.GEOFENCE.name) {
             triggerEvent(AutomationEditorEvent.NavigateToGeofenceConfiguration)
+            return
+        }
+        if (picker.section == RuleSection.TRIGGERS && typeKey == TriggerType.TIME_BASED.name) {
+            triggerEvent(AutomationEditorEvent.NavigateToTimeBasedTriggerConfiguration)
+            return
+        }
+        if (picker.section == RuleSection.TRIGGERS && typeKey == TriggerType.APPLICATION_LIFECYCLE.name) {
+            triggerEvent(AutomationEditorEvent.NavigateToApplicationTriggerAppSelection)
+            return
+        }
+        if (picker.section == RuleSection.TRIGGERS && typeKey == TriggerType.NOTIFICATION_RECEIVED.name) {
+            triggerEvent(AutomationEditorEvent.NavigateToNotificationTriggerAppSelection)
+            return
+        }
+        if (picker.section == RuleSection.TRIGGERS && typeKey == TriggerType.WIFI_SSID_IN_RANGE.name) {
+            triggerEvent(AutomationEditorEvent.NavigateToWifiTriggerSelection)
             return
         }
         triggerEvent(

@@ -2,10 +2,15 @@ package com.tomtruyen.automation.data
 
 import com.tomtruyen.automation.core.model.BatteryChargeState
 import com.tomtruyen.automation.core.model.DoNotDisturbMode
+import com.tomtruyen.automation.core.model.PowerConnectionState
+import com.tomtruyen.automation.core.model.Weekday
 import com.tomtruyen.automation.core.utils.ComparisonOperator
 import com.tomtruyen.automation.features.actions.config.DoNotDisturbActionConfig
 import com.tomtruyen.automation.features.constraints.config.BatteryLevelConstraintConfig
 import com.tomtruyen.automation.features.triggers.config.BatteryChangedTriggerConfig
+import com.tomtruyen.automation.features.triggers.config.BatteryLevelTriggerConfig
+import com.tomtruyen.automation.features.triggers.config.PowerConnectionTriggerConfig
+import com.tomtruyen.automation.features.triggers.config.TimeBasedTriggerConfig
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -14,7 +19,19 @@ internal class AutomationRuleTypeConvertersTest {
 
     @Test
     fun triggers_roundTripThroughJson() {
-        val triggers = listOf(BatteryChangedTriggerConfig(state = BatteryChargeState.FULL))
+        val triggers = listOf(
+            BatteryChangedTriggerConfig(state = BatteryChargeState.FULL),
+            BatteryLevelTriggerConfig(
+                operator = ComparisonOperator.LESS_THAN_OR_EQUAL,
+                value = 15,
+            ),
+            PowerConnectionTriggerConfig(state = PowerConnectionState.DISCONNECTED),
+            TimeBasedTriggerConfig(
+                hour = 8,
+                minute = 30,
+                days = setOf(Weekday.MONDAY, Weekday.WEDNESDAY),
+            ),
+        )
 
         val encoded = converters.fromTriggers(triggers)
         val decoded = converters.toTriggers(encoded)

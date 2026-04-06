@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -18,9 +19,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.tomtruyen.automation.core.AutomationRule
 import com.tomtruyen.automation.features.actions.config.ActionConfig
 import com.tomtruyen.automation.features.constraints.config.ConstraintConfig
 import com.tomtruyen.automation.features.triggers.config.TriggerConfig
@@ -41,6 +46,7 @@ fun AutomationHomeScreen(
     modifier: Modifier = Modifier,
 ) {
     val state by viewModel.uiState.collectAsState()
+    var pendingDelete by remember { mutableStateOf<AutomationRule?>(null) }
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -116,7 +122,7 @@ fun AutomationHomeScreen(
                             Text(stringResource(R.string.automation_action_edit))
                         }
                         OutlinedButton(
-                            onClick = { viewModel.onAction(AutomationRulesAction.DeleteRuleClicked(rule)) },
+                            onClick = { pendingDelete = rule },
                         ) {
                             Text(stringResource(R.string.automation_action_delete))
                         }
@@ -124,5 +130,28 @@ fun AutomationHomeScreen(
                 }
             }
         }
+    }
+
+    pendingDelete?.let { rule ->
+        AlertDialog(
+            onDismissRequest = { pendingDelete = null },
+            title = { Text(stringResource(R.string.automation_delete_rule_title)) },
+            text = { Text(stringResource(R.string.automation_delete_rule_message, rule.name)) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.onAction(AutomationRulesAction.DeleteRuleClicked(rule))
+                        pendingDelete = null
+                    },
+                ) {
+                    Text(stringResource(R.string.automation_action_confirm_delete))
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { pendingDelete = null }) {
+                    Text(stringResource(com.tomtruyen.orkestr.ui.common.R.string.automation_action_close))
+                }
+            },
+        )
     }
 }

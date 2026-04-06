@@ -1,7 +1,6 @@
 package com.tomtruyen.orkestr
 
 import android.app.Application
-import com.tomtruyen.automation.core.AutomationForegroundService
 import com.tomtruyen.automation.di.automationModule
 import com.tomtruyen.orkestr.features.automation.di.automationFeatureModule
 import com.tomtruyen.orkestr.features.geofence.di.geofenceFeatureModule
@@ -24,7 +23,5 @@ class OrkestrApplication : Application() {
                 automationFeatureModule,
             )
         }
-
-        AutomationForegroundService.start(this)
     }
 }

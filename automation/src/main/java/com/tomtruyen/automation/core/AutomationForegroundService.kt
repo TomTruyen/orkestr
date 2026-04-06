@@ -1,8 +1,10 @@
 package com.tomtruyen.automation.core
 
+import android.app.ForegroundServiceStartNotAllowedException
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.IBinder
 import androidx.core.content.ContextCompat
 import com.tomtruyen.automation.core.notification.AutomationNotificationService
@@ -119,7 +121,16 @@ class AutomationForegroundService :
             val intent = Intent(context, AutomationForegroundService::class.java).apply {
                 action = ACTION_START_SERVICE
             }
-            ContextCompat.startForegroundService(context, intent)
+            runCatching {
+                ContextCompat.startForegroundService(context, intent)
+            }.getOrElse { error ->
+                val isStartNotAllowed =
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                        error is ForegroundServiceStartNotAllowedException
+                if (!isStartNotAllowed) {
+                    throw error
+                }
+            }
         }
     }
 }

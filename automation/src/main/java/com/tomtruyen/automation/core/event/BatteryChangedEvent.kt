@@ -8,4 +8,7 @@ data class BatteryChangedEvent(
     val scale: Int,
     val chargeState: BatteryChargeState,
     val plugStatus: BatteryPlugStatus,
-) : AutomationEvent()
+) : AutomationEvent() {
+    val percentage: Int
+        get() = if (scale <= 0) 0 else ((level * 100f) / scale).toInt()
+}

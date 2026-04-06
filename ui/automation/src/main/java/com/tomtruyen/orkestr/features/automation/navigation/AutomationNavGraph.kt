@@ -26,7 +26,10 @@ import com.tomtruyen.orkestr.common.component.LocalNavigationSharedTransitionSco
 import com.tomtruyen.orkestr.features.automation.screen.AutomationDefinitionConfigurationScreen
 import com.tomtruyen.orkestr.features.automation.screen.AutomationDefinitionSelectionScreen
 import com.tomtruyen.orkestr.features.automation.screen.AutomationHomeScreen
+import com.tomtruyen.orkestr.features.automation.screen.AutomationNotificationTriggerAppSelectionScreen
 import com.tomtruyen.orkestr.features.automation.screen.AutomationRuleEditorScreen
+import com.tomtruyen.orkestr.features.automation.screen.AutomationTimeBasedTriggerConfigurationScreen
+import com.tomtruyen.orkestr.features.automation.screen.AutomationWifiTriggerSelectionScreen
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorAction
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorEvent
 import com.tomtruyen.orkestr.features.automation.state.AutomationRulesEvent
@@ -48,6 +51,7 @@ import com.tomtruyen.orkestr.ui.common.R as CommonR
 
 @Composable
 @OptIn(ExperimentalSharedTransitionApi::class)
+@Suppress("CyclomaticComplexMethod")
 fun AutomationNavGraph(
     rulesViewModel: AutomationRulesViewModel = koinViewModel(),
     editorViewModel: AutomationRuleEditorViewModel = koinViewModel(),
@@ -104,6 +108,22 @@ fun AutomationNavGraph(
                     backStack.add(GeofenceTriggerConfigurationRoute)
                 }
 
+                AutomationEditorEvent.NavigateToTimeBasedTriggerConfiguration -> {
+                    backStack.add(TimeBasedTriggerConfigurationRoute)
+                }
+
+                AutomationEditorEvent.NavigateToApplicationTriggerAppSelection -> {
+                    backStack.add(ApplicationTriggerAppSelectionRoute)
+                }
+
+                AutomationEditorEvent.NavigateToNotificationTriggerAppSelection -> {
+                    backStack.add(NotificationTriggerAppSelectionRoute)
+                }
+
+                AutomationEditorEvent.NavigateToWifiTriggerSelection -> {
+                    backStack.add(WifiTriggerSelectionRoute)
+                }
+
                 AutomationEditorEvent.PopToDefinitionSelection -> {
                     popBackStackUntil<AutomationDefinitionSelectionRoute>(backStack)
                 }
@@ -146,6 +166,22 @@ fun AutomationNavGraph(
             }
 
             is GeofenceTriggerConfigurationRoute -> {
+                editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
+            }
+
+            is TimeBasedTriggerConfigurationRoute -> {
+                editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
+            }
+
+            is ApplicationTriggerAppSelectionRoute -> {
+                editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
+            }
+
+            is NotificationTriggerAppSelectionRoute -> {
+                editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
+            }
+
+            is WifiTriggerSelectionRoute -> {
                 editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
             }
 
@@ -248,6 +284,69 @@ fun AutomationNavGraph(
             ) { modifier ->
                 AutomationGeofenceConfigurationScreen(
                     viewModel = geofenceViewModel,
+                    modifier = modifier,
+                )
+            }
+        }
+
+        entry<TimeBasedTriggerConfigurationRoute> {
+            AutomationScaffold(
+                title = stringResource(
+                    R.string.automation_title_configure_node,
+                    stringResource(R.string.automation_singular_trigger),
+                ),
+                canNavigateBack = true,
+                onNavigateBack = {
+                    editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
+                },
+            ) { modifier ->
+                AutomationTimeBasedTriggerConfigurationScreen(
+                    viewModel = editorViewModel,
+                    modifier = modifier,
+                )
+            }
+        }
+
+        entry<NotificationTriggerAppSelectionRoute> {
+            AutomationScaffold(
+                title = stringResource(R.string.automation_title_select_notification_app),
+                canNavigateBack = true,
+                onNavigateBack = {
+                    editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
+                },
+            ) { modifier ->
+                AutomationNotificationTriggerAppSelectionScreen(
+                    viewModel = editorViewModel,
+                    modifier = modifier,
+                )
+            }
+        }
+
+        entry<ApplicationTriggerAppSelectionRoute> {
+            AutomationScaffold(
+                title = stringResource(R.string.automation_title_select_notification_app),
+                canNavigateBack = true,
+                onNavigateBack = {
+                    editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
+                },
+            ) { modifier ->
+                AutomationNotificationTriggerAppSelectionScreen(
+                    viewModel = editorViewModel,
+                    modifier = modifier,
+                )
+            }
+        }
+
+        entry<WifiTriggerSelectionRoute> {
+            AutomationScaffold(
+                title = stringResource(R.string.automation_title_select_wifi_network),
+                canNavigateBack = true,
+                onNavigateBack = {
+                    editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
+                },
+            ) { modifier ->
+                AutomationWifiTriggerSelectionScreen(
+                    viewModel = editorViewModel,
                     modifier = modifier,
                 )
             }

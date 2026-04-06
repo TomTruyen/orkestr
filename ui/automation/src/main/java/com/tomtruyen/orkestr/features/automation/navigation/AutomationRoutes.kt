@@ -22,3 +22,15 @@ data class AutomationDefinitionConfigurationRoute(
     val typeKey: String,
     val editingIndex: Int? = null,
 ) : NavKey
+
+@Serializable
+data object NotificationTriggerAppSelectionRoute : NavKey
+
+@Serializable
+data object ApplicationTriggerAppSelectionRoute : NavKey
+
+@Serializable
+data object TimeBasedTriggerConfigurationRoute : NavKey
+
+@Serializable
+data object WifiTriggerSelectionRoute : NavKey

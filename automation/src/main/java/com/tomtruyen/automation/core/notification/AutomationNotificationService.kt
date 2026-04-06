@@ -17,18 +17,27 @@ class AutomationNotificationService(
     },
 ) {
     fun ensureRuntimeChannel() {
-        notificationManagerProvider(context)?.createNotificationChannel(factory.runtimeChannel())
+        runCatching {
+            notificationManagerProvider(context)?.createNotificationChannel(factory.runtimeChannel())
+        }
     }
 
     fun buildRuntimeNotification() = factory.buildRuntimeNotification()
 
     fun ensureActionChannel() {
-        notificationManagerProvider(context)?.createNotificationChannel(factory.actionChannel())
+        runCatching {
+            notificationManagerProvider(context)?.createNotificationChannel(factory.actionChannel())
+        }
     }
 
     @SuppressLint("MissingPermission")
     fun showActionNotification(config: ShowNotificationActionConfig) {
-        notificationManagerCompatProvider(context).notify(nextNotificationId(), factory.buildActionNotification(config))
+        runCatching {
+            notificationManagerCompatProvider(context).notify(
+                nextNotificationId(),
+                factory.buildActionNotification(config),
+            )
+        }
     }
 
     private fun nextNotificationId(): Int = System.currentTimeMillis().toInt()

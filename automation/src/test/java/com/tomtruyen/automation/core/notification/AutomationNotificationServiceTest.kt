@@ -10,6 +10,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
+import org.junit.Assert.fail
 import org.junit.Test
 
 internal class AutomationNotificationServiceTest {
@@ -56,5 +57,18 @@ internal class AutomationNotificationServiceTest {
 
         verify { factory.buildActionNotification(config) }
         verify { notificationManagerCompat.notify(any(), notification) }
+    }
+
+    @Test
+    fun showActionNotification_whenNotificationManagerThrowsSecurityException_doesNotCrash() {
+        val config = ShowNotificationActionConfig(title = "Title", message = "Message")
+        every { factory.buildActionNotification(config) } returns notification
+        every { notificationManagerCompat.notify(any(), notification) } throws SecurityException("missing permission")
+
+        try {
+            service.showActionNotification(config)
+        } catch (_: SecurityException) {
+            fail("SecurityException should be handled defensively")
+        }
     }
 }

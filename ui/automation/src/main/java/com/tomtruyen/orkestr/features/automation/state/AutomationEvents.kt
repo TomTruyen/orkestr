@@ -18,6 +18,10 @@ sealed interface AutomationEditorEvent {
     ) : AutomationEditorEvent
 
     data object NavigateToGeofenceConfiguration : AutomationEditorEvent
+    data object NavigateToTimeBasedTriggerConfiguration : AutomationEditorEvent
+    data object NavigateToApplicationTriggerAppSelection : AutomationEditorEvent
+    data object NavigateToNotificationTriggerAppSelection : AutomationEditorEvent
+    data object NavigateToWifiTriggerSelection : AutomationEditorEvent
     data object PopToDefinitionSelection : AutomationEditorEvent
     data object PopToEditor : AutomationEditorEvent
 }

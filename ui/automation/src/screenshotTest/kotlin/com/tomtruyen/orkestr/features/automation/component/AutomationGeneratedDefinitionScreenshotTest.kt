@@ -14,6 +14,55 @@ internal fun ChargeStateTriggerDefinitionScreenshotTest() {
 @PreviewTest
 @Preview(showBackground = true, widthDp = 420)
 @Composable
+internal fun TimeBasedTriggerDefinitionScreenshotTest() {
+    TimeBasedTriggerDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun BatteryLevelTriggerDefinitionScreenshotTest() {
+    BatteryLevelTriggerDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun PowerConnectionTriggerDefinitionScreenshotTest() {
+    PowerConnectionTriggerDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun BatterySaverStateTriggerDefinitionScreenshotTest() {
+    BatterySaverStateTriggerDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun ApplicationLifecycleTriggerDefinitionScreenshotTest() {
+    ApplicationLifecycleTriggerDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun NotificationReceivedTriggerDefinitionScreenshotTest() {
+    NotificationReceivedTriggerDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun WifiSsidTriggerDefinitionScreenshotTest() {
+    WifiSsidTriggerDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
 internal fun GeofenceTriggerDefinitionScreenshotTest() {
     GeofenceTriggerDefinitionComposePreview()
 }
