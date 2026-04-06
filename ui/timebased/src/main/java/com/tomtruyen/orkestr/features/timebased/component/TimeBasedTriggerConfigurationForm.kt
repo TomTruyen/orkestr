@@ -26,6 +26,7 @@ import com.tomtruyen.automation.core.model.Weekday
 import com.tomtruyen.automation.features.triggers.config.TimeBasedTriggerConfig
 import com.tomtruyen.orkestr.common.component.AutomationCardColumn
 import com.tomtruyen.orkestr.ui.timebased.R
+import com.tomtruyen.automation.R as AutomationR
 
 @Composable
 fun TimeBasedTriggerConfigurationForm(config: TimeBasedTriggerConfig, onFieldChanged: (String, String) -> Unit) {
@@ -117,12 +118,12 @@ private fun formatTime(hour: Int, minute: Int): String = "%02d:%02d".format(hour
 @Composable
 private fun weekdayLabel(day: Weekday): String = stringResource(
     when (day) {
-        Weekday.MONDAY -> com.tomtruyen.automation.R.string.automation_definition_weekday_monday
-        Weekday.TUESDAY -> com.tomtruyen.automation.R.string.automation_definition_weekday_tuesday
-        Weekday.WEDNESDAY -> com.tomtruyen.automation.R.string.automation_definition_weekday_wednesday
-        Weekday.THURSDAY -> com.tomtruyen.automation.R.string.automation_definition_weekday_thursday
-        Weekday.FRIDAY -> com.tomtruyen.automation.R.string.automation_definition_weekday_friday
-        Weekday.SATURDAY -> com.tomtruyen.automation.R.string.automation_definition_weekday_saturday
-        Weekday.SUNDAY -> com.tomtruyen.automation.R.string.automation_definition_weekday_sunday
+        Weekday.MONDAY -> AutomationR.string.automation_definition_weekday_monday
+        Weekday.TUESDAY -> AutomationR.string.automation_definition_weekday_tuesday
+        Weekday.WEDNESDAY -> AutomationR.string.automation_definition_weekday_wednesday
+        Weekday.THURSDAY -> AutomationR.string.automation_definition_weekday_thursday
+        Weekday.FRIDAY -> AutomationR.string.automation_definition_weekday_friday
+        Weekday.SATURDAY -> AutomationR.string.automation_definition_weekday_saturday
+        Weekday.SUNDAY -> AutomationR.string.automation_definition_weekday_sunday
     },
 )

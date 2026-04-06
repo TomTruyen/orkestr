@@ -50,6 +50,7 @@ import com.tomtruyen.orkestr.ui.automation.R
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
 import com.tomtruyen.orkestr.ui.common.R as CommonR
+import com.tomtruyen.orkestr.ui.geofence.R as GeofenceR
 
 @Composable
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -417,7 +418,7 @@ fun AutomationNavGraph(
 
         entry<GeofenceEditorRoute> {
             AutomationScaffold(
-                title = stringResource(com.tomtruyen.orkestr.ui.geofence.R.string.geofence_title_new_geofence),
+                title = stringResource(GeofenceR.string.geofence_title_new_geofence),
                 canNavigateBack = true,
                 onNavigateBack = {
                     geofenceViewModel.onAction(GeofenceTriggerAction.CloseGeofenceEditorClicked)
@@ -432,7 +433,7 @@ fun AutomationNavGraph(
 
         entry<GeofenceMapPickerRoute> {
             AutomationScaffold(
-                title = stringResource(com.tomtruyen.orkestr.ui.geofence.R.string.geofence_map_picker_title),
+                title = stringResource(GeofenceR.string.geofence_map_picker_title),
                 canNavigateBack = true,
                 onNavigateBack = {
                     geofenceViewModel.onAction(GeofenceTriggerAction.CloseMapPickerClicked)

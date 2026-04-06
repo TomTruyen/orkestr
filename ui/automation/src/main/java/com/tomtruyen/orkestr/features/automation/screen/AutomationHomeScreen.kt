@@ -36,6 +36,7 @@ import com.tomtruyen.orkestr.common.component.EmptyStateCard
 import com.tomtruyen.orkestr.features.automation.state.AutomationRulesAction
 import com.tomtruyen.orkestr.features.automation.viewmodel.AutomationRulesViewModel
 import com.tomtruyen.orkestr.ui.automation.R
+import com.tomtruyen.orkestr.ui.common.R as CommonR
 
 @Composable
 fun AutomationHomeScreen(
@@ -154,7 +155,7 @@ fun AutomationHomeScreen(
             },
             dismissButton = {
                 OutlinedButton(onClick = { pendingDelete = null }) {
-                    Text(stringResource(com.tomtruyen.orkestr.ui.common.R.string.automation_action_close))
+                    Text(stringResource(CommonR.string.automation_action_close))
                 }
             },
         )

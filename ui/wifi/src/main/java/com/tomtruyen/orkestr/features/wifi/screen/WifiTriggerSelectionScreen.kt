@@ -33,6 +33,7 @@ import com.tomtruyen.orkestr.common.component.EmptyStateCard
 import com.tomtruyen.orkestr.features.wifi.service.WifiNetworkService
 import com.tomtruyen.orkestr.ui.wifi.R
 import org.koin.compose.koinInject
+import com.tomtruyen.automation.R as AutomationR
 
 @Composable
 fun WifiTriggerSelectionScreen(
@@ -103,8 +104,7 @@ fun WifiTriggerSelectionScreen(
                         label = {
                             Text(
                                 stringResource(
-                                    com.tomtruyen.automation.R.string
-                                        .automation_definition_trigger_wifi_ssid_option_in_range,
+                                    AutomationR.string.automation_definition_trigger_wifi_ssid_option_in_range,
                                 ),
                             )
                         },
@@ -115,8 +115,7 @@ fun WifiTriggerSelectionScreen(
                         label = {
                             Text(
                                 stringResource(
-                                    com.tomtruyen.automation.R.string
-                                        .automation_definition_trigger_wifi_ssid_option_out_of_range,
+                                    AutomationR.string.automation_definition_trigger_wifi_ssid_option_out_of_range,
                                 ),
                             )
                         },
@@ -192,8 +191,7 @@ fun WifiTriggerSelectionScreen(
                     placeholder = {
                         Text(
                             stringResource(
-                                com.tomtruyen.automation.R.string
-                                    .automation_definition_trigger_wifi_ssid_field_ssid_placeholder,
+                                AutomationR.string.automation_definition_trigger_wifi_ssid_field_ssid_placeholder,
                             ),
                         )
                     },

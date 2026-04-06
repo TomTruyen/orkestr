@@ -8,15 +8,10 @@ import com.tomtruyen.automation.core.permission.AutomationPermission
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
 import com.tomtruyen.automation.features.actions.ActionType
 import com.tomtruyen.automation.features.actions.config.ActionConfig
-import com.tomtruyen.automation.features.actions.config.LaunchApplicationActionConfig
-import com.tomtruyen.automation.features.actions.config.SetWallpaperActionConfig
 import com.tomtruyen.automation.features.constraints.ConstraintType
 import com.tomtruyen.automation.features.constraints.config.ConstraintConfig
 import com.tomtruyen.automation.features.triggers.TriggerType
-import com.tomtruyen.automation.features.triggers.config.ApplicationLifecycleTriggerConfig
 import com.tomtruyen.automation.features.triggers.config.GeofenceTriggerConfig
-import com.tomtruyen.automation.features.triggers.config.NotificationReceivedTriggerConfig
-import com.tomtruyen.automation.features.triggers.config.TimeBasedTriggerConfig
 import com.tomtruyen.automation.features.triggers.config.TriggerConfig
 import com.tomtruyen.automation.features.triggers.config.WifiSsidTriggerConfig
 import com.tomtruyen.orkestr.common.BaseViewModel
@@ -40,6 +35,14 @@ class AutomationRuleEditorViewModel(
 ) : BaseViewModel<AutomationEditorUiState, AutomationEditorEvent, AutomationEditorAction>(
     initialState = AutomationEditorUiState(),
 ) {
+    private val customFlowCoordinator = AutomationRuleEditorCustomFlowCoordinator(
+        definitions = definitions,
+        stringResolver = stringResolver,
+        state = { uiState.value },
+        updateState = ::updateState,
+        triggerEvent = ::triggerEvent,
+    )
+
     override fun onAction(action: AutomationEditorAction) {
         when (action) {
             AutomationEditorAction.CloseEditorClicked -> closeEditorAndNavigateBack()
@@ -103,130 +106,23 @@ class AutomationRuleEditorViewModel(
 
     fun selectedDefinitionItem(): DefinitionListItem? = definitions.selectedDefinitionItem(uiState.value.pickerState)
 
-    fun selectedCustomConfigurationButtonLabel(): String? {
-        val picker = uiState.value.pickerState ?: return null
-        val typeKey = picker.selectedTypeKey ?: return null
-        val labelRes = customConfigurationButtonLabelRes(picker.section, typeKey) ?: return null
-        return stringResolver.resolve(labelRes)
-    }
-
-    fun currentGeofenceTriggerConfig(): GeofenceTriggerConfig {
-        val draft = uiState.value.pickerState?.draftConfig
-        return draft as? GeofenceTriggerConfig ?: GeofenceTriggerConfig()
-    }
-
-    fun applySelectedGeofence(config: GeofenceTriggerConfig) {
-        val picker = uiState.value.pickerState ?: return
-        updateState {
-            it.copy(
-                pickerState = picker.copy(
-                    draftConfig = config,
-                    errors = emptyList(),
-                ),
-            )
-        }
-        triggerEvent(
-            AutomationEditorEvent.NavigateToDefinitionConfiguration(
-                section = picker.section,
-                typeKey = config.type.name,
-                editingIndex = picker.editingIndex,
-            ),
-        )
-    }
-
-    fun currentNotificationTriggerConfig(): NotificationReceivedTriggerConfig {
-        val draft = uiState.value.pickerState?.draftConfig
-        return draft as? NotificationReceivedTriggerConfig ?: NotificationReceivedTriggerConfig()
-    }
-
-    fun currentApplicationLifecycleTriggerConfig(): ApplicationLifecycleTriggerConfig {
-        val draft = uiState.value.pickerState?.draftConfig
-        return draft as? ApplicationLifecycleTriggerConfig ?: ApplicationLifecycleTriggerConfig()
-    }
-
-    fun currentLaunchApplicationActionConfig(): LaunchApplicationActionConfig {
-        val draft = uiState.value.pickerState?.draftConfig
-        return draft as? LaunchApplicationActionConfig ?: LaunchApplicationActionConfig()
-    }
-
-    fun currentSetWallpaperActionConfig(): SetWallpaperActionConfig {
-        val draft = uiState.value.pickerState?.draftConfig
-        return draft as? SetWallpaperActionConfig ?: SetWallpaperActionConfig()
-    }
-
-    fun applySelectedApp(selectedTypeKey: String?, packageName: String, appLabel: String) {
-        when (selectedTypeKey) {
-            TriggerType.APPLICATION_LIFECYCLE.name -> {
-                val current = currentApplicationLifecycleTriggerConfig()
-                applyDraftConfigAndOpenConfiguration(current.copy(packageName = packageName))
-            }
-
-            ActionType.LAUNCH_APPLICATION.name -> {
-                val current = currentLaunchApplicationActionConfig()
-                applyDraftConfigAndOpenConfiguration(current.copy(packageName = packageName, appLabel = appLabel))
-            }
-
-            else -> {
-                val current = currentNotificationTriggerConfig()
-                applyDraftConfigAndOpenConfiguration(current.copy(packageName = packageName))
-            }
-        }
-    }
-
-    fun currentWifiTriggerConfig(): WifiSsidTriggerConfig {
-        val draft = uiState.value.pickerState?.draftConfig
-        return draft as? WifiSsidTriggerConfig ?: WifiSsidTriggerConfig()
-    }
-
-    fun applySelectedWifiTrigger(config: WifiSsidTriggerConfig) {
-        applyDraftConfigAndOpenConfiguration(config)
-    }
-
-    fun applySelectedWallpaper(imageUri: String, imageLabel: String) {
-        val current = currentSetWallpaperActionConfig()
-        val picker = uiState.value.pickerState ?: return
-        updateState {
-            it.copy(
-                pickerState = picker.copy(
-                    draftConfig = current.copy(imageUri = imageUri, imageLabel = imageLabel),
-                    errors = emptyList(),
-                ),
-            )
-        }
-        triggerEvent(
-            AutomationEditorEvent.NavigateToDefinitionConfiguration(
-                section = picker.section,
-                typeKey = current.type.name,
-                editingIndex = picker.editingIndex,
-            ),
-        )
-    }
-
-    fun openSelectedCustomConfigurationFlow() {
-        val picker = uiState.value.pickerState ?: return
-        val typeKey = picker.selectedTypeKey ?: return
-        definitions.customNavigationEventFor(picker.section, typeKey)?.let(::triggerEvent)
-    }
-
-    fun chooseDifferentDefinition() {
-        val picker = uiState.value.pickerState ?: return
-        backToPickerList()
-        if (picker.launchedFromSelection) {
-            triggerEvent(AutomationEditorEvent.PopToDefinitionSelection)
-        } else {
-            triggerEvent(
-                AutomationEditorEvent.NavigateToDefinitionSelection(
-                    section = picker.section,
-                    editingIndex = picker.editingIndex,
-                ),
-            )
-        }
-    }
-
-    fun currentTimeBasedTriggerConfig(): TimeBasedTriggerConfig {
-        val draft = uiState.value.pickerState?.draftConfig
-        return draft as? TimeBasedTriggerConfig ?: TimeBasedTriggerConfig()
-    }
+    fun selectedCustomConfigurationButtonLabel(): String? =
+        customFlowCoordinator.selectedCustomConfigurationButtonLabel()
+    fun currentGeofenceTriggerConfig() = customFlowCoordinator.currentGeofenceTriggerConfig()
+    fun applySelectedGeofence(config: GeofenceTriggerConfig) = customFlowCoordinator.applySelectedGeofence(config)
+    fun currentNotificationTriggerConfig() = customFlowCoordinator.currentNotificationTriggerConfig()
+    fun currentApplicationLifecycleTriggerConfig() = customFlowCoordinator.currentApplicationLifecycleTriggerConfig()
+    fun currentLaunchApplicationActionConfig() = customFlowCoordinator.currentLaunchApplicationActionConfig()
+    fun currentSetWallpaperActionConfig() = customFlowCoordinator.currentSetWallpaperActionConfig()
+    fun applySelectedApp(selectedTypeKey: String?, packageName: String, appLabel: String) =
+        customFlowCoordinator.applySelectedApp(selectedTypeKey, packageName, appLabel)
+    fun currentWifiTriggerConfig() = customFlowCoordinator.currentWifiTriggerConfig()
+    fun applySelectedWifiTrigger(config: WifiSsidTriggerConfig) = customFlowCoordinator.applySelectedWifiTrigger(config)
+    fun applySelectedWallpaper(imageUri: String, imageLabel: String) =
+        customFlowCoordinator.applySelectedWallpaper(imageUri, imageLabel)
+    fun openSelectedCustomConfigurationFlow() = customFlowCoordinator.openSelectedCustomConfigurationFlow()
+    fun chooseDifferentDefinition() = customFlowCoordinator.chooseDifferentDefinition()
+    fun currentTimeBasedTriggerConfig() = customFlowCoordinator.currentTimeBasedTriggerConfig()
 
     fun applyConfiguredTrigger(config: TriggerConfig) {
         val picker = uiState.value.pickerState ?: return
@@ -336,7 +232,7 @@ class AutomationRuleEditorViewModel(
                 section = section,
                 editingIndex = editingIndex,
                 launchedFromSelection = launchedFromSelection,
-                selectedTypeKey = definitionKeyOf(existing),
+                selectedTypeKey = existing.type.name,
                 draftConfig = existing,
             )
         }
@@ -501,26 +397,6 @@ class AutomationRuleEditorViewModel(
         }
 
         return errors
-    }
-
-    private fun definitionKeyOf(config: Any): String = when (config) {
-        is TriggerConfig -> config.type.name
-        is ConstraintConfig -> config.type.name
-        is ActionConfig -> config.type.name
-        else -> error("Unsupported config type: ${config::class.qualifiedName}")
-    }
-
-    private fun applyDraftConfigAndOpenConfiguration(config: AutomationConfig<*>) {
-        val picker = uiState.value.pickerState ?: return
-        updateState {
-            it.copy(
-                pickerState = picker.copy(
-                    draftConfig = config,
-                    errors = emptyList(),
-                ),
-            )
-        }
-        triggerEvent(defaultConfigurationEvent(picker, definitionKeyOf(config)))
     }
 
     private fun defaultConfigurationEvent(picker: DefinitionPickerState, typeKey: String) =
