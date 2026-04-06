@@ -35,7 +35,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.tomtruyen.automation.features.actions.ActionExecutionMode
 import com.tomtruyen.orkestr.common.component.AutomationCardColumn
 import com.tomtruyen.orkestr.common.component.AutomationTintedColumn
 import com.tomtruyen.orkestr.common.component.AutomationTitleRow

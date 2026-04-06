@@ -16,7 +16,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tomtruyen.automation.features.actions.ActionExecutionMode
-import com.tomtruyen.orkestr.common.component.AutomationCardColumn
 import com.tomtruyen.orkestr.ui.automation.R
 
 @Composable
@@ -28,8 +27,8 @@ fun ActionExecutionModeSelector(
     OutlinedCard(
         modifier = modifier,
         colors = CardDefaults.outlinedCardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
-        )
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        ),
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
