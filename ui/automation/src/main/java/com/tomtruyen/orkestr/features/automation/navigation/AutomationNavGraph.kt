@@ -23,6 +23,8 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import com.tomtruyen.automation.features.actions.config.SetWallpaperActionConfig
+import com.tomtruyen.automation.features.triggers.config.GeofenceTriggerConfig
 import com.tomtruyen.orkestr.common.component.LocalNavigationSharedTransitionScope
 import com.tomtruyen.orkestr.features.automation.screen.AutomationApplicationTriggerAppSelectionScreen
 import com.tomtruyen.orkestr.features.automation.screen.AutomationDefinitionConfigurationScreen
@@ -106,7 +108,9 @@ fun AutomationNavGraph(
 
                 AutomationEditorEvent.NavigateToGeofenceConfiguration -> {
                     geofenceViewModel.onAction(
-                        GeofenceTriggerAction.LoadConfig(editorViewModel.currentGeofenceTriggerConfig()),
+                        GeofenceTriggerAction.LoadConfig(
+                            editorViewModel.currentDraftConfigOrDefault(GeofenceTriggerConfig::class),
+                        ),
                     )
                     backStack.add(GeofenceTriggerConfigurationRoute)
                 }
@@ -393,7 +397,7 @@ fun AutomationNavGraph(
                         R.string.automation_action_choose_different,
                         stringResource(pickerState.section.singularTitleRes),
                     ),
-                    config = editorViewModel.currentSetWallpaperActionConfig(),
+                    config = editorViewModel.currentDraftConfigOrDefault(SetWallpaperActionConfig::class),
                     onConfirm = editorViewModel::applySelectedWallpaper,
                     onChooseDifferent = editorViewModel::chooseDifferentDefinition,
                     modifier = modifier,

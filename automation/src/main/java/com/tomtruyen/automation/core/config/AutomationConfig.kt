@@ -3,7 +3,7 @@ package com.tomtruyen.automation.core.config
 import com.tomtruyen.automation.core.permission.AutomationPermission
 import kotlinx.serialization.Transient
 
-interface AutomationConfig<T: Enum<T>> {
+interface AutomationConfig<T : Enum<T>> {
     val type: T
 
     val category: AutomationCategory

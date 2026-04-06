@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import com.tomtruyen.automation.features.triggers.config.TimeBasedTriggerConfig
+import com.tomtruyen.automation.features.triggers.config.WifiSsidTriggerConfig
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorAction
 import com.tomtruyen.orkestr.features.automation.state.DefinitionListItem
 import com.tomtruyen.orkestr.features.automation.state.DefinitionPickerState
@@ -28,7 +30,7 @@ internal fun TimeBasedTriggerRouteScreen(
         chooseDifferentLabel = pickerState.chooseDifferentLabel(),
         saveLabel = pickerState.saveLabel(),
         errors = pickerState.errors,
-        config = editorViewModel.currentTimeBasedTriggerConfig(),
+        config = editorViewModel.currentDraftConfigOrDefault(TimeBasedTriggerConfig::class),
         onFieldChanged = { fieldId, value ->
             editorViewModel.onAction(AutomationEditorAction.PickerFieldChanged(fieldId, value))
         },
@@ -46,7 +48,7 @@ internal fun WifiTriggerRouteScreen(editorViewModel: AutomationRuleEditorViewMod
     val definition = editorViewModel.selectedDefinitionItem()
 
     WifiTriggerSelectionScreen(
-        currentConfig = editorViewModel.currentWifiTriggerConfig(),
+        currentConfig = editorViewModel.currentDraftConfigOrDefault(WifiSsidTriggerConfig::class),
         title = wifiHeaderTitle(pickerState, definition),
         description = wifiHeaderDescription(pickerState, definition),
         isBeta = definition?.isBeta == true,

@@ -23,7 +23,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.tomtruyen.automation.features.actions.ActionType
+import com.tomtruyen.automation.features.actions.config.LaunchApplicationActionConfig
 import com.tomtruyen.automation.features.triggers.TriggerType
+import com.tomtruyen.automation.features.triggers.config.ApplicationLifecycleTriggerConfig
+import com.tomtruyen.automation.features.triggers.config.NotificationReceivedTriggerConfig
 import com.tomtruyen.orkestr.common.component.AutomationCardColumn
 import com.tomtruyen.orkestr.common.component.AutomationDefinitionHeaderCard
 import com.tomtruyen.orkestr.common.component.EmptyStateCard
@@ -83,9 +86,14 @@ private fun AutomationInstalledAppPickerScreen(
     val definition = viewModel.selectedDefinitionItem() ?: return
     val selectedTypeKey = uiState.pickerState?.selectedTypeKey
     val selectedPackageName = when (selectedTypeKey) {
-        TriggerType.APPLICATION_LIFECYCLE.name -> viewModel.currentApplicationLifecycleTriggerConfig().packageName
-        ActionType.LAUNCH_APPLICATION.name -> viewModel.currentLaunchApplicationActionConfig().packageName
-        else -> viewModel.currentNotificationTriggerConfig().packageName
+        TriggerType.APPLICATION_LIFECYCLE.name ->
+            viewModel.currentDraftConfigOrDefault(ApplicationLifecycleTriggerConfig::class).packageName
+
+        ActionType.LAUNCH_APPLICATION.name ->
+            viewModel.currentDraftConfigOrDefault(LaunchApplicationActionConfig::class).packageName
+
+        else ->
+            viewModel.currentDraftConfigOrDefault(NotificationReceivedTriggerConfig::class).packageName
     }
     val apps = remember(installedAppService) { installedAppService.loadInstalledApps() }
     var query by rememberSaveable { mutableStateOf("") }

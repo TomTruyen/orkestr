@@ -11,9 +11,7 @@ import com.tomtruyen.automation.features.actions.config.ActionConfig
 import com.tomtruyen.automation.features.constraints.ConstraintType
 import com.tomtruyen.automation.features.constraints.config.ConstraintConfig
 import com.tomtruyen.automation.features.triggers.TriggerType
-import com.tomtruyen.automation.features.triggers.config.GeofenceTriggerConfig
 import com.tomtruyen.automation.features.triggers.config.TriggerConfig
-import com.tomtruyen.automation.features.triggers.config.WifiSsidTriggerConfig
 import com.tomtruyen.orkestr.common.BaseViewModel
 import com.tomtruyen.orkestr.common.StringResolver
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorAction
@@ -28,20 +26,36 @@ import com.tomtruyen.orkestr.features.automation.state.RuleValidationState
 import com.tomtruyen.orkestr.ui.automation.R
 import java.util.UUID
 
-class AutomationRuleEditorViewModel(
+class AutomationRuleEditorViewModel private constructor(
     private val stringResolver: StringResolver,
     private val repository: AutomationRuleRepository,
     private val definitions: AutomationDefinitionRegistry,
+    customFlowDelegate: BindableAutomationRuleEditorCustomFlowDelegate =
+        BindableAutomationRuleEditorCustomFlowDelegate(),
 ) : BaseViewModel<AutomationEditorUiState, AutomationEditorEvent, AutomationEditorAction>(
     initialState = AutomationEditorUiState(),
-) {
-    private val customFlowCoordinator = AutomationRuleEditorCustomFlowCoordinator(
-        definitions = definitions,
+),
+    AutomationRuleEditorCustomFlowDelegate by customFlowDelegate {
+    constructor(
+        stringResolver: StringResolver,
+        repository: AutomationRuleRepository,
+        definitions: AutomationDefinitionRegistry,
+    ) : this(
         stringResolver = stringResolver,
-        state = { uiState.value },
-        updateState = ::updateState,
-        triggerEvent = ::triggerEvent,
+        repository = repository,
+        definitions = definitions,
+        customFlowDelegate = BindableAutomationRuleEditorCustomFlowDelegate(),
     )
+
+    init {
+        customFlowDelegate.bind(
+            definitions = definitions,
+            stringResolver = stringResolver,
+            state = { uiState.value },
+            updateState = ::updateState,
+            triggerEvent = ::triggerEvent,
+        )
+    }
 
     override fun onAction(action: AutomationEditorAction) {
         when (action) {
@@ -105,24 +119,6 @@ class AutomationRuleEditorViewModel(
             ?: config.type.name
 
     fun selectedDefinitionItem(): DefinitionListItem? = definitions.selectedDefinitionItem(uiState.value.pickerState)
-
-    fun selectedCustomConfigurationButtonLabel(): String? =
-        customFlowCoordinator.selectedCustomConfigurationButtonLabel()
-    fun currentGeofenceTriggerConfig() = customFlowCoordinator.currentGeofenceTriggerConfig()
-    fun applySelectedGeofence(config: GeofenceTriggerConfig) = customFlowCoordinator.applySelectedGeofence(config)
-    fun currentNotificationTriggerConfig() = customFlowCoordinator.currentNotificationTriggerConfig()
-    fun currentApplicationLifecycleTriggerConfig() = customFlowCoordinator.currentApplicationLifecycleTriggerConfig()
-    fun currentLaunchApplicationActionConfig() = customFlowCoordinator.currentLaunchApplicationActionConfig()
-    fun currentSetWallpaperActionConfig() = customFlowCoordinator.currentSetWallpaperActionConfig()
-    fun applySelectedApp(selectedTypeKey: String?, packageName: String, appLabel: String) =
-        customFlowCoordinator.applySelectedApp(selectedTypeKey, packageName, appLabel)
-    fun currentWifiTriggerConfig() = customFlowCoordinator.currentWifiTriggerConfig()
-    fun applySelectedWifiTrigger(config: WifiSsidTriggerConfig) = customFlowCoordinator.applySelectedWifiTrigger(config)
-    fun applySelectedWallpaper(imageUri: String, imageLabel: String) =
-        customFlowCoordinator.applySelectedWallpaper(imageUri, imageLabel)
-    fun openSelectedCustomConfigurationFlow() = customFlowCoordinator.openSelectedCustomConfigurationFlow()
-    fun chooseDifferentDefinition() = customFlowCoordinator.chooseDifferentDefinition()
-    fun currentTimeBasedTriggerConfig() = customFlowCoordinator.currentTimeBasedTriggerConfig()
 
     fun applyConfiguredTrigger(config: TriggerConfig) {
         val picker = uiState.value.pickerState ?: return
