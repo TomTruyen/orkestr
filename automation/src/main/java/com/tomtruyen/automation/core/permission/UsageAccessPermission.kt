@@ -3,6 +3,7 @@ package com.tomtruyen.automation.core.permission
 import android.app.AppOpsManager
 import android.content.Intent
 import android.os.Build
+import android.os.Process
 import android.provider.Settings
 import com.tomtruyen.automation.R
 
@@ -16,7 +17,7 @@ data object UsageAccessPermission : AutomationPermission.Intent(
         val appOpsManager = context.getSystemService(AppOpsManager::class.java)
         appOpsManager?.unsafeCheckOpNoThrow(
             AppOpsManager.OPSTR_GET_USAGE_STATS,
-            android.os.Process.myUid(),
+            Process.myUid(),
             context.packageName,
         ) == AppOpsManager.MODE_ALLOWED
     },

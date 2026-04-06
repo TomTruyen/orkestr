@@ -19,7 +19,9 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -256,7 +258,7 @@ fun AutomationGeofenceMapPickerScreen(viewModel: GeofenceTriggerViewModel, modif
     val uiState by viewModel.uiState.collectAsState()
     val mapPickerState = uiState.mapPickerState ?: return
     val bottomSheetState = rememberStandardBottomSheetState(
-        initialValue = androidx.compose.material3.SheetValue.PartiallyExpanded,
+        initialValue = SheetValue.PartiallyExpanded,
         skipHiddenState = true,
     )
 
@@ -264,7 +266,7 @@ fun AutomationGeofenceMapPickerScreen(viewModel: GeofenceTriggerViewModel, modif
         modifier = modifier.fillMaxSize(),
         sheetPeekHeight = 260.dp,
         sheetDragHandle = null,
-        scaffoldState = androidx.compose.material3.rememberBottomSheetScaffoldState(
+        scaffoldState = rememberBottomSheetScaffoldState(
             bottomSheetState = bottomSheetState,
         ),
         sheetContent = {

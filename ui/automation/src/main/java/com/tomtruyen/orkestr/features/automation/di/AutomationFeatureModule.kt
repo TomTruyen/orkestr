@@ -1,5 +1,6 @@
 package com.tomtruyen.orkestr.features.automation.di
 
+import android.net.wifi.WifiManager
 import com.tomtruyen.automation.core.definition.AutomationDefinitionRegistry
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
 import com.tomtruyen.orkestr.common.StringResolver
@@ -18,7 +19,7 @@ val automationFeatureModule = module {
 
     single {
         WifiNetworkService.create(
-            androidContext().applicationContext.getSystemService(android.net.wifi.WifiManager::class.java),
+            androidContext().applicationContext.getSystemService(WifiManager::class.java),
         )
     }
 

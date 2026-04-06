@@ -1,5 +1,6 @@
 package com.tomtruyen.automation.features.triggers.receiver
 
+import android.app.Notification
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import com.tomtruyen.automation.core.AutomationLogger
@@ -26,8 +27,8 @@ class AutomationNotificationListenerService :
         }
 
         val extras = sbn.notification.extras
-        val title = extras?.getCharSequence(android.app.Notification.EXTRA_TITLE)?.toString()
-        val message = extras?.getCharSequence(android.app.Notification.EXTRA_TEXT)?.toString()
+        val title = extras?.getCharSequence(Notification.EXTRA_TITLE)?.toString()
+        val message = extras?.getCharSequence(Notification.EXTRA_TEXT)?.toString()
         logger.log("Received notification from ${sbn.packageName}")
         scope.launch {
             runtimeService.handleEvent(

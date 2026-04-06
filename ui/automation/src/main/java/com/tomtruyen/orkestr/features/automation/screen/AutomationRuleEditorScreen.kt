@@ -31,6 +31,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -198,8 +199,8 @@ private data class NodeActionDialogState(val section: RuleSection, val index: In
 private fun RuleSectionEditorCard(
     section: RuleSection,
     entries: List<String>,
-    tint: androidx.compose.ui.graphics.Color,
-    contentColor: androidx.compose.ui.graphics.Color,
+    tint: Color,
+    contentColor: Color,
     onAddNode: () -> Unit,
     onNodeClick: (Int) -> Unit,
     onNodeLongClick: (Int, String) -> Unit,

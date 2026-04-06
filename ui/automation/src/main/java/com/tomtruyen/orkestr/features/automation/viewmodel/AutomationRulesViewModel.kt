@@ -1,6 +1,7 @@
 package com.tomtruyen.orkestr.features.automation.viewmodel
 
 import androidx.lifecycle.viewModelScope
+import com.tomtruyen.automation.core.AutomationRule
 import com.tomtruyen.automation.core.AutomationRuntimeService
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
 import com.tomtruyen.orkestr.common.BaseViewModel
@@ -33,7 +34,7 @@ class AutomationRulesViewModel(
         repository.updateEnabled(id, enabled)
     }
 
-    private fun runRuleNow(rule: com.tomtruyen.automation.core.AutomationRule) = launch {
+    private fun runRuleNow(rule: AutomationRule) = launch {
         runtimeService.runRuleNow(rule)
     }
 

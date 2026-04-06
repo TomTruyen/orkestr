@@ -11,6 +11,7 @@ import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
 import com.tomtruyen.automation.codegen.GenerateReceiverFactory
 import com.tomtruyen.automation.core.AutomationLogger
+import com.tomtruyen.automation.core.AutomationRule
 import com.tomtruyen.automation.core.AutomationRuntimeService
 import com.tomtruyen.automation.core.model.AutomationGeofence
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
@@ -128,7 +129,7 @@ internal data class RegisteredGeofence(
 )
 
 internal fun geofencesToRegister(
-    rules: List<com.tomtruyen.automation.core.AutomationRule>,
+    rules: List<AutomationRule>,
     geofences: List<AutomationGeofence>,
 ): List<RegisteredGeofence> {
     val geofenceMap = geofences.associateBy { it.id }

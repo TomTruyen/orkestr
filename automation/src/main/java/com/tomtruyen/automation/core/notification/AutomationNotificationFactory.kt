@@ -3,6 +3,7 @@ package com.tomtruyen.automation.core.notification
 import android.R
 import android.app.Notification
 import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import androidx.core.app.NotificationCompat
@@ -12,7 +13,7 @@ class AutomationNotificationFactory(private val context: Context) {
     fun runtimeChannel(): NotificationChannel = NotificationChannel(
         RUNTIME_CHANNEL_ID,
         "Automation runtime",
-        android.app.NotificationManager.IMPORTANCE_LOW,
+        NotificationManager.IMPORTANCE_LOW,
     ).apply {
         description = "Keeps Orkestr listening for automation triggers."
     }
@@ -20,7 +21,7 @@ class AutomationNotificationFactory(private val context: Context) {
     fun actionChannel(): NotificationChannel = NotificationChannel(
         ACTION_CHANNEL_ID,
         "Automation actions",
-        android.app.NotificationManager.IMPORTANCE_DEFAULT,
+        NotificationManager.IMPORTANCE_DEFAULT,
     ).apply {
         description = "Notifications posted by automation actions."
     }
@@ -37,7 +38,7 @@ class AutomationNotificationFactory(private val context: Context) {
         }
 
         return NotificationCompat.Builder(context, RUNTIME_CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_popup_sync)
+            .setSmallIcon(R.drawable.ic_popup_sync)
             .setContentTitle("Automation service running")
             .setContentText("Listening for time, battery, and geofence events")
             .setOngoing(true)

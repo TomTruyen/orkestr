@@ -35,6 +35,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.tomtruyen.automation.features.actions.ActionType
+import com.tomtruyen.automation.features.triggers.TriggerType
 import com.tomtruyen.orkestr.common.component.AutomationBetaChip
 import com.tomtruyen.orkestr.common.component.AutomationCardColumn
 import com.tomtruyen.orkestr.common.component.AutomationDefinitionHeaderCard
@@ -292,11 +294,11 @@ fun AutomationDefinitionConfigurationScreen(viewModel: AutomationRuleEditorViewM
 }
 
 private fun customConfigurationButtonAnchorFieldId(typeKey: String?): String? = when (typeKey) {
-    "APPLICATION_LIFECYCLE",
-    "NOTIFICATION_RECEIVED",
+    TriggerType.APPLICATION_LIFECYCLE.name,
+    TriggerType.NOTIFICATION_RECEIVED.name,
     -> "package_name"
 
-    "LAUNCH_APPLICATION" -> "packageName"
+    ActionType.LAUNCH_APPLICATION.name -> "packageName"
 
     else -> null
 }
