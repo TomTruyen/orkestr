@@ -12,7 +12,7 @@ import com.tomtruyen.automation.features.actions.config.ShowNotificationActionCo
 class AutomationNotificationFactory(private val context: Context) {
     fun runtimeChannel(): NotificationChannel = NotificationChannel(
         RUNTIME_CHANNEL_ID,
-        "Automation runtime",
+        "Persistent Notification (Trigger Listeners)",
         NotificationManager.IMPORTANCE_LOW,
     ).apply {
         description = "Keeps Orkestr listening for automation triggers."
@@ -20,7 +20,7 @@ class AutomationNotificationFactory(private val context: Context) {
 
     fun actionChannel(): NotificationChannel = NotificationChannel(
         ACTION_CHANNEL_ID,
-        "Automation actions",
+        "Notification Action",
         NotificationManager.IMPORTANCE_DEFAULT,
     ).apply {
         description = "Notifications posted by automation actions."
