@@ -15,7 +15,7 @@ data object UsageAccessPermission : AutomationPermission.Intent(
     },
     grantCheck = { context ->
         val appOpsManager = context.getSystemService(AppOpsManager::class.java)
-        appOpsManager?.unsafeCheckOpNoThrow(
+        appOpsManager?.checkOpNoThrow(
             AppOpsManager.OPSTR_GET_USAGE_STATS,
             Process.myUid(),
             context.packageName,

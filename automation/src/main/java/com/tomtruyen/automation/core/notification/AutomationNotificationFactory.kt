@@ -1,12 +1,12 @@
 package com.tomtruyen.automation.core.notification
 
-import android.R
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import androidx.core.app.NotificationCompat
+import com.tomtruyen.automation.R
 import com.tomtruyen.automation.features.actions.config.ShowNotificationActionConfig
 
 class AutomationNotificationFactory(private val context: Context) {
@@ -38,9 +38,9 @@ class AutomationNotificationFactory(private val context: Context) {
         }
 
         return NotificationCompat.Builder(context, RUNTIME_CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_popup_sync)
-            .setContentTitle("Automation service running")
-            .setContentText("Listening for time, battery, and geofence events")
+            .setSmallIcon(R.drawable.ic_sync)
+            .setContentTitle(context.getString(R.string.automation_service_runtime_title))
+            .setContentText(context.getString(R.string.automation_service_runtime_description))
             .setOngoing(true)
             .setSilent(true)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
@@ -50,7 +50,7 @@ class AutomationNotificationFactory(private val context: Context) {
 
     fun buildActionNotification(config: ShowNotificationActionConfig): Notification =
         NotificationCompat.Builder(context, ACTION_CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_dialog_info)
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(config.title)
             .setContentText(config.message)
             .setStyle(NotificationCompat.BigTextStyle().bigText(config.message))

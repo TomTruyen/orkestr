@@ -3,6 +3,10 @@
     <string name="automation_definition_error_required">%1$s is required.</string>
     <string name="automation_definition_error_number">%1$s must be a number.</string>
 
+    <!-- Service notifications -->
+    <string name="automation_service_runtime_title">Automation service running</string>
+    <string name="automation_service_runtime_description">Orkestr is listening for automation triggers.</string>
+
     <!-- Definition categories -->
     <string name="automation_definition_category_battery_power">Battery/Power</string>
     <string name="automation_definition_category_location">Location</string>
