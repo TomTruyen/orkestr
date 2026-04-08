@@ -5,4 +5,5 @@ enum class AutomationFieldType {
     NUMBER,
     BOOLEAN,
     SINGLE_CHOICE,
+    MULTI_CHOICE,
 }

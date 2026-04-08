@@ -11,6 +11,7 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import com.tomtruyen.automation.features.constraints.config.GeofenceConstraintConfig
 import com.tomtruyen.automation.features.triggers.config.GeofenceTriggerConfig
 import com.tomtruyen.orkestr.common.component.LocalNavigationSharedTransitionScope
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorAction
@@ -88,8 +89,21 @@ fun AutomationNavGraph(
                     backStack.add(GeofenceTriggerConfigurationRoute)
                 }
 
+                AutomationEditorEvent.NavigateToGeofenceConstraintConfiguration -> {
+                    geofenceViewModel.onAction(
+                        GeofenceTriggerAction.LoadConstraintConfig(
+                            editorViewModel.currentDraftConfigOrDefault(GeofenceConstraintConfig::class),
+                        ),
+                    )
+                    backStack.add(GeofenceConstraintConfigurationRoute)
+                }
+
                 AutomationEditorEvent.NavigateToTimeBasedTriggerConfiguration -> {
                     backStack.add(TimeBasedTriggerConfigurationRoute)
+                }
+
+                AutomationEditorEvent.NavigateToTimeOfDayConstraintConfiguration -> {
+                    backStack.add(TimeOfDayConstraintConfigurationRoute)
                 }
 
                 AutomationEditorEvent.NavigateToApplicationTriggerAppSelection -> {
@@ -141,7 +155,7 @@ fun AutomationNavGraph(
                 }
 
                 is GeofenceTriggerEvent.GeofenceSelected -> {
-                    editorViewModel.applySelectedGeofence(event.config)
+                    editorViewModel.applySelectedGeofence(event.geofence)
                 }
             }
         }
@@ -157,7 +171,15 @@ fun AutomationNavGraph(
                 editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
             }
 
+            is GeofenceConstraintConfigurationRoute -> {
+                editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
+            }
+
             is TimeBasedTriggerConfigurationRoute -> {
+                editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
+            }
+
+            is TimeOfDayConstraintConfigurationRoute -> {
                 editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
             }
 

@@ -19,6 +19,8 @@ sealed interface AutomationEditorEvent {
 
     data object NavigateToGeofenceConfiguration : AutomationEditorEvent
     data object NavigateToTimeBasedTriggerConfiguration : AutomationEditorEvent
+    data object NavigateToGeofenceConstraintConfiguration : AutomationEditorEvent
+    data object NavigateToTimeOfDayConstraintConfiguration : AutomationEditorEvent
     data object NavigateToApplicationTriggerAppSelection : AutomationEditorEvent
     data object NavigateToNotificationTriggerAppSelection : AutomationEditorEvent
     data object NavigateToLaunchApplicationActionAppSelection : AutomationEditorEvent

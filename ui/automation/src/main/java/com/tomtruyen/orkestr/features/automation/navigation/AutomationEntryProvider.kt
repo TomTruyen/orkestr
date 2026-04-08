@@ -16,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.tomtruyen.automation.features.actions.config.SetWallpaperActionConfig
+import com.tomtruyen.automation.features.constraints.config.TimeOfDayConstraintConfig
 import com.tomtruyen.orkestr.features.automation.screen.AutomationApplicationTriggerAppSelectionScreen
 import com.tomtruyen.orkestr.features.automation.screen.AutomationDefinitionConfigurationScreen
 import com.tomtruyen.orkestr.features.automation.screen.AutomationDefinitionSelectionScreen
@@ -130,6 +131,24 @@ internal fun EntryProviderScope<NavKey>.automationEntries(
         }
     }
 
+    entry<GeofenceConstraintConfigurationRoute> {
+        AutomationScaffold(
+            title = stringResource(
+                R.string.automation_title_configure_node,
+                stringResource(R.string.automation_singular_constraint),
+            ),
+            canNavigateBack = true,
+            onNavigateBack = {
+                editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
+            },
+        ) { modifier ->
+            AutomationGeofenceConfigurationScreen(
+                viewModel = geofenceViewModel,
+                modifier = modifier,
+            )
+        }
+    }
+
     entry<TimeBasedTriggerConfigurationRoute> {
         AutomationScaffold(
             title = stringResource(
@@ -143,6 +162,25 @@ internal fun EntryProviderScope<NavKey>.automationEntries(
         ) { modifier ->
             TimeBasedTriggerRouteScreen(
                 editorViewModel = editorViewModel,
+                modifier = modifier,
+            )
+        }
+    }
+
+    entry<TimeOfDayConstraintConfigurationRoute> {
+        AutomationScaffold(
+            title = stringResource(
+                R.string.automation_title_configure_node,
+                stringResource(R.string.automation_singular_constraint),
+            ),
+            canNavigateBack = true,
+            onNavigateBack = {
+                editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
+            },
+        ) { modifier ->
+            TimeOfDayConstraintRouteScreen(
+                editorViewModel = editorViewModel,
+                config = editorViewModel.currentDraftConfigOrDefault(TimeOfDayConstraintConfig::class),
                 modifier = modifier,
             )
         }

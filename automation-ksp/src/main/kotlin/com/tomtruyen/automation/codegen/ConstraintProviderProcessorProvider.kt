@@ -47,13 +47,14 @@ private class ConstraintProviderProcessor(private val codeGenerator: CodeGenerat
             appendLine("import com.tomtruyen.automation.features.constraints.config.ConstraintConfig")
             appendLine("import com.tomtruyen.automation.features.constraints.definition.ConstraintDefinition")
             appendLine("import com.tomtruyen.automation.features.constraints.delegate.ConstraintDelegate")
+            appendLine("import android.content.Context")
             appendLine()
             appendGeneratedProviderObject(
                 name = GENERATED_CONSTRAINT_PROVIDER,
                 definitionType = "ConstraintDefinition<*>",
                 definitions = constraintDefinitions.map { it.objectReference() },
-                delegates = constraintDelegates.map { it.instantiationExpression() },
-                delegateFunction = "fun delegates(): List<ConstraintDelegate<out ConstraintConfig>>",
+                delegates = constraintDelegates.map { it.constraintInstantiationExpression() },
+                delegateFunction = "fun delegates(context: Context): List<ConstraintDelegate<out ConstraintConfig>>",
             )
         }
 

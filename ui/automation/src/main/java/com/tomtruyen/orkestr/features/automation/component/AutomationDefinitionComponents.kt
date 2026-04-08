@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -16,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tomtruyen.automation.core.config.AutomationConfig
@@ -101,6 +104,57 @@ fun AutomationFieldForm(
                     }
                 }
 
+                AutomationFieldType.MULTI_CHOICE -> {
+                    val selectedValues = field.readValue(config)
+                        .split(',')
+                        .map(String::trim)
+                        .filter(String::isNotBlank)
+                        .toSet()
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(text = stringResource(field.labelRes), style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            text = stringResource(field.descriptionRes),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        if (field.choiceColumns != null) {
+                            FixedColumnMultiChoiceGrid(
+                                field = field,
+                                selectedValues = selectedValues,
+                                onFieldChanged = onFieldChanged,
+                            )
+                        } else {
+                            FlowRow(
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                verticalArrangement = Arrangement.spacedBy(0.dp),
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                field.options.forEach { option ->
+                                    val selected = option.value in selectedValues
+                                    FilterChip(
+                                        selected = selected,
+                                        onClick = {
+                                            val updatedSelection = if (selected) {
+                                                selectedValues - option.value
+                                            } else {
+                                                selectedValues + option.value
+                                            }
+                                            onFieldChanged(field.id, updatedSelection.sorted().joinToString(","))
+                                        },
+                                        label = {
+                                            Text(
+                                                text = stringResource(option.labelRes),
+                                                maxLines = 1,
+                                                softWrap = false,
+                                            )
+                                        },
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
                 else -> {
                     val value = field.readValue(config)
                     OutlinedTextField(
@@ -122,6 +176,88 @@ fun AutomationFieldForm(
             }
             contentAfterField?.invoke(field)
         }
+    }
+}
+
+@Composable
+private fun FixedColumnMultiChoiceGrid(
+    field: AutomationFieldDefinition,
+    selectedValues: Set<String>,
+    onFieldChanged: (String, String) -> Unit,
+) {
+    val columns = field.choiceColumns ?: return
+    Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
+        field.options.chunked(columns).forEach { rowOptions ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                rowOptions.forEach { option ->
+                    val selected = option.value in selectedValues
+                    FixedGridChoiceChip(
+                        label = stringResource(option.labelRes),
+                        selected = selected,
+                        modifier = Modifier.weight(1f),
+                        onClick = {
+                            val updatedSelection = if (selected) {
+                                selectedValues - option.value
+                            } else {
+                                selectedValues + option.value
+                            }
+                            onFieldChanged(field.id, updatedSelection.sorted().joinToString(","))
+                        },
+                    )
+                }
+                repeat(columns - rowOptions.size) {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FixedGridChoiceChip(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        selected = selected,
+        onClick = onClick,
+        modifier = modifier.defaultMinSize(minHeight = 32.dp),
+        shape = MaterialTheme.shapes.small,
+        color = if (selected) {
+            MaterialTheme.colorScheme.secondaryContainer
+        } else {
+            MaterialTheme.colorScheme.surface
+        },
+        contentColor = if (selected) {
+            MaterialTheme.colorScheme.onSecondaryContainer
+        } else {
+            MaterialTheme.colorScheme.onSurface
+        },
+        border = androidx.compose.foundation.BorderStroke(
+            width = 1.dp,
+            color = if (selected) {
+                MaterialTheme.colorScheme.secondary
+            } else {
+                MaterialTheme.colorScheme.outlineVariant
+            },
+        ),
+    ) {
+        Text(
+            text = label,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 4.dp, vertical = 6.dp),
+            maxLines = 1,
+            softWrap = false,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.labelLarge,
+        )
     }
 }
 

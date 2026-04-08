@@ -78,6 +78,33 @@ internal fun KSClassDeclaration.instantiationExpression(): String {
     }
 }
 
+internal fun KSClassDeclaration.constraintInstantiationExpression(): String {
+    val qualifiedName = objectReference()
+    return when (classKind) {
+        ClassKind.OBJECT -> qualifiedName
+
+        ClassKind.CLASS -> {
+            val constructor = primaryConstructor
+                ?: constructors().singleOrNull()
+                ?: error("Constraint delegate $qualifiedName must declare a single constructor.")
+            val parameterTypes = constructor.parameters.map {
+                it.type.resolve().declaration.qualifiedName?.asString().orEmpty()
+            }
+            when (parameterTypes) {
+                emptyList<String>() -> "$qualifiedName()"
+
+                listOf(CONTEXT_TYPE) -> "$qualifiedName(context)"
+
+                else -> error(
+                    "Constraint delegate $qualifiedName must have either a no-arg constructor or a single Context constructor.",
+                )
+            }
+        }
+
+        else -> error("Unsupported kind $classKind")
+    }
+}
+
 internal fun KSClassDeclaration.actionInstantiationExpression(): String {
     val qualifiedName = objectReference()
     return when (classKind) {

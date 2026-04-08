@@ -77,6 +77,118 @@ internal fun BatteryLevelConstraintDefinitionScreenshotTest() {
 @PreviewTest
 @Preview(showBackground = true, widthDp = 420)
 @Composable
+internal fun BatterySaverStateConstraintDefinitionScreenshotTest() {
+    BatterySaverStateConstraintDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun PowerConnectedConstraintDefinitionScreenshotTest() {
+    PowerConnectedConstraintDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun BluetoothStateConstraintDefinitionScreenshotTest() {
+    BluetoothStateConstraintDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun GpsStateConstraintDefinitionScreenshotTest() {
+    GpsStateConstraintDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun MobileDataStateConstraintDefinitionScreenshotTest() {
+    MobileDataStateConstraintDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun WifiStateConstraintDefinitionScreenshotTest() {
+    WifiStateConstraintDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun WifiSsidConstraintDefinitionScreenshotTest() {
+    WifiSsidConstraintDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun DateOfMonthConstraintDefinitionScreenshotTest() {
+    DateOfMonthConstraintDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun DayOfWeekConstraintDefinitionScreenshotTest() {
+    DayOfWeekConstraintDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun MonthOfYearConstraintDefinitionScreenshotTest() {
+    MonthOfYearConstraintDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun TimeOfDayConstraintDefinitionScreenshotTest() {
+    TimeOfDayConstraintDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun GeofenceConstraintDefinitionScreenshotTest() {
+    GeofenceConstraintDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun HeadphoneConnectionConstraintDefinitionScreenshotTest() {
+    HeadphoneConnectionConstraintDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun MusicActiveConstraintDefinitionScreenshotTest() {
+    MusicActiveConstraintDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun CallStateConstraintDefinitionScreenshotTest() {
+    CallStateConstraintDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun ScreenStateConstraintDefinitionScreenshotTest() {
+    ScreenStateConstraintDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
 internal fun DoNotDisturbActionDefinitionScreenshotTest() {
     DoNotDisturbActionDefinitionComposePreview()
 }

@@ -2,6 +2,7 @@ package com.tomtruyen.orkestr.features.geofence.viewmodel
 
 import com.tomtruyen.automation.core.model.AutomationGeofence
 import com.tomtruyen.automation.data.repository.GeofenceRepository
+import com.tomtruyen.automation.features.constraints.config.GeofenceConstraintConfig
 import com.tomtruyen.automation.features.triggers.config.GeofenceTriggerConfig
 import com.tomtruyen.orkestr.common.StringResolver
 import com.tomtruyen.orkestr.features.geofence.data.GeofenceLocation
@@ -78,14 +79,26 @@ internal class GeofenceTriggerViewModelTest {
         assertEquals(geofence.id, viewModel.uiState.value.config.geofenceId)
         assertEquals(geofence.name, viewModel.uiState.value.config.geofenceName)
         assertEquals(
-            GeofenceTriggerEvent.GeofenceSelected(
-                GeofenceTriggerConfig(
-                    geofenceId = geofence.id,
-                    geofenceName = geofence.name,
-                ),
-            ),
+            GeofenceTriggerEvent.GeofenceSelected(geofence),
             event.await(),
         )
+    }
+
+    @Test
+    fun loadConstraintConfig_selectsExistingGeofence() {
+        val config = GeofenceConstraintConfig(
+            geofenceId = "home",
+            geofenceName = "Home",
+            latitude = 51.219448,
+            longitude = 4.402464,
+            radiusMeters = 150f,
+        )
+        val viewModel = viewModel()
+
+        viewModel.onAction(GeofenceTriggerAction.LoadConstraintConfig(config))
+
+        assertEquals(config.geofenceId, viewModel.uiState.value.config.geofenceId)
+        assertEquals(config.geofenceName, viewModel.uiState.value.config.geofenceName)
     }
 
     @Test

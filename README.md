@@ -149,7 +149,23 @@ Reference points by complexity:
 
 | Constraint | Notes |
 |------------|-------|
-| Battery Level | Compares current battery percentage against a configured operator and value. |
+| Battery Level | Compares the live battery percentage against a configured operator and value. |
+| Battery Saver State | Matches the current Battery Saver state. Available on Android 5.0+. |
+| Power Connected | Matches whether the device is currently plugged into external power. |
+| Bluetooth State | Matches whether Bluetooth is on. Requires `BLUETOOTH_CONNECT` on Android 12+. |
+| GPS State | Matches whether the GPS provider is enabled. Behavior may vary by OEM location implementations. |
+| Mobile Data State | Matches the default cellular data setting. Requires `READ_PHONE_STATE`. Dual-SIM behavior depends on the active data subscription. |
+| Wi-Fi State | Matches whether Wi-Fi is on. |
+| Connected Wi-Fi SSID | Matches whether the device is currently connected to a selected Wi-Fi network name. Requires location-based Wi-Fi access. Android may hide the current SSID when permission or device state is restricted. |
+| Date Of Month | Matches one or more selected calendar dates from `1` to `31`. |
+| Day Of Week | Matches one or more selected weekdays. |
+| Month Of Year | Matches one or more selected months. |
+| Time Of Day | Matches a configured daily time window. Windows can cross midnight. |
+| Geofence | Matches whether the device is currently inside or outside a selected saved geofence. Requires fine and background location. Current location is best-effort and may be stale. |
+| Headphone Connection | Matches whether wired, USB, or Bluetooth headphones are currently connected. |
+| Music Active | Matches whether Android reports active media playback. |
+| Call State | Matches normal telephony call state. Requires `READ_PHONE_STATE`. VoIP app calls are not included. |
+| Screen State | Matches whether the screen is interactive/on. |
 
 ### Actions
 

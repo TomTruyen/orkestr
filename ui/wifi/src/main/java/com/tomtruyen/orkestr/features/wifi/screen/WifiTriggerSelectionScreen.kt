@@ -44,6 +44,7 @@ fun WifiTriggerSelectionScreen(
     requiredMinSdk: Int?,
     chooseDifferentLabel: String?,
     onChooseDifferent: (() -> Unit)?,
+    showTriggerTypeSelector: Boolean = true,
     onWifiSelected: (WifiSsidTriggerConfig) -> Unit,
     modifier: Modifier = Modifier,
     wifiNetworkService: WifiNetworkService = koinInject(),
@@ -88,38 +89,40 @@ fun WifiTriggerSelectionScreen(
             }
         }
 
-        item {
-            WifiPickerSectionCard {
-                WifiPickerSectionHeader(
-                    title = stringResource(R.string.automation_wifi_section_trigger_type_title),
-                    description = stringResource(R.string.automation_wifi_section_trigger_type_description),
-                )
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    FilterChip(
-                        selected = triggerType == WifiRangeTriggerType.IN_RANGE,
-                        onClick = { triggerType = WifiRangeTriggerType.IN_RANGE },
-                        label = {
-                            Text(
-                                stringResource(
-                                    AutomationR.string.automation_definition_trigger_wifi_ssid_option_in_range,
-                                ),
-                            )
-                        },
+        if (showTriggerTypeSelector) {
+            item {
+                WifiPickerSectionCard {
+                    WifiPickerSectionHeader(
+                        title = stringResource(R.string.automation_wifi_section_trigger_type_title),
+                        description = stringResource(R.string.automation_wifi_section_trigger_type_description),
                     )
-                    FilterChip(
-                        selected = triggerType == WifiRangeTriggerType.OUT_OF_RANGE,
-                        onClick = { triggerType = WifiRangeTriggerType.OUT_OF_RANGE },
-                        label = {
-                            Text(
-                                stringResource(
-                                    AutomationR.string.automation_definition_trigger_wifi_ssid_option_out_of_range,
-                                ),
-                            )
-                        },
-                    )
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        FilterChip(
+                            selected = triggerType == WifiRangeTriggerType.IN_RANGE,
+                            onClick = { triggerType = WifiRangeTriggerType.IN_RANGE },
+                            label = {
+                                Text(
+                                    stringResource(
+                                        AutomationR.string.automation_definition_trigger_wifi_ssid_option_in_range,
+                                    ),
+                                )
+                            },
+                        )
+                        FilterChip(
+                            selected = triggerType == WifiRangeTriggerType.OUT_OF_RANGE,
+                            onClick = { triggerType = WifiRangeTriggerType.OUT_OF_RANGE },
+                            label = {
+                                Text(
+                                    stringResource(
+                                        AutomationR.string.automation_definition_trigger_wifi_ssid_option_out_of_range,
+                                    ),
+                                )
+                            },
+                        )
+                    }
                 }
             }
         }

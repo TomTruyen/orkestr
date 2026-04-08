@@ -16,6 +16,7 @@ abstract class AutomationFieldDefinition(
     val defaultValue: String = "",
     @param:StringRes val placeholderRes: Int? = null,
     val options: List<AutomationOption> = emptyList(),
+    val choiceColumns: Int? = null,
 ) {
     abstract fun readValue(config: AutomationConfig<*>?): String
     abstract fun updateValue(config: AutomationConfig<*>?, input: String): AutomationConfig<*>
@@ -53,6 +54,7 @@ class TypedAutomationFieldDefinition<C : AutomationConfig<*>>(
     defaultValue: String = "",
     @StringRes placeholderRes: Int? = null,
     options: List<AutomationOption> = emptyList(),
+    choiceColumns: Int? = null,
     private val reader: (C) -> String,
     private val updater: (C, String) -> C,
     private val inputValidator: (String, AutomationTextResolver) -> List<String> = { _, _ -> emptyList() },
@@ -65,6 +67,7 @@ class TypedAutomationFieldDefinition<C : AutomationConfig<*>>(
     defaultValue = defaultValue,
     placeholderRes = placeholderRes,
     options = options,
+    choiceColumns = choiceColumns,
 ) {
     override fun readValue(config: AutomationConfig<*>?): String = reader(cast(config) ?: defaultConfig)
 

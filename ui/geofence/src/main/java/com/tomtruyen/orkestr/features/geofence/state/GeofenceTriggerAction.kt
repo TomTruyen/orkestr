@@ -1,10 +1,12 @@
 package com.tomtruyen.orkestr.features.geofence.state
 
 import com.tomtruyen.automation.core.model.GeofenceTransitionType
+import com.tomtruyen.automation.features.constraints.config.GeofenceConstraintConfig
 import com.tomtruyen.automation.features.triggers.config.GeofenceTriggerConfig
 
 sealed interface GeofenceTriggerAction {
     data class LoadConfig(val config: GeofenceTriggerConfig) : GeofenceTriggerAction
+    data class LoadConstraintConfig(val config: GeofenceConstraintConfig) : GeofenceTriggerAction
     data class SelectGeofence(val geofenceId: String) : GeofenceTriggerAction
     data class SelectTransition(val transitionType: GeofenceTransitionType) : GeofenceTriggerAction
     data object SaveConfigurationClicked : GeofenceTriggerAction

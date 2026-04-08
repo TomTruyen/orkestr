@@ -1,6 +1,7 @@
 package com.tomtruyen.orkestr.features.geofence.viewmodel
 
 import com.tomtruyen.automation.data.repository.GeofenceRepository
+import com.tomtruyen.automation.features.constraints.config.GeofenceConstraintConfig
 import com.tomtruyen.automation.features.triggers.config.GeofenceTriggerConfig
 import com.tomtruyen.orkestr.common.BaseViewModel
 import com.tomtruyen.orkestr.common.StringResolver
@@ -35,6 +36,7 @@ class GeofenceTriggerViewModel(
     override fun onAction(action: GeofenceTriggerAction) {
         when (action) {
             is GeofenceTriggerAction.LoadConfig -> loadConfig(action.config)
+            is GeofenceTriggerAction.LoadConstraintConfig -> loadConstraintConfig(action.config)
             is GeofenceTriggerAction.SelectGeofence -> selectGeofence(action.geofenceId)
             GeofenceTriggerAction.SaveConfigurationClicked -> saveConfiguration()
             GeofenceTriggerAction.CreateGeofenceClicked -> openGeofenceEditor()
@@ -93,6 +95,7 @@ class GeofenceTriggerViewModel(
             is GeofenceTriggerAction.SelectTransition -> Unit
 
             is GeofenceTriggerAction.LoadConfig,
+            is GeofenceTriggerAction.LoadConstraintConfig,
             is GeofenceTriggerAction.SelectGeofence,
             GeofenceTriggerAction.SaveConfigurationClicked,
             GeofenceTriggerAction.CreateGeofenceClicked,
@@ -114,6 +117,15 @@ class GeofenceTriggerViewModel(
         }
     }
 
+    private fun loadConstraintConfig(config: GeofenceConstraintConfig) {
+        loadConfig(
+            GeofenceTriggerConfig(
+                geofenceId = config.geofenceId,
+                geofenceName = config.geofenceName,
+            ),
+        )
+    }
+
     private fun selectGeofence(geofenceId: String) {
         val geofence = uiState.value.geofences.firstOrNull { it.id == geofenceId } ?: return
         val updatedConfig = uiState.value.config.copy(
@@ -126,7 +138,7 @@ class GeofenceTriggerViewModel(
                 configErrors = emptyList(),
             )
         }
-        triggerEvent(GeofenceTriggerEvent.GeofenceSelected(updatedConfig))
+        triggerEvent(GeofenceTriggerEvent.GeofenceSelected(geofence))
     }
 
     private fun saveConfiguration() {
@@ -144,7 +156,8 @@ class GeofenceTriggerViewModel(
             return
         }
 
-        triggerEvent(GeofenceTriggerEvent.GeofenceSelected(config))
+        val selectedGeofence = uiState.value.geofences.firstOrNull { it.id == config.geofenceId } ?: return
+        triggerEvent(GeofenceTriggerEvent.GeofenceSelected(selectedGeofence))
     }
 
     private fun openGeofenceEditor() {

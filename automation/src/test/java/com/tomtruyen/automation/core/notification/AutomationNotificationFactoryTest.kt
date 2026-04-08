@@ -24,7 +24,7 @@ internal class AutomationNotificationFactoryTest {
         val channel = factory.runtimeChannel()
 
         assertEquals(AutomationNotificationFactory.RUNTIME_CHANNEL_ID, channel.id)
-        assertEquals("Automation runtime", channel.name)
+        assertEquals("Persistent Notification (Trigger Listeners)", channel.name)
         assertEquals("Keeps Orkestr listening for automation triggers.", channel.description)
     }
 
@@ -33,7 +33,7 @@ internal class AutomationNotificationFactoryTest {
         val channel = factory.actionChannel()
 
         assertEquals(AutomationNotificationFactory.ACTION_CHANNEL_ID, channel.id)
-        assertEquals("Automation actions", channel.name)
+        assertEquals("Notification Action", channel.name)
         assertEquals("Notifications posted by automation actions.", channel.description)
     }
 

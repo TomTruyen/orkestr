@@ -18,10 +18,12 @@ import androidx.compose.ui.unit.dp
 import com.tomtruyen.automation.core.config.AutomationConfig
 import com.tomtruyen.automation.core.definition.AutomationNodeDefinition
 import com.tomtruyen.automation.core.model.AppLifecycleTransitionType
+import com.tomtruyen.automation.core.model.AutomationLocalTime
 import com.tomtruyen.automation.core.model.BatteryChargeState
 import com.tomtruyen.automation.core.model.DoNotDisturbMode
 import com.tomtruyen.automation.core.model.GeofenceTransitionType
 import com.tomtruyen.automation.core.model.GeofenceUpdateRate
+import com.tomtruyen.automation.core.model.MonthOfYear
 import com.tomtruyen.automation.core.model.PhoneVolumeStream
 import com.tomtruyen.automation.core.model.PowerConnectionState
 import com.tomtruyen.automation.core.model.WallpaperTarget
@@ -42,6 +44,22 @@ import com.tomtruyen.automation.features.actions.config.VibratePhoneActionConfig
 import com.tomtruyen.automation.features.actions.definition.ActionDefinition
 import com.tomtruyen.automation.features.constraints.ConstraintType
 import com.tomtruyen.automation.features.constraints.config.BatteryLevelConstraintConfig
+import com.tomtruyen.automation.features.constraints.config.BatterySaverStateConstraintConfig
+import com.tomtruyen.automation.features.constraints.config.BluetoothStateConstraintConfig
+import com.tomtruyen.automation.features.constraints.config.CallStateConstraintConfig
+import com.tomtruyen.automation.features.constraints.config.DateOfMonthConstraintConfig
+import com.tomtruyen.automation.features.constraints.config.DayOfWeekConstraintConfig
+import com.tomtruyen.automation.features.constraints.config.GeofenceConstraintConfig
+import com.tomtruyen.automation.features.constraints.config.GpsStateConstraintConfig
+import com.tomtruyen.automation.features.constraints.config.HeadphoneConnectionConstraintConfig
+import com.tomtruyen.automation.features.constraints.config.MobileDataStateConstraintConfig
+import com.tomtruyen.automation.features.constraints.config.MonthOfYearConstraintConfig
+import com.tomtruyen.automation.features.constraints.config.MusicActiveConstraintConfig
+import com.tomtruyen.automation.features.constraints.config.PowerConnectedConstraintConfig
+import com.tomtruyen.automation.features.constraints.config.ScreenStateConstraintConfig
+import com.tomtruyen.automation.features.constraints.config.TimeOfDayConstraintConfig
+import com.tomtruyen.automation.features.constraints.config.WifiSsidConstraintConfig
+import com.tomtruyen.automation.features.constraints.config.WifiStateConstraintConfig
 import com.tomtruyen.automation.features.constraints.definition.ConstraintDefinition
 import com.tomtruyen.automation.features.triggers.TriggerType
 import com.tomtruyen.automation.features.triggers.config.ApplicationLifecycleTriggerConfig
@@ -62,6 +80,8 @@ import com.tomtruyen.orkestr.common.component.AutomationCardColumn
 import com.tomtruyen.orkestr.common.component.AutomationRequiredSdkChip
 
 internal object AutomationGeneratedDefinitionPreviewCatalog {
+    internal val sampleMonthDays = setOf(1, 15, 28)
+
     val triggerTypes: Set<TriggerType> = GeneratedTriggerProvider.definitions.mapTo(linkedSetOf()) { it.type }
     val constraintTypes: Set<ConstraintType> = GeneratedConstraintProvider.definitions.mapTo(linkedSetOf()) { it.type }
     val actionTypes: Set<ActionType> = GeneratedActionProvider.definitions.mapTo(linkedSetOf()) { it.type }
@@ -180,6 +200,160 @@ internal fun BatteryLevelConstraintDefinitionComposePreview() {
             operator = ComparisonOperator.LESS_THAN_OR_EQUAL,
             value = 20,
         ),
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun BatterySaverStateConstraintDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.constraint(ConstraintType.BATTERY_SAVER_STATE),
+        config = BatterySaverStateConstraintConfig(enabled = true),
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun PowerConnectedConstraintDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.constraint(ConstraintType.POWER_CONNECTED),
+        config = PowerConnectedConstraintConfig(connected = false),
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun BluetoothStateConstraintDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.constraint(ConstraintType.BLUETOOTH_STATE),
+        config = BluetoothStateConstraintConfig(enabled = true),
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun GpsStateConstraintDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.constraint(ConstraintType.GPS_STATE),
+        config = GpsStateConstraintConfig(enabled = true),
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun MobileDataStateConstraintDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.constraint(ConstraintType.MOBILE_DATA_STATE),
+        config = MobileDataStateConstraintConfig(enabled = true),
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun WifiStateConstraintDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.constraint(ConstraintType.WIFI_STATE),
+        config = WifiStateConstraintConfig(enabled = true),
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun WifiSsidConstraintDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.constraint(ConstraintType.WIFI_SSID_CONNECTED),
+        config = WifiSsidConstraintConfig(ssid = "Office WiFi"),
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun DateOfMonthConstraintDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.constraint(ConstraintType.DATE_OF_MONTH),
+        config = DateOfMonthConstraintConfig(days = AutomationGeneratedDefinitionPreviewCatalog.sampleMonthDays),
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun DayOfWeekConstraintDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.constraint(ConstraintType.DAY_OF_WEEK),
+        config = DayOfWeekConstraintConfig(days = setOf(Weekday.MONDAY, Weekday.FRIDAY)),
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun MonthOfYearConstraintDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.constraint(ConstraintType.MONTH_OF_YEAR),
+        config = MonthOfYearConstraintConfig(months = setOf(MonthOfYear.JUNE, MonthOfYear.DECEMBER)),
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun TimeOfDayConstraintDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.constraint(ConstraintType.TIME_OF_DAY),
+        config = TimeOfDayConstraintConfig(
+            startTime = AutomationLocalTime(hour = 22, minute = 0),
+            endTime = AutomationLocalTime(hour = 6, minute = 30),
+        ),
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun GeofenceConstraintDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.constraint(ConstraintType.GEOFENCE),
+        config = GeofenceConstraintConfig(
+            geofenceId = "home",
+            geofenceName = "Home",
+            latitude = 51.219448,
+            longitude = 4.402464,
+            radiusMeters = 150f,
+            inside = false,
+        ),
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun HeadphoneConnectionConstraintDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.constraint(ConstraintType.HEADPHONE_CONNECTION),
+        config = HeadphoneConnectionConstraintConfig(connected = true),
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun MusicActiveConstraintDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.constraint(ConstraintType.MUSIC_ACTIVE),
+        config = MusicActiveConstraintConfig(active = true),
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun CallStateConstraintDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.constraint(ConstraintType.CALL_STATE),
+        config = CallStateConstraintConfig(inCall = false),
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun ScreenStateConstraintDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.constraint(ConstraintType.SCREEN_STATE),
+        config = ScreenStateConstraintConfig(on = false),
     )
 }
 

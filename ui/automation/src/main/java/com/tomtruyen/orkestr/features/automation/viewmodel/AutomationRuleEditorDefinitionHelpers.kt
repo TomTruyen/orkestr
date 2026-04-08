@@ -81,7 +81,12 @@ internal fun AutomationDefinitionRegistry.customNavigationEventFor(
         else -> null
     }
 
-    RuleSection.CONSTRAINTS -> null
+    RuleSection.CONSTRAINTS -> when (typeKey) {
+        ConstraintType.GEOFENCE.name -> AutomationEditorEvent.NavigateToGeofenceConstraintConfiguration
+        ConstraintType.TIME_OF_DAY.name -> AutomationEditorEvent.NavigateToTimeOfDayConstraintConfiguration
+        ConstraintType.WIFI_SSID_CONNECTED.name -> AutomationEditorEvent.NavigateToWifiTriggerSelection
+        else -> null
+    }
 }
 
 internal fun customConfigurationButtonLabelRes(section: RuleSection, typeKey: String): Int? = when (section) {
@@ -100,7 +105,12 @@ internal fun customConfigurationButtonLabelRes(section: RuleSection, typeKey: St
         else -> null
     }
 
-    RuleSection.CONSTRAINTS -> null
+    RuleSection.CONSTRAINTS -> when (typeKey) {
+        ConstraintType.GEOFENCE.name -> R.string.automation_action_open_geofence_flow
+        ConstraintType.TIME_OF_DAY.name -> R.string.automation_action_open_schedule_flow
+        ConstraintType.WIFI_SSID_CONNECTED.name -> R.string.automation_action_open_wifi_picker_flow
+        else -> null
+    }
 }
 
 private fun AutomationDefinitionRegistry.definitionsFor(section: RuleSection): List<AutomationNodeDefinition<*, *>> =

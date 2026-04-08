@@ -39,4 +39,10 @@ data object SetWallpaperActionConfigurationRoute : NavKey
 data object TimeBasedTriggerConfigurationRoute : NavKey
 
 @Serializable
+data object TimeOfDayConstraintConfigurationRoute : NavKey
+
+@Serializable
 data object WifiTriggerSelectionRoute : NavKey
+
+@Serializable
+data object GeofenceConstraintConfigurationRoute : NavKey

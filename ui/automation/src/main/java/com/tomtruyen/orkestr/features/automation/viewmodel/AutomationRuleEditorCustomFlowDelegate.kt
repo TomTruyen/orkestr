@@ -2,9 +2,13 @@ package com.tomtruyen.orkestr.features.automation.viewmodel
 
 import com.tomtruyen.automation.core.config.AutomationConfig
 import com.tomtruyen.automation.core.definition.AutomationDefinitionRegistry
+import com.tomtruyen.automation.core.model.AutomationGeofence
 import com.tomtruyen.automation.features.actions.ActionType
 import com.tomtruyen.automation.features.actions.config.LaunchApplicationActionConfig
 import com.tomtruyen.automation.features.actions.config.SetWallpaperActionConfig
+import com.tomtruyen.automation.features.constraints.config.GeofenceConstraintConfig
+import com.tomtruyen.automation.features.constraints.config.TimeOfDayConstraintConfig
+import com.tomtruyen.automation.features.constraints.config.WifiSsidConstraintConfig
 import com.tomtruyen.automation.features.triggers.TriggerType
 import com.tomtruyen.automation.features.triggers.config.ApplicationLifecycleTriggerConfig
 import com.tomtruyen.automation.features.triggers.config.GeofenceTriggerConfig
@@ -20,9 +24,9 @@ import kotlin.reflect.KClass
 internal interface AutomationRuleEditorCustomFlowDelegate {
     fun selectedCustomConfigurationButtonLabel(): String?
     fun <T : AutomationConfig<*>> currentDraftConfigOrDefault(configClass: KClass<T>): T
-    fun applySelectedGeofence(config: GeofenceTriggerConfig)
+    fun applySelectedGeofence(geofence: AutomationGeofence)
     fun applySelectedApp(selectedTypeKey: String?, packageName: String, appLabel: String)
-    fun applySelectedWifiTrigger(config: WifiSsidTriggerConfig)
+    fun applySelectedWifi(config: WifiSsidTriggerConfig)
     fun applySelectedWallpaper(imageUri: String, imageLabel: String)
     fun openSelectedCustomConfigurationFlow()
     fun chooseDifferentDefinition()
@@ -53,13 +57,12 @@ internal class BindableAutomationRuleEditorCustomFlowDelegate : AutomationRuleEd
     override fun <T : AutomationConfig<*>> currentDraftConfigOrDefault(configClass: KClass<T>): T =
         requireDelegate().currentDraftConfigOrDefault(configClass)
 
-    override fun applySelectedGeofence(config: GeofenceTriggerConfig) = requireDelegate().applySelectedGeofence(config)
+    override fun applySelectedGeofence(geofence: AutomationGeofence) = requireDelegate().applySelectedGeofence(geofence)
 
     override fun applySelectedApp(selectedTypeKey: String?, packageName: String, appLabel: String) =
         requireDelegate().applySelectedApp(selectedTypeKey, packageName, appLabel)
 
-    override fun applySelectedWifiTrigger(config: WifiSsidTriggerConfig) =
-        requireDelegate().applySelectedWifiTrigger(config)
+    override fun applySelectedWifi(config: WifiSsidTriggerConfig) = requireDelegate().applySelectedWifi(config)
 
     override fun applySelectedWallpaper(imageUri: String, imageLabel: String) =
         requireDelegate().applySelectedWallpaper(imageUri, imageLabel)
@@ -101,6 +104,9 @@ internal class AutomationRuleEditorCustomFlowCoordinator(
             SetWallpaperActionConfig::class -> SetWallpaperActionConfig()
             WifiSsidTriggerConfig::class -> WifiSsidTriggerConfig()
             TimeBasedTriggerConfig::class -> TimeBasedTriggerConfig()
+            TimeOfDayConstraintConfig::class -> TimeOfDayConstraintConfig()
+            GeofenceConstraintConfig::class -> GeofenceConstraintConfig()
+            WifiSsidConstraintConfig::class -> WifiSsidConstraintConfig()
             else -> error("Unsupported config class: ${configClass.qualifiedName}")
         }
 
@@ -108,8 +114,22 @@ internal class AutomationRuleEditorCustomFlowCoordinator(
         return defaultConfig as T
     }
 
-    override fun applySelectedGeofence(config: GeofenceTriggerConfig) {
+    override fun applySelectedGeofence(geofence: AutomationGeofence) {
         val picker = state().pickerState ?: return
+        val config = when (picker.selectedTypeKey) {
+            TriggerType.GEOFENCE.name -> GeofenceTriggerConfig(
+                geofenceId = geofence.id,
+                geofenceName = geofence.name,
+            )
+
+            else -> GeofenceConstraintConfig(
+                geofenceId = geofence.id,
+                geofenceName = geofence.name,
+                latitude = geofence.latitude,
+                longitude = geofence.longitude,
+                radiusMeters = geofence.radiusMeters,
+            )
+        }
         applyDraftConfig(config, picker)
         triggerEvent(
             AutomationEditorEvent.NavigateToDefinitionConfiguration(
@@ -139,8 +159,13 @@ internal class AutomationRuleEditorCustomFlowCoordinator(
         }
     }
 
-    override fun applySelectedWifiTrigger(config: WifiSsidTriggerConfig) {
-        applyDraftConfigAndOpenConfiguration(config)
+    override fun applySelectedWifi(config: WifiSsidTriggerConfig) {
+        val picker = state().pickerState ?: return
+        val configToApply = when (picker.selectedTypeKey) {
+            TriggerType.WIFI_SSID_IN_RANGE.name -> config
+            else -> WifiSsidConstraintConfig(ssid = config.ssid.trim())
+        }
+        applyDraftConfigAndOpenConfiguration(configToApply)
     }
 
     override fun applySelectedWallpaper(imageUri: String, imageLabel: String) {

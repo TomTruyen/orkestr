@@ -3,11 +3,8 @@ package com.tomtruyen.automation.features.constraints
 import com.tomtruyen.automation.core.event.AutomationEvent
 import com.tomtruyen.automation.features.constraints.config.ConstraintConfig
 import com.tomtruyen.automation.features.constraints.delegate.ConstraintDelegate
-import com.tomtruyen.automation.generated.GeneratedConstraintProvider
 
-class ConstraintEvaluator(
-    delegates: List<ConstraintDelegate<out ConstraintConfig>> = GeneratedConstraintProvider.delegates(),
-) {
+class ConstraintEvaluator(delegates: List<ConstraintDelegate<out ConstraintConfig>> = emptyList()) {
     private val delegatesByType = delegates.associateBy { it.type }
 
     suspend fun evaluateAll(constraints: List<ConstraintConfig>, event: AutomationEvent): Boolean {
