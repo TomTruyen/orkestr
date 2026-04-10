@@ -23,7 +23,7 @@ class PowerConnectionReceiver(
             Intent.ACTION_POWER_DISCONNECTED -> PowerConnectionState.DISCONNECTED
             else -> return
         }
-        logger.log("Received power connection event ${state.name}")
+        logger.info("Received power connection event ${state.name}")
         scope.launch {
             service.handleEvent(PowerConnectionEvent(state))
         }

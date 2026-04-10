@@ -1,0 +1,18 @@
+<resources>
+    <string name="logs_title">Logs</string>
+    <string name="logs_empty_title">No logs yet</string>
+    <string name="logs_empty_description">Automation activity will appear here after triggers fire or actions run.</string>
+    <string name="logs_empty_filtered_description">No log entries match the current search query.</string>
+    <string name="logs_filters_title">Search and sort</string>
+    <string name="logs_filters_description">Filter the execution log by text and change how entries are ordered.</string>
+    <string name="logs_search_label">Search logs</string>
+    <string name="logs_search_placeholder">Find messages or stack traces</string>
+    <string name="logs_sort_label">Sort by</string>
+    <string name="logs_sort_newest">Newest</string>
+    <string name="logs_sort_oldest">Oldest</string>
+    <string name="logs_sort_severity">Severity</string>
+    <string name="logs_severity_debug">Debug</string>
+    <string name="logs_severity_info">Info</string>
+    <string name="logs_severity_warning">Warning</string>
+    <string name="logs_severity_error">Error</string>
+</resources>

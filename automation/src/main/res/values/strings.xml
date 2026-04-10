@@ -248,7 +248,7 @@
     <string name="automation_definition_constraint_time_of_day_error_format">Use 24-hour time in the format HH:MM.</string>
     <string name="automation_definition_constraint_geofence_title">Geofence</string>
     <string name="automation_definition_constraint_geofence_description">Only allows the rule to continue when the device is inside or outside one of your saved geofences. Requires fine and background location. Current location is best-effort and may be stale on some devices.</string>
-    <string name="automation_definition_constraint_geofence_state_label">Require device to be inside the geofence</string>
+    <string name="automation_definition_constraint_geofence_state_label">Device must be inside geofence</string>
     <string name="automation_definition_constraint_geofence_state_description">Turn this off to require the device to be outside the geofence instead.</string>
     <string name="automation_definition_constraint_geofence_summary">Only if device is %1$s %2$s</string>
     <string name="automation_definition_constraint_geofence_unselected">a saved geofence</string>
@@ -290,7 +290,13 @@
     <string name="automation_definition_action_log_message_field_message_label">Message</string>
     <string name="automation_definition_action_log_message_field_message_description">Message written to the automation log.</string>
     <string name="automation_definition_action_log_message_field_message_placeholder">Rule executed</string>
-    <string name="automation_definition_action_log_message_summary">Log "%1$s"</string>
+    <string name="automation_definition_action_log_message_field_severity_label">Severity</string>
+    <string name="automation_definition_action_log_message_field_severity_description">How prominent the log entry should appear in the execution log.</string>
+    <string name="automation_definition_action_log_message_option_debug">Debug</string>
+    <string name="automation_definition_action_log_message_option_info">Info</string>
+    <string name="automation_definition_action_log_message_option_warning">Warning</string>
+    <string name="automation_definition_action_log_message_option_error">Error</string>
+    <string name="automation_definition_action_log_message_summary">Log "%1$s" as %2$s</string>
 
     <string name="automation_definition_action_do_not_disturb_title">Do Not Disturb</string>
     <string name="automation_definition_action_do_not_disturb_description">Changes the device Do Not Disturb mode.</string>

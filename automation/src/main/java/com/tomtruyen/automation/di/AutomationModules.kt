@@ -7,6 +7,8 @@ import com.tomtruyen.automation.core.PersistingAutomationLogger
 import com.tomtruyen.automation.data.AutomationDatabase
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
 import com.tomtruyen.automation.data.repository.AutomationRuleRepositoryImpl
+import com.tomtruyen.automation.data.repository.AutomationLogRepository
+import com.tomtruyen.automation.data.repository.AutomationLogRepositoryImpl
 import com.tomtruyen.automation.data.repository.GeofenceRepository
 import com.tomtruyen.automation.data.repository.GeofenceRepositoryImpl
 import com.tomtruyen.automation.features.actions.ActionExecutor
@@ -39,6 +41,7 @@ val automationModule = module {
 
     // Repository
     single<AutomationRuleRepository> { AutomationRuleRepositoryImpl(get()) }
+    single<AutomationLogRepository> { AutomationLogRepositoryImpl(get()) }
     single<GeofenceRepository> { GeofenceRepositoryImpl(get()) }
 
     // Definitions

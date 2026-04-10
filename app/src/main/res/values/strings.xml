@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Orkestr</string>
+    <string name="app_navigation_automations">Automations</string>
+    <string name="app_navigation_logs">Logs</string>
 </resources>

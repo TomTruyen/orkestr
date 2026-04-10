@@ -35,7 +35,7 @@ class ActionExecutor(
                         runCatching {
                             delegatesByType[action.type]?.executeTyped(action, event)
                         }.onFailure { error ->
-                            logger?.log("Action ${action.type.name} failed during parallel execution", error)
+                            logger?.error("Action ${action.type.name} failed during parallel execution", error)
                         }
                     }
                 }.joinAll()

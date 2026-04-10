@@ -43,6 +43,7 @@ internal class TimeTickReceiverTest {
         MockKAnnotations.init(this)
         coEvery { service.handleEvent(any()) } returns Unit
         every { logger.log(any()) } just runs
+        every { logger.debug(any()) } just runs
     }
 
     @After

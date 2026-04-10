@@ -24,7 +24,7 @@ class GeofenceBroadcastReceiver :
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     override fun onReceive(context: Context, intent: Intent) {
-        logger.log("GeofenceBroadcastReceiver received intent action=${intent.action}")
+        logger.debug("GeofenceBroadcastReceiver received intent action=${intent.action}")
         val pendingResult = runCatching { goAsync() }.getOrNull()
         scope.launch {
             try {
@@ -38,11 +38,11 @@ class GeofenceBroadcastReceiver :
     private suspend fun handleIntent(intent: Intent) {
         val event = GeofencingEvent.fromIntent(intent)
         if (event == null) {
-            logger.log("Received geofence intent but could not parse GeofencingEvent")
+            logger.warning("Received geofence intent but could not parse GeofencingEvent")
             return
         }
         if (event.hasError()) {
-            logger.log(
+            logger.error(
                 "Geofence transition error: ${GeofenceStatusCodes.getStatusCodeString(
                     event.errorCode,
                 )} (${event.errorCode})",
@@ -52,14 +52,14 @@ class GeofenceBroadcastReceiver :
 
         val transitionType = GeofenceTransitionType.fromGoogleTransition(event.geofenceTransition)
         if (transitionType == null) {
-            logger.log("Ignoring unsupported geofence transition: ${event.geofenceTransition}")
+            logger.warning("Ignoring unsupported geofence transition: ${event.geofenceTransition}")
             return
         }
 
-        logger.log("Received geofence transition ${transitionType.name}")
+        logger.info("Received geofence transition ${transitionType.name}")
 
         event.triggeringGeofences.orEmpty().forEach { geofence ->
-            logger.log("Received geofence transition ${transitionType.name} for ${geofence.requestId}")
+            logger.info("Received geofence transition ${transitionType.name} for ${geofence.requestId}")
             runtimeService.handleEvent(
                 GeofenceTransitionEvent(
                     geofenceId = geofence.requestId,

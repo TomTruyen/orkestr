@@ -65,7 +65,7 @@ class GeofenceRegistrationReceiver(
                 geofencingClient.removeGeofences(activeGeofenceIds.toList())
                 activeGeofenceIds = emptySet()
             }
-            logger.log("Skipped geofence registration because location permissions are missing")
+            logger.warning("Skipped geofence registration because location permissions are missing")
             return
         }
 
@@ -90,10 +90,10 @@ class GeofenceRegistrationReceiver(
             geofencingClient.addGeofences(request, geofencePendingIntent(appContext))
                 .addOnSuccessListener {
                     activeGeofenceIds = targetIds
-                    logger.log("Registered ${targetIds.size} geofence(s) for action")
+                    logger.info("Registered ${targetIds.size} geofence(s) for action")
                 }
                 .addOnFailureListener { error ->
-                    logger.log("Failed to register geofences: ${error.message}")
+                    logger.error("Failed to register geofences: ${error.message}", error)
                 }
         }
     }

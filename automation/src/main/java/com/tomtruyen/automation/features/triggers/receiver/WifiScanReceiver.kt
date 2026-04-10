@@ -42,7 +42,7 @@ class WifiScanReceiver(
         val connectedSsid = runCatching { connectedSsidProvider(context) }.getOrElse { error ->
             if (error is SecurityException) null else throw error
         }
-        logger.log("Received wifi scan event connected=$connectedSsid visible=${visibleSsids.joinToString()}")
+        logger.debug("Received wifi scan event connected=$connectedSsid visible=${visibleSsids.joinToString()}")
         scope.launch {
             service.handleEvent(
                 WifiScanResultEvent(

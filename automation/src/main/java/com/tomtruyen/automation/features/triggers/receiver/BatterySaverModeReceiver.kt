@@ -23,7 +23,7 @@ class BatterySaverModeReceiver(
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != PowerManager.ACTION_POWER_SAVE_MODE_CHANGED) return
         val enabled = isPowerSaveModeProvider(context)
-        logger.log("Received battery saver state event enabled=$enabled")
+        logger.info("Received battery saver state event enabled=$enabled")
         scope.launch {
             service.handleEvent(BatterySaverStateChangedEvent(enabled))
         }

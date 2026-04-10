@@ -33,6 +33,7 @@ dependencies {
     implementation(project(":ui:automation"))
     implementation(project(":ui:common"))
     implementation(project(":ui:geofence"))
+    implementation(project(":ui:logs"))
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
     testImplementation(libs.junit)

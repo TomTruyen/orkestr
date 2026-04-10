@@ -42,7 +42,7 @@ class BatteryChangedReceiver(
         lastState = currentState
 
         if (previousState == null) {
-            logger.log(
+            logger.debug(
                 """
                     Ignoring initial battery snapshot:
                     level=$level
@@ -56,7 +56,7 @@ class BatteryChangedReceiver(
             return
         }
 
-        logger.log(
+        logger.info(
             """
                 Received battery change event: 
                 level=$level

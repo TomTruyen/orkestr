@@ -12,7 +12,7 @@ import com.tomtruyen.automation.data.entity.GeofenceEntity
 
 @Database(
     entities = [AutomationRuleEntity::class, GeofenceEntity::class, AutomationLogEntity::class],
-    version = 4,
+    version = 5,
     exportSchema = false,
 )
 @TypeConverters(AutomationRuleTypeConverters::class)

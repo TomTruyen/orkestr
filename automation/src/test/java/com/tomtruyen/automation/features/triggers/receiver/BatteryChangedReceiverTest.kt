@@ -47,6 +47,8 @@ internal class BatteryChangedReceiverTest {
         MockKAnnotations.init(this)
         coEvery { service.handleEvent(any()) } returns Unit
         every { logger.log(any()) } just runs
+        every { logger.debug(any()) } just runs
+        every { logger.info(any()) } just runs
     }
 
     @After
@@ -87,8 +89,8 @@ internal class BatteryChangedReceiverTest {
         receiver.onReceive(context, intent)
         advanceUntilIdle()
 
-        verify { logger.log(match { it.contains("Ignoring initial battery snapshot") }) }
-        verify { logger.log(match { it.contains("Received battery change event") }) }
+        verify { logger.debug(match { it.contains("Ignoring initial battery snapshot") }) }
+        verify { logger.info(match { it.contains("Received battery change event") }) }
         coVerify {
             service.handleEvent(
                 BatteryChangedEvent(
@@ -119,7 +121,7 @@ internal class BatteryChangedReceiverTest {
         receiver.onReceive(context, intent)
         advanceUntilIdle()
 
-        verify { logger.log(match { it.contains("Ignoring initial battery snapshot") }) }
+        verify { logger.debug(match { it.contains("Ignoring initial battery snapshot") }) }
         coVerify(exactly = 0) { service.handleEvent(any()) }
     }
 

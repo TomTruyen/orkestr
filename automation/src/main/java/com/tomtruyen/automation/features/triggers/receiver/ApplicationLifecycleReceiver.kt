@@ -65,7 +65,7 @@ class ApplicationLifecycleReceiver(
 
         val previousPackage = lastForegroundPackage
         lastForegroundPackage = currentPackage
-        logger.log("Foreground application changed from $previousPackage to $currentPackage")
+        logger.info("Foreground application changed from $previousPackage to $currentPackage")
 
         previousPackage?.let { packageName ->
             service.handleEvent(

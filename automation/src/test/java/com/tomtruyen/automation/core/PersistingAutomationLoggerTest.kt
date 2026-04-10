@@ -28,9 +28,25 @@ internal class PersistingAutomationLoggerTest {
         logger.log("receiver registered")
         advanceUntilIdle()
 
-        assertEquals(listOf(LogInvocation("AutomationLogger", "receiver registered", null)), writer.invocations)
         assertEquals(
-            listOf(AutomationLogEntity(timestampEpochMillis = 1234L, message = "receiver registered")),
+            listOf(
+                LogInvocation(
+                    severity = AutomationLogSeverity.INFO,
+                    tag = "AutomationLogger",
+                    message = "receiver registered",
+                    throwable = null,
+                ),
+            ),
+            writer.invocations,
+        )
+        assertEquals(
+            listOf(
+                AutomationLogEntity(
+                    timestampEpochMillis = 1234L,
+                    severity = AutomationLogSeverity.INFO.name,
+                    message = "receiver registered",
+                ),
+            ),
             dao.insertedLogs,
         )
     }
@@ -71,10 +87,15 @@ internal class PersistingAutomationLoggerTest {
     private class FakeAutomationLogWriter : AutomationLogWriter {
         val invocations = mutableListOf<LogInvocation>()
 
-        override fun debug(tag: String, message: String, throwable: Throwable?) {
-            invocations += LogInvocation(tag = tag, message = message, throwable = throwable)
+        override fun write(severity: AutomationLogSeverity, tag: String, message: String, throwable: Throwable?) {
+            invocations += LogInvocation(severity = severity, tag = tag, message = message, throwable = throwable)
         }
     }
 
-    private data class LogInvocation(val tag: String, val message: String, val throwable: Throwable?)
+    private data class LogInvocation(
+        val severity: AutomationLogSeverity,
+        val tag: String,
+        val message: String,
+        val throwable: Throwable?,
+    )
 }

@@ -6,6 +6,10 @@ import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
@@ -14,6 +18,8 @@ import androidx.navigation3.ui.NavDisplay
 import com.tomtruyen.automation.features.constraints.config.GeofenceConstraintConfig
 import com.tomtruyen.automation.features.triggers.config.GeofenceTriggerConfig
 import com.tomtruyen.orkestr.common.component.LocalNavigationSharedTransitionScope
+import com.tomtruyen.orkestr.common.navigation.premiumBackwardTransition
+import com.tomtruyen.orkestr.common.navigation.premiumForwardTransition
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorAction
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorEvent
 import com.tomtruyen.orkestr.features.automation.state.AutomationRulesEvent
@@ -32,6 +38,8 @@ import org.koin.androidx.compose.koinViewModel
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Suppress("CyclomaticComplexMethod")
 fun AutomationNavGraph(
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(),
     rulesViewModel: AutomationRulesViewModel = koinViewModel(),
     editorViewModel: AutomationRuleEditorViewModel = koinViewModel(),
     geofenceViewModel: GeofenceTriggerViewModel = koinViewModel(),
@@ -233,7 +241,13 @@ fun AutomationNavGraph(
         CompositionLocalProvider(LocalNavigationSharedTransitionScope provides this) {
             NavDisplay(
                 backStack = backStack,
+                modifier = modifier
+                    .padding(contentPadding)
+                    .consumeWindowInsets(contentPadding),
                 entryProvider = provider,
+                transitionSpec = { premiumForwardTransition() },
+                popTransitionSpec = { premiumBackwardTransition() },
+                predictivePopTransitionSpec = { premiumBackwardTransition() },
             )
         }
     }

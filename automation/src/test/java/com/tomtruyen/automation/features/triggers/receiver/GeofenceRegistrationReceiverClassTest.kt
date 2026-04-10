@@ -82,6 +82,9 @@ internal class GeofenceRegistrationReceiverClassTest {
         every { geofenceRepository.observeGeofences() } returns geofencesFlow
         every { ruleRepository.observeRules() } returns rulesFlow
         every { logger.log(any()) } just runs
+        every { logger.info(any()) } just runs
+        every { logger.warning(any()) } just runs
+        every { logger.error(any(), any()) } just runs
         every { geofencingClient.removeGeofences(any<List<String>>()) } returns immediateTask()
         every { geofencingClient.removeGeofences(any<PendingIntent>()) } returns immediateCompleteTask()
         every { geofencingClient.addGeofences(any(), any<PendingIntent>()) } returns immediateSuccessTask()
@@ -184,7 +187,7 @@ internal class GeofenceRegistrationReceiverClassTest {
         verify { geofencingClient.removeGeofences(listOf("home")) }
         verify(exactly = 0) { geofencingClient.removeGeofences(any<PendingIntent>()) }
         verify(exactly = 0) { geofencingClient.addGeofences(any(), any<PendingIntent>()) }
-        verify { logger.log(match { it.contains("location permissions are missing") }) }
+        verify { logger.warning(match { it.contains("location permissions are missing") }) }
         assertEquals(emptySet<String>(), activeGeofenceIds(receiver))
     }
 

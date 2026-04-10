@@ -61,6 +61,7 @@ internal class ActionExecutorTest {
         coEvery { secondDelegate.execute(any(), any()) } returns Unit
         every { logger.log(any()) } just runs
         every { logger.log(any(), any()) } just runs
+        every { logger.error(any(), any()) } just runs
     }
 
     @Test
@@ -175,9 +176,8 @@ internal class ActionExecutorTest {
         )
 
         coVerify { secondDelegate.execute(secondAction, event) }
-        every { logger.log(any(), any()) } just runs
         io.mockk.verify {
-            logger.log(
+            logger.error(
                 match { it.contains("LOG_MESSAGE") },
                 failure,
             )

@@ -40,6 +40,7 @@ At runtime, the foreground service keeps only the necessary trigger integrations
 | `:ui:automation`              | Generic automation editor UI: rules list, rule editor, definition picker, generic field forms, and trigger-specific navigation branching. |
 | `:ui:common`                  | Shared UI components, shared transitions, common view-model helpers, and permission UI helpers. |
 | `:ui:geofence`                | Dedicated geofence picker/editor flow used by the generic automation editor. |
+| `:ui:logs`                    | Execution log UI backed by Room. Shows persisted automation logs with severity badges and stack traces when present. |
 | `:ui:timebased`               | Dedicated time-based trigger configuration UI. |
 | `:ui:wifi`                    | Dedicated Wi-Fi trigger configuration and network selection UI. |
 
@@ -172,7 +173,7 @@ Reference points by complexity:
 | Action | Notes |
 |--------|-------|
 | Show Notification | Posts a local notification. Requires `POST_NOTIFICATIONS` on Android 13+. |
-| Log Message | Writes a message to the automation logger. |
+| Log Message | Writes a message to the automation logger with a configurable severity (`Debug`, `Info`, `Warning`, or `Error`). |
 | Do Not Disturb | Changes the public Android DND mode. Requires notification policy access. |
 | Launch Application | Opens a selected installed app. |
 | Open Website | Opens a configured URL in the default browser. |
@@ -188,6 +189,7 @@ Reference points by complexity:
 - Room schema, entities, and DAOs live under [`automation/src/main/java/com/tomtruyen/automation/data`](/home/tom/Documents/GitHub/orkestr/automation/src/main/java/com/tomtruyen/automation/data).
 - SQL migrations live under [`automation/src/main/assets/migrations`](/home/tom/Documents/GitHub/orkestr/automation/src/main/assets/migrations).
 - `:automation-ksp` generates a migration provider consumed by [`AutomationModules.kt`](/home/tom/Documents/GitHub/orkestr/automation/src/main/java/com/tomtruyen/automation/di/AutomationModules.kt).
+- `automation_logs` persists a severity for each entry (`DEBUG`, `INFO`, `WARNING`, `ERROR`) and is surfaced in the app-level Logs tab.
 
 ## Development Setup
 

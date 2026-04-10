@@ -42,6 +42,8 @@ internal class AutomationNotificationListenerServiceTest {
         MockKAnnotations.init(this)
         coEvery { runtimeService.handleEvent(any()) } returns Unit
         every { logger.log(any()) } just runs
+        every { logger.debug(any()) } just runs
+        every { logger.info(any()) } just runs
         startKoin {
             modules(
                 module {
@@ -73,7 +75,7 @@ internal class AutomationNotificationListenerServiceTest {
 
         service.onNotificationPosted(sbn)
 
-        verify { logger.log(match { it.contains("Ignoring self-notification") }) }
+        verify { logger.debug(match { it.contains("Ignoring self-notification") }) }
         coVerify(exactly = 0) { runtimeService.handleEvent(any()) }
     }
 

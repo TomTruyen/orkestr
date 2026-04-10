@@ -4,6 +4,7 @@ import android.app.Application
 import com.tomtruyen.automation.di.automationModule
 import com.tomtruyen.orkestr.features.automation.di.automationFeatureModule
 import com.tomtruyen.orkestr.features.geofence.di.geofenceFeatureModule
+import com.tomtruyen.orkestr.features.logs.di.logsFeatureModule
 import com.tomtruyen.orkestr.ui.common.di.commonFeatureModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -21,6 +22,7 @@ class OrkestrApplication : Application() {
                 commonFeatureModule,
                 geofenceFeatureModule,
                 automationFeatureModule,
+                logsFeatureModule,
             )
         }
     }

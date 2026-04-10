@@ -22,14 +22,14 @@ class AutomationNotificationListenerService :
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         if (sbn.packageName == packageName) {
-            logger.log("Ignoring self-notification from ${sbn.packageName}")
+            logger.debug("Ignoring self-notification from ${sbn.packageName}")
             return
         }
 
         val extras = sbn.notification.extras
         val title = extras?.getCharSequence(Notification.EXTRA_TITLE)?.toString()
         val message = extras?.getCharSequence(Notification.EXTRA_TEXT)?.toString()
-        logger.log("Received notification from ${sbn.packageName}")
+        logger.info("Received notification from ${sbn.packageName}")
         scope.launch {
             runtimeService.handleEvent(
                 NotificationReceivedEvent(

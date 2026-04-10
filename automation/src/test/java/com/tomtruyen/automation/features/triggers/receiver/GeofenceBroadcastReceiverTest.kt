@@ -48,6 +48,10 @@ internal class GeofenceBroadcastReceiverTest {
         MockKAnnotations.init(this)
         coEvery { runtimeService.handleEvent(any()) } returns Unit
         every { logger.log(any()) } just runs
+        every { logger.debug(any()) } just runs
+        every { logger.info(any()) } just runs
+        every { logger.warning(any()) } just runs
+        every { logger.error(any(), any()) } just runs
         startKoin {
             modules(
                 module {
@@ -72,7 +76,7 @@ internal class GeofenceBroadcastReceiverTest {
         GeofenceBroadcastReceiver().onReceive(context, Intent("geofence"))
         waitUntil {
             try {
-                verify { logger.log("Received geofence intent but could not parse GeofencingEvent") }
+                verify { logger.warning("Received geofence intent but could not parse GeofencingEvent") }
                 true
             } catch (_: AssertionError) {
                 false
@@ -93,7 +97,7 @@ internal class GeofenceBroadcastReceiverTest {
         GeofenceBroadcastReceiver().onReceive(context, Intent("geofence"))
         waitUntil {
             try {
-                verify { logger.log(match { it.contains("Geofence transition error") }) }
+                verify { logger.error(match { it.contains("Geofence transition error") }, null) }
                 true
             } catch (_: AssertionError) {
                 false
@@ -125,7 +129,7 @@ internal class GeofenceBroadcastReceiverTest {
                         ),
                     )
                 }
-                verify { logger.log("Received geofence transition ENTER for home") }
+                verify { logger.info("Received geofence transition ENTER for home") }
                 true
             } catch (_: AssertionError) {
                 false

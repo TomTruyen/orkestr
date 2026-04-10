@@ -22,7 +22,7 @@ class TimeTickReceiver(
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action !in ACTIONS) return
         val now = nowProvider()
-        logger.log("Received time tick event for ${now.hour}:${now.minute}")
+        logger.debug("Received time tick event for ${now.hour}:${now.minute}")
         scope.launch {
             service.handleEvent(
                 TimeBasedEvent(

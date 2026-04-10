@@ -38,6 +38,7 @@ internal class ApplicationLifecycleReceiverTest {
         MockKAnnotations.init(this)
         coEvery { service.handleEvent(any()) } returns Unit
         every { logger.log(any()) } just runs
+        every { logger.info(any()) } just runs
         every { context.applicationContext } returns context
     }
 
