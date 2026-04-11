@@ -4,6 +4,11 @@ import com.tomtruyen.automation.core.AutomationLog
 import com.tomtruyen.automation.core.AutomationLogSeverity
 import java.util.Locale
 
+private const val ERROR_SEVERITY_RANK = 4
+private const val WARNING_SEVERITY_RANK = 3
+private const val INFO_SEVERITY_RANK = 2
+private const val DEBUG_SEVERITY_RANK = 1
+
 internal fun reduceLogs(logs: List<AutomationLog>, query: String, sortOption: LogSortOption): List<AutomationLog> {
     val normalizedQuery = query.trim().lowercase(Locale.getDefault())
     return logs
@@ -30,8 +35,8 @@ private fun sortComparator(sortOption: LogSortOption): Comparator<AutomationLog>
 }
 
 private fun AutomationLogSeverity.rank(): Int = when (this) {
-    AutomationLogSeverity.ERROR -> 4
-    AutomationLogSeverity.WARNING -> 3
-    AutomationLogSeverity.INFO -> 2
-    AutomationLogSeverity.DEBUG -> 1
+    AutomationLogSeverity.ERROR -> ERROR_SEVERITY_RANK
+    AutomationLogSeverity.WARNING -> WARNING_SEVERITY_RANK
+    AutomationLogSeverity.INFO -> INFO_SEVERITY_RANK
+    AutomationLogSeverity.DEBUG -> DEBUG_SEVERITY_RANK
 }

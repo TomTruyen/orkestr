@@ -351,7 +351,8 @@ internal fun AutomationLogsScreenComposePreview() {
                         timestampEpochMillis = 1_712_789_630_000,
                         severity = AutomationLogSeverity.ERROR,
                         message = "Action SHOW_NOTIFICATION failed during parallel execution",
-                        stackTrace = "java.lang.IllegalStateException: Channel missing\n    at sample.Class.method(Class.kt:12)",
+                        stackTrace = "java.lang.IllegalStateException: Channel missing\n" +
+                            "    at sample.Class.method(Class.kt:12)",
                     ),
                 ),
             ),
