@@ -12,8 +12,10 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import kotlin.math.roundToInt
 
+private const val NAVIGATION_SLIDE_DISTANCE_FRACTION = 0.08f
+
 fun <S> AnimatedContentTransitionScope<S>.premiumForwardTransition(): ContentTransform {
-    val distance = { fullWidth: Int -> (fullWidth * 0.08f).roundToInt() }
+    val distance = { fullWidth: Int -> (fullWidth * NAVIGATION_SLIDE_DISTANCE_FRACTION).roundToInt() }
     return (
         slideInHorizontally(
             animationSpec = tween(durationMillis = 320),
@@ -38,7 +40,7 @@ fun <S> AnimatedContentTransitionScope<S>.premiumForwardTransition(): ContentTra
 }
 
 fun <S> AnimatedContentTransitionScope<S>.premiumBackwardTransition(): ContentTransform {
-    val distance = { fullWidth: Int -> (fullWidth * 0.08f).roundToInt() }
+    val distance = { fullWidth: Int -> (fullWidth * NAVIGATION_SLIDE_DISTANCE_FRACTION).roundToInt() }
     return (
         slideInHorizontally(
             animationSpec = tween(durationMillis = 320),
