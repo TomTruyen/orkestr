@@ -13,6 +13,7 @@ import com.tomtruyen.automation.features.triggers.TriggerType
 import com.tomtruyen.automation.features.triggers.config.ApplicationLifecycleTriggerConfig
 import com.tomtruyen.automation.features.triggers.config.GeofenceTriggerConfig
 import com.tomtruyen.automation.features.triggers.config.NotificationReceivedTriggerConfig
+import com.tomtruyen.automation.features.triggers.config.PackageChangedTriggerConfig
 import com.tomtruyen.automation.features.triggers.config.TimeBasedTriggerConfig
 import com.tomtruyen.automation.features.triggers.config.WifiSsidTriggerConfig
 import com.tomtruyen.orkestr.common.StringResolver
@@ -29,6 +30,7 @@ internal interface AutomationRuleEditorCustomFlowDelegate {
     fun applySelectedWifi(config: WifiSsidTriggerConfig)
     fun applySelectedWallpaper(imageUri: String, imageLabel: String)
     fun openSelectedCustomConfigurationFlow()
+    fun openGenericConfigurationFlow()
     fun chooseDifferentDefinition()
 }
 
@@ -69,6 +71,8 @@ internal class BindableAutomationRuleEditorCustomFlowDelegate : AutomationRuleEd
 
     override fun openSelectedCustomConfigurationFlow() = requireDelegate().openSelectedCustomConfigurationFlow()
 
+    override fun openGenericConfigurationFlow() = requireDelegate().openGenericConfigurationFlow()
+
     override fun chooseDifferentDefinition() = requireDelegate().chooseDifferentDefinition()
 
     private fun requireDelegate(): AutomationRuleEditorCustomFlowDelegate =
@@ -99,6 +103,7 @@ internal class AutomationRuleEditorCustomFlowCoordinator(
         val defaultConfig = when (configClass) {
             GeofenceTriggerConfig::class -> GeofenceTriggerConfig()
             NotificationReceivedTriggerConfig::class -> NotificationReceivedTriggerConfig()
+            PackageChangedTriggerConfig::class -> PackageChangedTriggerConfig()
             ApplicationLifecycleTriggerConfig::class -> ApplicationLifecycleTriggerConfig()
             LaunchApplicationActionConfig::class -> LaunchApplicationActionConfig()
             SetWallpaperActionConfig::class -> SetWallpaperActionConfig()
@@ -152,8 +157,13 @@ internal class AutomationRuleEditorCustomFlowCoordinator(
                 applyDraftConfigAndOpenConfiguration(current.copy(packageName = packageName, appLabel = appLabel))
             }
 
-            else -> {
+            TriggerType.NOTIFICATION_RECEIVED.name -> {
                 val current = currentDraftConfigOrDefault(NotificationReceivedTriggerConfig::class)
+                applyDraftConfigAndOpenConfiguration(current.copy(packageName = packageName))
+            }
+
+            TriggerType.PACKAGE_CHANGED.name -> {
+                val current = currentDraftConfigOrDefault(PackageChangedTriggerConfig::class)
                 applyDraftConfigAndOpenConfiguration(current.copy(packageName = packageName))
             }
         }
@@ -185,6 +195,12 @@ internal class AutomationRuleEditorCustomFlowCoordinator(
         val picker = state().pickerState ?: return
         val typeKey = picker.selectedTypeKey ?: return
         definitions.customNavigationEventFor(picker.section, typeKey)?.let(triggerEvent)
+    }
+
+    override fun openGenericConfigurationFlow() {
+        val picker = state().pickerState ?: return
+        val typeKey = picker.selectedTypeKey ?: return
+        triggerEvent(defaultConfigurationEvent(picker, typeKey))
     }
 
     override fun chooseDifferentDefinition() {

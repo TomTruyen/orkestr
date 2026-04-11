@@ -23,6 +23,7 @@ sealed interface AutomationEditorEvent {
     data object NavigateToTimeOfDayConstraintConfiguration : AutomationEditorEvent
     data object NavigateToApplicationTriggerAppSelection : AutomationEditorEvent
     data object NavigateToNotificationTriggerAppSelection : AutomationEditorEvent
+    data object NavigateToPackageChangedTriggerAppSelection : AutomationEditorEvent
     data object NavigateToLaunchApplicationActionAppSelection : AutomationEditorEvent
     data object NavigateToSetWallpaperActionConfiguration : AutomationEditorEvent
     data object NavigateToWifiTriggerSelection : AutomationEditorEvent

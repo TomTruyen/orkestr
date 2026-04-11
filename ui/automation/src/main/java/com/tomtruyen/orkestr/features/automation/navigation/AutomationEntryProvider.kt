@@ -23,6 +23,7 @@ import com.tomtruyen.orkestr.features.automation.screen.AutomationDefinitionSele
 import com.tomtruyen.orkestr.features.automation.screen.AutomationHomeScreen
 import com.tomtruyen.orkestr.features.automation.screen.AutomationLaunchApplicationActionAppSelectionScreen
 import com.tomtruyen.orkestr.features.automation.screen.AutomationNotificationTriggerAppSelectionScreen
+import com.tomtruyen.orkestr.features.automation.screen.AutomationPackageChangedTriggerAppSelectionScreen
 import com.tomtruyen.orkestr.features.automation.screen.AutomationRuleEditorScreen
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorAction
 import com.tomtruyen.orkestr.features.automation.viewmodel.AutomationRuleEditorViewModel
@@ -210,6 +211,21 @@ internal fun EntryProviderScope<NavKey>.automationEntries(
             },
         ) { modifier ->
             AutomationApplicationTriggerAppSelectionScreen(
+                viewModel = editorViewModel,
+                modifier = modifier,
+            )
+        }
+    }
+
+    entry<PackageChangedTriggerAppSelectionRoute> {
+        AutomationScaffold(
+            title = stringResource(R.string.automation_title_select_notification_app),
+            canNavigateBack = true,
+            onNavigateBack = {
+                editorViewModel.onAction(AutomationEditorAction.BackToPickerSelectionClicked)
+            },
+        ) { modifier ->
+            AutomationPackageChangedTriggerAppSelectionScreen(
                 viewModel = editorViewModel,
                 modifier = modifier,
             )

@@ -23,6 +23,7 @@
     <string name="automation_action_use_selected_app">Use App</string>
     <string name="automation_action_run_now">Run Now</string>
     <string name="automation_action_open_app_picker_flow">Select App</string>
+    <string name="automation_action_enter_package_manually">Enter Package Name Manually</string>
     <string name="automation_action_open_geofence_flow">Select Geofence</string>
     <string name="automation_action_open_schedule_flow">Configure Schedule</string>
     <string name="automation_action_open_wifi_picker_flow">Select Wi-Fi Network</string>

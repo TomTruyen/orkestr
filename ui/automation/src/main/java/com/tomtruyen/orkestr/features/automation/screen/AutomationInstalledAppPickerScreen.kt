@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
@@ -27,6 +28,7 @@ import com.tomtruyen.automation.features.actions.config.LaunchApplicationActionC
 import com.tomtruyen.automation.features.triggers.TriggerType
 import com.tomtruyen.automation.features.triggers.config.ApplicationLifecycleTriggerConfig
 import com.tomtruyen.automation.features.triggers.config.NotificationReceivedTriggerConfig
+import com.tomtruyen.automation.features.triggers.config.PackageChangedTriggerConfig
 import com.tomtruyen.orkestr.common.component.AutomationCardColumn
 import com.tomtruyen.orkestr.common.component.AutomationDefinitionHeaderCard
 import com.tomtruyen.orkestr.common.component.EmptyStateCard
@@ -51,6 +53,19 @@ fun AutomationNotificationTriggerAppSelectionScreen(
 
 @Composable
 fun AutomationApplicationTriggerAppSelectionScreen(
+    viewModel: AutomationRuleEditorViewModel,
+    modifier: Modifier = Modifier,
+    installedAppService: InstalledAppService = koinInject(),
+) {
+    AutomationInstalledAppPickerScreen(
+        viewModel = viewModel,
+        modifier = modifier,
+        installedAppService = installedAppService,
+    )
+}
+
+@Composable
+fun AutomationPackageChangedTriggerAppSelectionScreen(
     viewModel: AutomationRuleEditorViewModel,
     modifier: Modifier = Modifier,
     installedAppService: InstalledAppService = koinInject(),
@@ -92,8 +107,13 @@ private fun AutomationInstalledAppPickerScreen(
         ActionType.LAUNCH_APPLICATION.name ->
             viewModel.currentDraftConfigOrDefault(LaunchApplicationActionConfig::class).packageName
 
-        else ->
+        TriggerType.NOTIFICATION_RECEIVED.name ->
             viewModel.currentDraftConfigOrDefault(NotificationReceivedTriggerConfig::class).packageName
+
+        TriggerType.PACKAGE_CHANGED.name ->
+            viewModel.currentDraftConfigOrDefault(PackageChangedTriggerConfig::class).packageName
+
+        else -> ""
     }
     val apps = remember(installedAppService) { installedAppService.loadInstalledApps() }
     var query by rememberSaveable { mutableStateOf("") }
@@ -157,6 +177,15 @@ private fun AutomationInstalledAppPickerScreen(
                     )
                 },
             )
+        }
+
+        item {
+            Button(
+                onClick = viewModel::openGenericConfigurationFlow,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(stringResource(R.string.automation_action_enter_package_manually))
+            }
         }
     }
 }

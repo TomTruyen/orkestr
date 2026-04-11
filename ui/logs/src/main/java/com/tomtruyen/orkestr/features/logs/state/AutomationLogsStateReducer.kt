@@ -4,11 +4,7 @@ import com.tomtruyen.automation.core.AutomationLog
 import com.tomtruyen.automation.core.AutomationLogSeverity
 import java.util.Locale
 
-internal fun reduceLogs(
-    logs: List<AutomationLog>,
-    query: String,
-    sortOption: LogSortOption,
-): List<AutomationLog> {
+internal fun reduceLogs(logs: List<AutomationLog>, query: String, sortOption: LogSortOption): List<AutomationLog> {
     val normalizedQuery = query.trim().lowercase(Locale.getDefault())
     return logs
         .asSequence()

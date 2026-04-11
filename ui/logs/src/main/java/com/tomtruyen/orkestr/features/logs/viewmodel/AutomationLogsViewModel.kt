@@ -10,11 +10,10 @@ import com.tomtruyen.orkestr.features.logs.state.reduceLogs
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class AutomationLogsViewModel(
-    private val repository: AutomationLogRepository,
-) : BaseViewModel<AutomationLogsUiState, Nothing, AutomationLogsAction>(
-    initialState = AutomationLogsUiState(),
-) {
+class AutomationLogsViewModel(private val repository: AutomationLogRepository) :
+    BaseViewModel<AutomationLogsUiState, Nothing, AutomationLogsAction>(
+        initialState = AutomationLogsUiState(),
+    ) {
     private var allLogs: List<AutomationLog> = emptyList()
 
     init {

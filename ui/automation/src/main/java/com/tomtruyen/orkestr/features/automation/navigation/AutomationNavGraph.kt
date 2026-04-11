@@ -3,12 +3,12 @@ package com.tomtruyen.orkestr.features.automation.navigation
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
@@ -120,6 +120,10 @@ fun AutomationNavGraph(
 
                 AutomationEditorEvent.NavigateToNotificationTriggerAppSelection -> {
                     backStack.add(NotificationTriggerAppSelectionRoute)
+                }
+
+                AutomationEditorEvent.NavigateToPackageChangedTriggerAppSelection -> {
+                    backStack.add(PackageChangedTriggerAppSelectionRoute)
                 }
 
                 AutomationEditorEvent.NavigateToLaunchApplicationActionAppSelection -> {

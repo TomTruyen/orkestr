@@ -145,6 +145,12 @@ Reference points by complexity:
 | Notification Received | Matches notifications from a selected app. Requires notification listener access. |
 | Wi-Fi SSID In Range | Matches a selected SSID entering or leaving range. Requires location and nearby Wi-Fi permissions. |
 | Geofence | Matches entry/exit for a saved geofence. Requires fine and background location. |
+| Network Connectivity | Matches the default network connecting or disconnecting. Requires `ACCESS_NETWORK_STATE`. Available on Android 8.0+. This does not guarantee validated internet access. |
+| Bluetooth Device Connection | Matches any Bluetooth device connecting or disconnecting. Requires `BLUETOOTH_CONNECT` on Android 12+. OEM Bluetooth behavior may vary. |
+| Headphone Connection | Matches wired, USB, or Bluetooth headphones connecting or disconnecting. Available on Android 8.0+. Audio route reporting can vary by device. |
+| App Installed/Removed | Matches app install, removal, or update package broadcasts. Available on Android 8.0+. Package visibility rules may limit metadata, but package change events remain supported. |
+| Time Zone Changed | Matches device time zone changes. Available on Android 8.0+. |
+| Do Not Disturb Mode | Matches public Android DND mode changes. Requires Notification Policy Access on Android 6.0+. |
 
 ### Constraints
 

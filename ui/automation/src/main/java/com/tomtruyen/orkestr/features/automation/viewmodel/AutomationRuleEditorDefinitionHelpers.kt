@@ -71,6 +71,7 @@ internal fun AutomationDefinitionRegistry.customNavigationEventFor(
         TriggerType.TIME_BASED.name -> AutomationEditorEvent.NavigateToTimeBasedTriggerConfiguration
         TriggerType.APPLICATION_LIFECYCLE.name -> AutomationEditorEvent.NavigateToApplicationTriggerAppSelection
         TriggerType.NOTIFICATION_RECEIVED.name -> AutomationEditorEvent.NavigateToNotificationTriggerAppSelection
+        TriggerType.PACKAGE_CHANGED.name -> AutomationEditorEvent.NavigateToPackageChangedTriggerAppSelection
         TriggerType.WIFI_SSID_IN_RANGE.name -> AutomationEditorEvent.NavigateToWifiTriggerSelection
         else -> null
     }
@@ -95,6 +96,7 @@ internal fun customConfigurationButtonLabelRes(section: RuleSection, typeKey: St
         TriggerType.TIME_BASED.name -> R.string.automation_action_open_schedule_flow
         TriggerType.APPLICATION_LIFECYCLE.name -> R.string.automation_action_open_app_picker_flow
         TriggerType.NOTIFICATION_RECEIVED.name -> R.string.automation_action_open_app_picker_flow
+        TriggerType.PACKAGE_CHANGED.name -> R.string.automation_action_open_app_picker_flow
         TriggerType.WIFI_SSID_IN_RANGE.name -> R.string.automation_action_open_wifi_picker_flow
         else -> null
     }

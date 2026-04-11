@@ -30,6 +30,9 @@ data object NotificationTriggerAppSelectionRoute : NavKey
 data object ApplicationTriggerAppSelectionRoute : NavKey
 
 @Serializable
+data object PackageChangedTriggerAppSelectionRoute : NavKey
+
+@Serializable
 data object LaunchApplicationActionAppSelectionRoute : NavKey
 
 @Serializable

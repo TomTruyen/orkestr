@@ -24,6 +24,7 @@ import com.tomtruyen.automation.core.model.DoNotDisturbMode
 import com.tomtruyen.automation.core.model.GeofenceTransitionType
 import com.tomtruyen.automation.core.model.GeofenceUpdateRate
 import com.tomtruyen.automation.core.model.MonthOfYear
+import com.tomtruyen.automation.core.model.PackageChangeType
 import com.tomtruyen.automation.core.model.PhoneVolumeStream
 import com.tomtruyen.automation.core.model.PowerConnectionState
 import com.tomtruyen.automation.core.model.WallpaperTarget
@@ -66,10 +67,16 @@ import com.tomtruyen.automation.features.triggers.config.ApplicationLifecycleTri
 import com.tomtruyen.automation.features.triggers.config.BatteryChangedTriggerConfig
 import com.tomtruyen.automation.features.triggers.config.BatteryLevelTriggerConfig
 import com.tomtruyen.automation.features.triggers.config.BatterySaverStateTriggerConfig
+import com.tomtruyen.automation.features.triggers.config.BluetoothDeviceConnectionTriggerConfig
+import com.tomtruyen.automation.features.triggers.config.DoNotDisturbModeTriggerConfig
 import com.tomtruyen.automation.features.triggers.config.GeofenceTriggerConfig
+import com.tomtruyen.automation.features.triggers.config.HeadphoneConnectionTriggerConfig
+import com.tomtruyen.automation.features.triggers.config.NetworkConnectivityTriggerConfig
 import com.tomtruyen.automation.features.triggers.config.NotificationReceivedTriggerConfig
+import com.tomtruyen.automation.features.triggers.config.PackageChangedTriggerConfig
 import com.tomtruyen.automation.features.triggers.config.PowerConnectionTriggerConfig
 import com.tomtruyen.automation.features.triggers.config.TimeBasedTriggerConfig
+import com.tomtruyen.automation.features.triggers.config.TimeZoneChangedTriggerConfig
 import com.tomtruyen.automation.features.triggers.config.WifiSsidTriggerConfig
 import com.tomtruyen.automation.features.triggers.definition.TriggerDefinition
 import com.tomtruyen.automation.generated.GeneratedActionProvider
@@ -188,6 +195,63 @@ internal fun GeofenceTriggerDefinitionComposePreview() {
             transitionType = GeofenceTransitionType.EXIT,
             updateRate = GeofenceUpdateRate.FAST,
         ),
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun NetworkConnectivityTriggerDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.trigger(TriggerType.NETWORK_CONNECTIVITY),
+        config = NetworkConnectivityTriggerConfig(connected = false),
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun BluetoothDeviceConnectionTriggerDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.trigger(TriggerType.BLUETOOTH_DEVICE_CONNECTION),
+        config = BluetoothDeviceConnectionTriggerConfig(connected = true),
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun HeadphoneConnectionTriggerDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.trigger(TriggerType.HEADPHONE_CONNECTION),
+        config = HeadphoneConnectionTriggerConfig(connected = false),
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun PackageChangedTriggerDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.trigger(TriggerType.PACKAGE_CHANGED),
+        config = PackageChangedTriggerConfig(
+            packageName = "com.spotify.music",
+            changeType = PackageChangeType.UPDATED,
+        ),
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun TimeZoneChangedTriggerDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.trigger(TriggerType.TIME_ZONE_CHANGED),
+        config = TimeZoneChangedTriggerConfig,
+    )
+}
+
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun DoNotDisturbModeTriggerDefinitionComposePreview() {
+    AutomationDefinitionPreviewCard(
+        definition = AutomationGeneratedDefinitionPreviewCatalog.trigger(TriggerType.DO_NOT_DISTURB_MODE),
+        config = DoNotDisturbModeTriggerConfig(mode = DoNotDisturbMode.PRIORITY_ONLY),
     )
 }
 

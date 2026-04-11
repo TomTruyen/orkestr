@@ -29,6 +29,7 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.android.controller.ServiceController
 
 @RunWith(RobolectricTestRunner::class)
 internal class AutomationForegroundServiceTest {
@@ -49,6 +50,7 @@ internal class AutomationForegroundServiceTest {
     private lateinit var firstFactory: TriggerReceiver.TriggerFactory
     private lateinit var secondFactory: TriggerReceiver.TriggerFactory
     private lateinit var rulesFlow: MutableSharedFlow<List<AutomationRule>>
+    private val serviceControllers = mutableListOf<ServiceController<AutomationForegroundService>>()
 
     @Before
     fun setUp() {
@@ -76,13 +78,17 @@ internal class AutomationForegroundServiceTest {
 
     @After
     fun tearDown() {
+        serviceControllers.forEach { controller ->
+            runCatching { controller.destroy() }
+        }
+        serviceControllers.clear()
         stopKoin()
         unmockkAll()
     }
 
     @Test
     fun onStartCommand_whenStopActionIsReceived_returnsNotSticky() {
-        val service = Robolectric.buildService(AutomationForegroundService::class.java).create().get()
+        val service = buildService()
 
         val result = service.onStartCommand(
             Intent().apply {
@@ -97,7 +103,7 @@ internal class AutomationForegroundServiceTest {
 
     @Test
     fun onStartCommand_whenActionIsDifferent_returnsSticky() {
-        val service = Robolectric.buildService(AutomationForegroundService::class.java).create().get()
+        val service = buildService()
 
         val result = service.onStartCommand(Intent("other"), 0, 0)
 
@@ -125,7 +131,7 @@ internal class AutomationForegroundServiceTest {
 
     @Test
     fun syncReceivers_registersAndUnregistersFactoriesBasedOnActiveKeys() {
-        val service = Robolectric.buildService(AutomationForegroundService::class.java).create().get()
+        val service = buildService()
 
         invokeSyncReceivers(service, setOf(TriggerReceiverKey.BATTERY_CHANGED))
         assertEquals(2, registeredReceivers(service).size)
@@ -137,7 +143,7 @@ internal class AutomationForegroundServiceTest {
 
     @Test
     fun onDestroy_clearsRegisteredReceivers() {
-        val service = Robolectric.buildService(AutomationForegroundService::class.java).create().get()
+        val service = buildService()
         invokeSyncReceivers(service, setOf(TriggerReceiverKey.BATTERY_CHANGED))
 
         service.onDestroy()
@@ -147,7 +153,7 @@ internal class AutomationForegroundServiceTest {
 
     @Test
     fun onCreate_observesEnabledRulesAndRegistersRequiredReceivers() {
-        val service = Robolectric.buildService(AutomationForegroundService::class.java).create().get()
+        val service = buildService()
 
         runBlocking {
             rulesFlow.emit(
@@ -188,6 +194,12 @@ internal class AutomationForegroundServiceTest {
                 logger: AutomationLogger,
             ): TriggerReceiver = receiver
         }
+
+    private fun buildService(): AutomationForegroundService {
+        val controller = Robolectric.buildService(AutomationForegroundService::class.java).create()
+        serviceControllers += controller
+        return controller.get()
+    }
 
     @Suppress("UNCHECKED_CAST")
     private fun registeredReceivers(

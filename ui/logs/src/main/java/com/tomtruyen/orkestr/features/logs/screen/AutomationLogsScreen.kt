@@ -5,18 +5,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -44,16 +43,13 @@ import com.tomtruyen.orkestr.features.logs.state.AutomationLogsUiState
 import com.tomtruyen.orkestr.features.logs.state.LogSortOption
 import com.tomtruyen.orkestr.features.logs.viewmodel.AutomationLogsViewModel
 import com.tomtruyen.orkestr.ui.logs.R
+import org.koin.androidx.compose.koinViewModel
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun AutomationLogsScreen(
-    modifier: Modifier = Modifier,
-    viewModel: AutomationLogsViewModel = koinViewModel(),
-) {
+fun AutomationLogsScreen(modifier: Modifier = Modifier, viewModel: AutomationLogsViewModel = koinViewModel()) {
     val uiState by viewModel.uiState.collectAsState()
     AutomationLogsScreenContent(
         uiState = uiState,

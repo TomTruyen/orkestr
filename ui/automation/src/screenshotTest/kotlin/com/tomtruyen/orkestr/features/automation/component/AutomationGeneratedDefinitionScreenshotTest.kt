@@ -70,6 +70,48 @@ internal fun GeofenceTriggerDefinitionScreenshotTest() {
 @PreviewTest
 @Preview(showBackground = true, widthDp = 420)
 @Composable
+internal fun NetworkConnectivityTriggerDefinitionScreenshotTest() {
+    NetworkConnectivityTriggerDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun BluetoothDeviceConnectionTriggerDefinitionScreenshotTest() {
+    BluetoothDeviceConnectionTriggerDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun HeadphoneConnectionTriggerDefinitionScreenshotTest() {
+    HeadphoneConnectionTriggerDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun PackageChangedTriggerDefinitionScreenshotTest() {
+    PackageChangedTriggerDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun TimeZoneChangedTriggerDefinitionScreenshotTest() {
+    TimeZoneChangedTriggerDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
+internal fun DoNotDisturbModeTriggerDefinitionScreenshotTest() {
+    DoNotDisturbModeTriggerDefinitionComposePreview()
+}
+
+@PreviewTest
+@Preview(showBackground = true, widthDp = 420)
+@Composable
 internal fun BatteryLevelConstraintDefinitionScreenshotTest() {
     BatteryLevelConstraintDefinitionComposePreview()
 }

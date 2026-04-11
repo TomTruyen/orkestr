@@ -10,7 +10,9 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 @GenerateActionDelegate
-class LogMessageActionDelegate : ActionDelegate<LogMessageActionConfig>, KoinComponent {
+class LogMessageActionDelegate :
+    ActionDelegate<LogMessageActionConfig>,
+    KoinComponent {
     override val type: ActionType = ActionType.LOG_MESSAGE
     private val logger by inject<AutomationLogger>()
 
