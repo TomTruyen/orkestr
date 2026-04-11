@@ -11,6 +11,9 @@
     <string name="logs_sort_newest">Newest</string>
     <string name="logs_sort_oldest">Oldest</string>
     <string name="logs_sort_severity">Severity</string>
+    <string name="logs_results_title">Matching entries</string>
+    <string name="logs_results_description">Showing the first %1$d matching log entries. Load more when you need older history.</string>
+    <string name="logs_load_more">Load more logs</string>
     <string name="logs_severity_debug">Debug</string>
     <string name="logs_severity_info">Info</string>
     <string name="logs_severity_warning">Warning</string>

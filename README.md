@@ -195,7 +195,7 @@ Reference points by complexity:
 - Room schema, entities, and DAOs live under [`automation/src/main/java/com/tomtruyen/automation/data`](/home/tom/Documents/GitHub/orkestr/automation/src/main/java/com/tomtruyen/automation/data).
 - SQL migrations live under [`automation/src/main/assets/migrations`](/home/tom/Documents/GitHub/orkestr/automation/src/main/assets/migrations).
 - `:automation-ksp` generates a migration provider consumed by [`AutomationModules.kt`](/home/tom/Documents/GitHub/orkestr/automation/src/main/java/com/tomtruyen/automation/di/AutomationModules.kt).
-- `automation_logs` persists a severity for each entry (`DEBUG`, `INFO`, `WARNING`, `ERROR`) and is surfaced in the app-level Logs tab.
+- `automation_logs` persists a severity for each entry (`DEBUG`, `INFO`, `WARNING`, `ERROR`) and is surfaced in the app-level Logs tab. The Logs tab uses Room-backed Paging 3 queries so large local histories do not need to load all at once.
 
 ## Development Setup
 

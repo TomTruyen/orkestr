@@ -13,9 +13,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -32,6 +33,10 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import com.tomtruyen.automation.core.AutomationLog
 import com.tomtruyen.automation.core.AutomationLogSeverity
 import com.tomtruyen.orkestr.common.component.AutomationCardColumn
@@ -51,8 +56,10 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun AutomationLogsScreen(modifier: Modifier = Modifier, viewModel: AutomationLogsViewModel = koinViewModel()) {
     val uiState by viewModel.uiState.collectAsState()
+    val logs = viewModel.logs.collectAsLazyPagingItems()
     AutomationLogsScreenContent(
         uiState = uiState,
+        logs = logs,
         onQueryChanged = { viewModel.onAction(AutomationLogsAction.SearchQueryChanged(it)) },
         onSortOptionChanged = { viewModel.onAction(AutomationLogsAction.SortOptionChanged(it)) },
         modifier = modifier,
@@ -63,9 +70,33 @@ fun AutomationLogsScreen(modifier: Modifier = Modifier, viewModel: AutomationLog
 @OptIn(ExperimentalMaterial3Api::class)
 internal fun AutomationLogsScreenContent(
     uiState: AutomationLogsUiState,
+    logs: LazyPagingItems<AutomationLog>,
     onQueryChanged: (String) -> Unit,
     onSortOptionChanged: (LogSortOption) -> Unit,
     modifier: Modifier = Modifier,
+) {
+    LogsScreenScaffold(
+        uiState = uiState,
+        onQueryChanged = onQueryChanged,
+        onSortOptionChanged = onSortOptionChanged,
+        modifier = modifier,
+    ) {
+        if (logs.shouldShowEmptyState()) {
+            emptyLogsCard(uiState)
+        } else if (logs.itemCount > 0) {
+            outlinedLogsCard(logs = logs)
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun LogsScreenScaffold(
+    uiState: AutomationLogsUiState,
+    onQueryChanged: (String) -> Unit,
+    onSortOptionChanged: (LogSortOption) -> Unit,
+    modifier: Modifier = Modifier,
+    logContent: LazyListScope.() -> Unit,
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -93,48 +124,94 @@ internal fun AutomationLogsScreenContent(
                     onSortOptionChanged = onSortOptionChanged,
                 )
             }
+            logContent()
+        }
+    }
+}
 
-            if (uiState.logs.isEmpty()) {
-                item {
-                    OutlinedCard(modifier = Modifier.fillMaxWidth()) {
-                        AutomationCardColumn {
-                            EmptyStateCard(
-                                title = stringResource(R.string.logs_empty_title),
-                                description = stringResource(
-                                    if (uiState.query.isBlank()) {
-                                        R.string.logs_empty_description
-                                    } else {
-                                        R.string.logs_empty_filtered_description
-                                    },
-                                ),
-                            )
-                        }
-                    }
-                }
-            } else {
-                outlinedLogsCard(uiState.logs)
+private fun LazyListScope.emptyLogsCard(uiState: AutomationLogsUiState) {
+    item {
+        OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+            AutomationCardColumn {
+                EmptyStateCard(
+                    title = stringResource(R.string.logs_empty_title),
+                    description = stringResource(
+                        if (uiState.query.isBlank()) {
+                            R.string.logs_empty_description
+                        } else {
+                            R.string.logs_empty_filtered_description
+                        },
+                    ),
+                )
             }
         }
     }
 }
 
-private fun LazyListScope.outlinedLogsCard(logs: List<AutomationLog>) {
+private fun LazyListScope.outlinedLogsCard(logs: LazyPagingItems<AutomationLog>) {
     item {
         OutlinedCard(modifier = Modifier.fillMaxWidth()) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                logs.forEachIndexed { index, log ->
-                    AutomationLogRow(log = log)
-                    if (index != logs.lastIndex) {
-                        HorizontalDivider(
-                            modifier = Modifier.padding(horizontal = 20.dp),
-                            color = MaterialTheme.colorScheme.outlineVariant,
-                        )
-                    }
-                }
+            LogsCardHeader(loadedLogCount = logs.itemCount)
+        }
+    }
+
+    items(
+        count = logs.itemCount,
+        key = logs.itemKey { log -> log.id },
+    ) { index ->
+        logs[index]?.let { log ->
+            OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+                AutomationLogRow(log = log)
             }
         }
+    }
+
+    if (logs.shouldShowLoadingMoreButton()) {
+        item {
+            OutlinedButton(
+                onClick = {
+                    logs.retry()
+                    logs[logs.itemCount - 1]
+                },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(stringResource(R.string.logs_load_more))
+            }
+        }
+    }
+}
+
+private fun LazyPagingItems<AutomationLog>.shouldShowEmptyState(): Boolean =
+    itemCount == 0 && loadState.refresh is LoadState.NotLoading
+
+private fun LazyPagingItems<AutomationLog>.shouldShowLoadingMoreButton(): Boolean = itemCount > 0 &&
+    loadState.append !is LoadState.Loading &&
+    loadState.append.endOfPaginationReached.not()
+
+private fun LazyListScope.outlinedPreviewLogsCard(logs: List<AutomationLog>) {
+    item {
+        OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+            LogsCardHeader(loadedLogCount = logs.size)
+        }
+    }
+
+    items(
+        items = logs,
+        key = { log -> log.id },
+    ) { log ->
+        OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+            AutomationLogRow(log = log)
+        }
+    }
+}
+
+@Composable
+private fun LogsCardHeader(loadedLogCount: Int) {
+    AutomationCardColumn {
+        AutomationSectionHeader(
+            title = stringResource(R.string.logs_results_title),
+            description = stringResource(R.string.logs_results_description, loadedLogCount),
+        )
     }
 }
 
@@ -329,35 +406,37 @@ private fun LogSortOption.labelRes(): Int = when (this) {
 @Composable
 internal fun AutomationLogsScreenComposePreview() {
     MaterialTheme {
-        AutomationLogsScreenContent(
+        val logs = listOf(
+            AutomationLog(
+                id = 1,
+                timestampEpochMillis = 1_712_789_632_000,
+                severity = AutomationLogSeverity.INFO,
+                message = "Received geofence transition ENTER for home",
+            ),
+            AutomationLog(
+                id = 2,
+                timestampEpochMillis = 1_712_789_631_000,
+                severity = AutomationLogSeverity.WARNING,
+                message = "Skipped geofence registration because location permissions are missing",
+            ),
+            AutomationLog(
+                id = 3,
+                timestampEpochMillis = 1_712_789_630_000,
+                severity = AutomationLogSeverity.ERROR,
+                message = "Action SHOW_NOTIFICATION failed during parallel execution",
+                stackTrace = "java.lang.IllegalStateException: Channel missing\n" +
+                    "    at sample.Class.method(Class.kt:12)",
+            ),
+        )
+        LogsScreenScaffold(
             uiState = AutomationLogsUiState(
                 query = "",
                 sortOption = LogSortOption.NEWEST_FIRST,
-                logs = listOf(
-                    AutomationLog(
-                        id = 1,
-                        timestampEpochMillis = 1_712_789_632_000,
-                        severity = AutomationLogSeverity.INFO,
-                        message = "Received geofence transition ENTER for home",
-                    ),
-                    AutomationLog(
-                        id = 2,
-                        timestampEpochMillis = 1_712_789_631_000,
-                        severity = AutomationLogSeverity.WARNING,
-                        message = "Skipped geofence registration because location permissions are missing",
-                    ),
-                    AutomationLog(
-                        id = 3,
-                        timestampEpochMillis = 1_712_789_630_000,
-                        severity = AutomationLogSeverity.ERROR,
-                        message = "Action SHOW_NOTIFICATION failed during parallel execution",
-                        stackTrace = "java.lang.IllegalStateException: Channel missing\n" +
-                            "    at sample.Class.method(Class.kt:12)",
-                    ),
-                ),
             ),
             onQueryChanged = {},
             onSortOptionChanged = {},
-        )
+        ) {
+            outlinedPreviewLogsCard(logs = logs)
+        }
     }
 }

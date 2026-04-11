@@ -15,5 +15,6 @@ dependencies {
     implementation(project(":ui:common"))
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.paging.compose)
     testImplementation(libs.junit)
 }

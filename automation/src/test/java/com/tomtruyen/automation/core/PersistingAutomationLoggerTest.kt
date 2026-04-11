@@ -1,10 +1,9 @@
 package com.tomtruyen.automation.core
 
+import androidx.paging.PagingSource
 import com.tomtruyen.automation.data.dao.AutomationLogDao
 import com.tomtruyen.automation.data.entity.AutomationLogEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -77,7 +76,8 @@ internal class PersistingAutomationLoggerTest {
     private class FakeAutomationLogDao : AutomationLogDao {
         val insertedLogs = mutableListOf<AutomationLogEntity>()
 
-        override fun observeAll(): Flow<List<AutomationLogEntity>> = flowOf(insertedLogs.toList())
+        override fun pagingSource(query: String, sort: String): PagingSource<Int, AutomationLogEntity> =
+            throw NotImplementedError("Logger tests only verify inserts")
 
         override suspend fun insert(log: AutomationLogEntity) {
             insertedLogs += log
