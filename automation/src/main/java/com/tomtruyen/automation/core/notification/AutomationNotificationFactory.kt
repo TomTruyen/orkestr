@@ -38,7 +38,7 @@ class AutomationNotificationFactory(private val context: Context) {
         }
 
         return NotificationCompat.Builder(context, RUNTIME_CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_sync)
+            .setSmallIcon(R.drawable.ic_notification_sync)
             .setContentTitle(context.getString(R.string.automation_service_runtime_title))
             .setContentText(context.getString(R.string.automation_service_runtime_description))
             .setOngoing(true)
@@ -50,7 +50,7 @@ class AutomationNotificationFactory(private val context: Context) {
 
     fun buildActionNotification(config: ShowNotificationActionConfig): Notification =
         NotificationCompat.Builder(context, ACTION_CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_notification)
+            .setSmallIcon(R.drawable.ic_notification_action)
             .setContentTitle(config.title)
             .setContentText(config.message)
             .setStyle(NotificationCompat.BigTextStyle().bigText(config.message))
