@@ -1,10 +1,14 @@
 package com.tomtruyen.orkestr.features.automation.viewmodel
 
+import androidx.lifecycle.viewModelScope
+import com.tomtruyen.automation.core.AutomationNodeGroup
+import com.tomtruyen.automation.core.AutomationNodeGroupType
 import com.tomtruyen.automation.core.AutomationRule
 import com.tomtruyen.automation.core.config.AutomationConfig
 import com.tomtruyen.automation.core.definition.AutomationDefinitionRegistry
 import com.tomtruyen.automation.core.definition.AutomationNodeDefinition
 import com.tomtruyen.automation.core.permission.AutomationPermission
+import com.tomtruyen.automation.data.repository.AutomationNodeGroupRepository
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
 import com.tomtruyen.automation.features.actions.ActionExecutionMode
 import com.tomtruyen.automation.features.actions.ActionType
@@ -19,17 +23,21 @@ import com.tomtruyen.orkestr.features.automation.state.AutomationEditorAction
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorEvent
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorUiState
 import com.tomtruyen.orkestr.features.automation.state.DefinitionCategoryGroup
+import com.tomtruyen.orkestr.features.automation.state.DefinitionGroupListItem
 import com.tomtruyen.orkestr.features.automation.state.DefinitionListItem
 import com.tomtruyen.orkestr.features.automation.state.DefinitionPickerState
 import com.tomtruyen.orkestr.features.automation.state.RuleEditorState
 import com.tomtruyen.orkestr.features.automation.state.RuleSection
 import com.tomtruyen.orkestr.features.automation.state.RuleValidationState
 import com.tomtruyen.orkestr.ui.automation.R
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import java.util.UUID
 
 class AutomationRuleEditorViewModel private constructor(
     private val stringResolver: StringResolver,
     private val repository: AutomationRuleRepository,
+    private val groupRepository: AutomationNodeGroupRepository,
     private val definitions: AutomationDefinitionRegistry,
     customFlowDelegate: BindableAutomationRuleEditorCustomFlowDelegate =
         BindableAutomationRuleEditorCustomFlowDelegate(),
@@ -40,15 +48,18 @@ class AutomationRuleEditorViewModel private constructor(
     constructor(
         stringResolver: StringResolver,
         repository: AutomationRuleRepository,
+        groupRepository: AutomationNodeGroupRepository,
         definitions: AutomationDefinitionRegistry,
     ) : this(
         stringResolver = stringResolver,
         repository = repository,
+        groupRepository = groupRepository,
         definitions = definitions,
         customFlowDelegate = BindableAutomationRuleEditorCustomFlowDelegate(),
     )
 
     init {
+        observeGroups()
         customFlowDelegate.bind(
             definitions = definitions,
             stringResolver = stringResolver,
@@ -70,9 +81,12 @@ class AutomationRuleEditorViewModel private constructor(
             is AutomationEditorAction.AddNodeClicked -> startAddingNode(action.section)
             is AutomationEditorAction.EditNodeClicked -> editNode(action.section, action.index)
             is AutomationEditorAction.DeleteNodeClicked -> deleteNode(action.section, action.index)
+            is AutomationEditorAction.SaveSectionAsGroupClicked -> saveSectionAsGroup(action.section, action.name)
             is AutomationEditorAction.PickerQueryChanged -> updatePickerQuery(action.query)
             is AutomationEditorAction.DefinitionSelected -> navigateToConfiguration(action.typeKey)
+            is AutomationEditorAction.GroupSelected -> insertGroup(action.group)
             is AutomationEditorAction.PickerFieldChanged -> updatePickerField(action.fieldId, action.value)
+            is AutomationEditorAction.SaveDraftAsGroupClicked -> saveDraftAsGroup(action.name)
             AutomationEditorAction.SavePickerClicked -> savePickerSelection()
         }
     }
@@ -109,6 +123,29 @@ class AutomationRuleEditorViewModel private constructor(
     fun definitionCategoryGroups(section: RuleSection, query: String): List<DefinitionCategoryGroup> =
         definitions.definitionCategoryGroups(section, query, stringResolver)
 
+    fun groupDefinitionCategoryGroups(type: AutomationNodeGroupType, query: String): List<DefinitionCategoryGroup> =
+        definitions.definitionCategoryGroups(type.toRuleSection(), query, stringResolver)
+
+    fun defaultGroupNodeConfig(type: AutomationNodeGroupType, typeKey: String): AutomationConfig<*>? =
+        definitions.defaultConfig(type.toRuleSection(), typeKey)
+
+    fun definitionGroupItems(section: RuleSection, query: String): List<DefinitionGroupListItem> {
+        val normalizedQuery = query.trim()
+        return uiState.value.groups
+            .filter { it.type == section.toGroupType() }
+            .filter { normalizedQuery.isBlank() || it.name.contains(normalizedQuery, ignoreCase = true) }
+            .map { group ->
+                DefinitionGroupListItem(
+                    group = group,
+                    summaries = when (section) {
+                        RuleSection.TRIGGERS -> group.triggers.map(::summarizeTrigger)
+                        RuleSection.CONSTRAINTS -> group.constraints.map(::summarizeConstraint)
+                        RuleSection.ACTIONS -> group.actions.map(::summarizeAction)
+                    },
+                )
+            }
+    }
+
     fun summarizeTrigger(config: TriggerConfig): String =
         definitions.trigger(config.type)?.summarizeAny(config, stringResolver)
             ?: config.type.name
@@ -140,9 +177,19 @@ class AutomationRuleEditorViewModel private constructor(
         return editor.requiredPermissionsForNode(section, index)
     }
 
+    fun requiredPermissionsForGroup(group: AutomationNodeGroup): List<AutomationPermission> =
+        group.triggers.flatMap { it.requiredPermissions } +
+            group.constraints.flatMap { it.requiredPermissions } +
+            group.actions.flatMap { it.requiredPermissions }
+
     private fun closeEditor() {
         updateState { it.copy(editorState = null, pickerState = null) }
     }
+
+    private fun observeGroups() = groupRepository.observeGroups()
+        .onEach { groups ->
+            updateState { it.copy(groups = groups) }
+        }.launchIn(viewModelScope)
 
     private fun closeEditorAndNavigateBack() {
         closeEditor()
@@ -373,9 +420,112 @@ class AutomationRuleEditorViewModel private constructor(
         triggerEvent(AutomationEditorEvent.PopToEditor)
     }
 
+    private fun saveDraftAsGroup(name: String) {
+        val picker = uiState.value.pickerState ?: return
+        val trimmedName = name.trim()
+        if (trimmedName.isBlank()) return
+        val draftConfig = picker.draftConfig ?: return
+        val typeKey = picker.selectedTypeKey ?: return
+        val definition = definitions.definitionFor(picker.section, typeKey) ?: return
+        val errors = definition.validateAny(draftConfig, stringResolver)
+        if (errors.isNotEmpty()) {
+            updateState { it.copy(pickerState = picker.copy(errors = errors)) }
+            return
+        }
+        val group = when (picker.section) {
+            RuleSection.TRIGGERS -> AutomationNodeGroup(
+                id = UUID.randomUUID().toString(),
+                name = trimmedName,
+                type = AutomationNodeGroupType.TRIGGER,
+                triggers = listOf(draftConfig as? TriggerConfig ?: return),
+            )
+
+            RuleSection.CONSTRAINTS -> AutomationNodeGroup(
+                id = UUID.randomUUID().toString(),
+                name = trimmedName,
+                type = AutomationNodeGroupType.CONSTRAINT,
+                constraints = listOf(draftConfig as? ConstraintConfig ?: return),
+            )
+
+            RuleSection.ACTIONS -> AutomationNodeGroup(
+                id = UUID.randomUUID().toString(),
+                name = trimmedName,
+                type = AutomationNodeGroupType.ACTION,
+                actions = listOf(draftConfig as? ActionConfig ?: return),
+            )
+        }
+        launch { groupRepository.upsertGroup(group) }
+    }
+
+    private fun insertGroup(group: AutomationNodeGroup) {
+        val picker = uiState.value.pickerState ?: return
+        val editor = uiState.value.editorState ?: return
+        if (group.type != picker.section.toGroupType()) return
+        updateState {
+            it.copy(
+                editorState = when (picker.section) {
+                    RuleSection.TRIGGERS -> editor.copy(
+                        triggers = editor.triggers + group.triggers,
+                        validation = RuleValidationState(),
+                    )
+
+                    RuleSection.CONSTRAINTS -> editor.copy(
+                        constraints = editor.constraints + group.constraints,
+                        validation = RuleValidationState(),
+                    )
+
+                    RuleSection.ACTIONS -> editor.copy(
+                        actions = editor.actions + group.actions,
+                        validation = RuleValidationState(),
+                    )
+                },
+                pickerState = null,
+            )
+        }
+        triggerEvent(AutomationEditorEvent.PopToEditor)
+    }
+
     private fun deleteNode(section: RuleSection, index: Int) {
         val current = uiState.value.editorState ?: return
         updateState { it.copy(editorState = current.withNodeRemoved(section, index)) }
+    }
+
+    private fun saveSectionAsGroup(section: RuleSection, name: String) {
+        val editor = uiState.value.editorState ?: return
+        val trimmedName = name.trim()
+        if (trimmedName.isBlank()) return
+        val group = when (section) {
+            RuleSection.TRIGGERS -> {
+                if (editor.triggers.isEmpty()) return
+                AutomationNodeGroup(
+                    id = UUID.randomUUID().toString(),
+                    name = trimmedName,
+                    type = AutomationNodeGroupType.TRIGGER,
+                    triggers = editor.triggers,
+                )
+            }
+
+            RuleSection.CONSTRAINTS -> {
+                if (editor.constraints.isEmpty()) return
+                AutomationNodeGroup(
+                    id = UUID.randomUUID().toString(),
+                    name = trimmedName,
+                    type = AutomationNodeGroupType.CONSTRAINT,
+                    constraints = editor.constraints,
+                )
+            }
+
+            RuleSection.ACTIONS -> {
+                if (editor.actions.isEmpty()) return
+                AutomationNodeGroup(
+                    id = UUID.randomUUID().toString(),
+                    name = trimmedName,
+                    type = AutomationNodeGroupType.ACTION,
+                    actions = editor.actions,
+                )
+            }
+        }
+        launch { groupRepository.upsertGroup(group) }
     }
 
     private fun validateRule(rule: RuleEditorState): List<String> {
@@ -432,4 +582,22 @@ class AutomationRuleEditorViewModel private constructor(
         }
         return true
     }
+}
+
+private fun RuleSection.toGroupType(): AutomationNodeGroupType = when (this) {
+    RuleSection.TRIGGERS -> AutomationNodeGroupType.TRIGGER
+    RuleSection.CONSTRAINTS -> AutomationNodeGroupType.CONSTRAINT
+    RuleSection.ACTIONS -> AutomationNodeGroupType.ACTION
+}
+
+private fun AutomationNodeGroupType.toRuleSection(): RuleSection = when (this) {
+    AutomationNodeGroupType.TRIGGER -> RuleSection.TRIGGERS
+    AutomationNodeGroupType.CONSTRAINT -> RuleSection.CONSTRAINTS
+    AutomationNodeGroupType.ACTION -> RuleSection.ACTIONS
+}
+
+private fun AutomationNodeGroup.nodeAt(index: Int): AutomationConfig<*>? = when (type) {
+    AutomationNodeGroupType.TRIGGER -> triggers.getOrNull(index)
+    AutomationNodeGroupType.CONSTRAINT -> constraints.getOrNull(index)
+    AutomationNodeGroupType.ACTION -> actions.getOrNull(index)
 }

@@ -15,6 +15,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -35,6 +36,7 @@ import com.tomtruyen.automation.features.triggers.config.WifiSsidTriggerConfig
 import com.tomtruyen.orkestr.common.component.AutomationCardColumn
 import com.tomtruyen.orkestr.common.component.AutomationDefinitionHeaderCard
 import com.tomtruyen.orkestr.common.component.ValidationCard
+import com.tomtruyen.orkestr.features.automation.screen.SaveGroupDialog
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorAction
 import com.tomtruyen.orkestr.features.automation.state.DefinitionListItem
 import com.tomtruyen.orkestr.features.automation.state.DefinitionPickerState
@@ -102,25 +104,32 @@ internal fun WifiTriggerRouteScreen(editorViewModel: AutomationRuleEditorViewMod
 @Composable
 internal fun TimeOfDayConstraintRouteScreen(
     editorViewModel: AutomationRuleEditorViewModel,
-    config: TimeOfDayConstraintConfig,
     modifier: Modifier = Modifier,
 ) {
     val pickerState = editorViewModel.uiState.collectAsState().value.pickerState ?: return
     val definition = editorViewModel.selectedDefinitionItem() ?: return
+    val config = editorViewModel.currentDraftConfigOrDefault(TimeOfDayConstraintConfig::class)
     var activePicker by remember { mutableStateOf<TimePickerTarget?>(null) }
+    var groupNameDialogVisible by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             Card {
-                Button(
-                    onClick = { editorViewModel.onAction(AutomationEditorAction.SavePickerClicked) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                ) {
-                    Text(pickerState.saveLabel())
+                AutomationCardColumn {
+                    OutlinedButton(
+                        onClick = { groupNameDialogVisible = true },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(stringResource(R.string.automation_action_save_as_group))
+                    }
+                    Button(
+                        onClick = { editorViewModel.onAction(AutomationEditorAction.SavePickerClicked) },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(pickerState.saveLabel())
+                    }
                 }
             }
         },
@@ -200,6 +209,16 @@ internal fun TimeOfDayConstraintRouteScreen(
             },
         )
     }
+
+    SaveGroupDialog(
+        visible = groupNameDialogVisible,
+        sectionName = stringResource(pickerState.section.singularTitleRes),
+        onDismiss = { groupNameDialogVisible = false },
+        onSave = { name ->
+            editorViewModel.onAction(AutomationEditorAction.SaveDraftAsGroupClicked(name))
+            groupNameDialogVisible = false
+        },
+    )
 }
 
 @Composable

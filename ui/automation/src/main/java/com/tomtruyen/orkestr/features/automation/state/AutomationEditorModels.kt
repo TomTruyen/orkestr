@@ -1,6 +1,7 @@
 package com.tomtruyen.orkestr.features.automation.state
 
 import androidx.annotation.StringRes
+import com.tomtruyen.automation.core.AutomationNodeGroup
 import com.tomtruyen.automation.core.config.AutomationCategory
 import com.tomtruyen.automation.core.config.AutomationConfig
 import com.tomtruyen.automation.core.definition.AutomationFieldDefinition
@@ -45,3 +46,5 @@ data class DefinitionPickerState(
     val draftConfig: AutomationConfig<*>? = null,
     val errors: List<String> = emptyList(),
 )
+
+data class DefinitionGroupListItem(val group: AutomationNodeGroup, val summaries: List<String>)

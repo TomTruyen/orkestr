@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ListAlt
+import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -23,8 +24,12 @@ import com.tomtruyen.orkestr.R
 import com.tomtruyen.orkestr.common.navigation.premiumBackwardTransition
 import com.tomtruyen.orkestr.common.navigation.premiumForwardTransition
 import com.tomtruyen.orkestr.features.automation.navigation.AutomationNavGraph
+import com.tomtruyen.orkestr.features.automation.screen.AutomationGroupsScreen
+import com.tomtruyen.orkestr.features.automation.viewmodel.AutomationGroupsViewModel
+import com.tomtruyen.orkestr.features.automation.viewmodel.AutomationRuleEditorViewModel
 import com.tomtruyen.orkestr.features.logs.screen.AutomationLogsScreen
 import kotlinx.serialization.Serializable
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AppNavigation() {
@@ -72,6 +77,22 @@ fun AppNavigation() {
                         )
                     }
 
+                    AppDestination.GROUPS -> {
+                        val groupsViewModel = koinViewModel<AutomationGroupsViewModel>()
+                        val editorViewModel = koinViewModel<AutomationRuleEditorViewModel>()
+                        AutomationGroupsScreen(
+                            viewModel = groupsViewModel,
+                            summarizeTrigger = editorViewModel::summarizeTrigger,
+                            summarizeConstraint = editorViewModel::summarizeConstraint,
+                            summarizeAction = editorViewModel::summarizeAction,
+                            definitionCategoryGroups = editorViewModel::groupDefinitionCategoryGroups,
+                            defaultNodeConfig = editorViewModel::defaultGroupNodeConfig,
+                            modifier = Modifier
+                                .padding(innerPadding)
+                                .consumeWindowInsets(innerPadding),
+                        )
+                    }
+
                     AppDestination.LOGS -> {
                         AutomationLogsScreen(
                             modifier = Modifier
@@ -90,6 +111,10 @@ private enum class AppDestination(val labelRes: Int, val icon: androidx.compose.
     AUTOMATIONS(
         labelRes = R.string.app_navigation_automations,
         icon = Icons.Outlined.Tune,
+    ),
+    GROUPS(
+        labelRes = R.string.app_navigation_groups,
+        icon = Icons.Outlined.Category,
     ),
     LOGS(
         labelRes = R.string.app_navigation_logs,

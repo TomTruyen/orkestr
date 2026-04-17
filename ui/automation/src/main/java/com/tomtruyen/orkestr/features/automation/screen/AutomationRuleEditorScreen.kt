@@ -55,6 +55,7 @@ fun AutomationRuleEditorScreen(viewModel: AutomationRuleEditorViewModel, modifie
     val state = uiState.editorState ?: return
     val permissionManager = AutomationPermissionManager.remember(LocalContext.current)
     var nodeDialog by rememberSaveable { mutableStateOf<NodeActionDialogState?>(null) }
+    var groupDialogSection by rememberSaveable { mutableStateOf<RuleSection?>(null) }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -129,6 +130,7 @@ fun AutomationRuleEditorScreen(viewModel: AutomationRuleEditorViewModel, modifie
                     onNodeLongClick = { index, entry ->
                         nodeDialog = NodeActionDialogState(RuleSection.TRIGGERS, index, entry)
                     },
+                    onSaveGroup = { groupDialogSection = RuleSection.TRIGGERS },
                 )
             }
             item {
@@ -148,6 +150,7 @@ fun AutomationRuleEditorScreen(viewModel: AutomationRuleEditorViewModel, modifie
                     onNodeLongClick = { index, entry ->
                         nodeDialog = NodeActionDialogState(RuleSection.CONSTRAINTS, index, entry)
                     },
+                    onSaveGroup = { groupDialogSection = RuleSection.CONSTRAINTS },
                 )
             }
             item {
@@ -175,6 +178,7 @@ fun AutomationRuleEditorScreen(viewModel: AutomationRuleEditorViewModel, modifie
                     onNodeLongClick = { index, entry ->
                         nodeDialog = NodeActionDialogState(RuleSection.ACTIONS, index, entry)
                     },
+                    onSaveGroup = { groupDialogSection = RuleSection.ACTIONS },
                 )
             }
         }
@@ -199,6 +203,18 @@ fun AutomationRuleEditorScreen(viewModel: AutomationRuleEditorViewModel, modifie
         )
     }
 
+    groupDialogSection?.let { section ->
+        SaveGroupDialog(
+            visible = true,
+            sectionName = stringResource(section.singularTitleRes),
+            onDismiss = { groupDialogSection = null },
+            onSave = { name ->
+                viewModel.onAction(AutomationEditorAction.SaveSectionAsGroupClicked(section, name))
+                groupDialogSection = null
+            },
+        )
+    }
+
     permissionManager.RenderDialogs()
 }
 
@@ -214,6 +230,7 @@ private fun RuleSectionEditorCard(
     headerContent: @Composable (() -> Unit)? = null,
     onNodeClick: (Int) -> Unit,
     onNodeLongClick: (Int, String) -> Unit,
+    onSaveGroup: () -> Unit,
 ) {
     AutomationTintedColumn(
         tint = tint,
@@ -267,6 +284,12 @@ private fun RuleSectionEditorCard(
                 ),
             )
         } else {
+            OutlinedButton(
+                onClick = onSaveGroup,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(stringResource(R.string.automation_action_save_as_group))
+            }
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 entries.forEachIndexed { index, entry ->
                     NodeListItem(

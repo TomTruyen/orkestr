@@ -1,5 +1,7 @@
 package com.tomtruyen.orkestr.features.automation.state
 
+import com.tomtruyen.automation.core.AutomationNodeGroup
+import com.tomtruyen.automation.core.AutomationNodeGroupType
 import com.tomtruyen.automation.core.AutomationRule
 import com.tomtruyen.automation.features.actions.ActionExecutionMode
 
@@ -22,8 +24,17 @@ sealed interface AutomationEditorAction {
     data class AddNodeClicked(val section: RuleSection) : AutomationEditorAction
     data class EditNodeClicked(val section: RuleSection, val index: Int) : AutomationEditorAction
     data class DeleteNodeClicked(val section: RuleSection, val index: Int) : AutomationEditorAction
+    data class SaveSectionAsGroupClicked(val section: RuleSection, val name: String) : AutomationEditorAction
     data class PickerQueryChanged(val query: String) : AutomationEditorAction
     data class DefinitionSelected(val typeKey: String) : AutomationEditorAction
+    data class GroupSelected(val group: AutomationNodeGroup) : AutomationEditorAction
     data class PickerFieldChanged(val fieldId: String, val value: String) : AutomationEditorAction
+    data class SaveDraftAsGroupClicked(val name: String) : AutomationEditorAction
     data object SavePickerClicked : AutomationEditorAction
+}
+
+sealed interface AutomationGroupsAction {
+    data class DeleteGroupClicked(val group: AutomationNodeGroup) : AutomationGroupsAction
+    data class UpdateGroupClicked(val group: AutomationNodeGroup) : AutomationGroupsAction
+    data class CreateEmptyGroupClicked(val type: AutomationNodeGroupType, val name: String) : AutomationGroupsAction
 }

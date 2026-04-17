@@ -7,6 +7,8 @@ sealed interface AutomationRulesEvent {
     data class NavigateToEditRule(val rule: AutomationRule) : AutomationRulesEvent
 }
 
+sealed interface AutomationGroupsEvent
+
 sealed interface AutomationEditorEvent {
     data object NavigateBackToRules : AutomationEditorEvent
     data class NavigateToDefinitionSelection(val section: RuleSection, val editingIndex: Int?) : AutomationEditorEvent

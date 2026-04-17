@@ -2,9 +2,11 @@ package com.tomtruyen.orkestr.features.automation.di
 
 import android.net.wifi.WifiManager
 import com.tomtruyen.automation.core.definition.AutomationDefinitionRegistry
+import com.tomtruyen.automation.data.repository.AutomationNodeGroupRepository
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
 import com.tomtruyen.orkestr.common.StringResolver
 import com.tomtruyen.orkestr.features.automation.service.InstalledAppService
+import com.tomtruyen.orkestr.features.automation.viewmodel.AutomationGroupsViewModel
 import com.tomtruyen.orkestr.features.automation.viewmodel.AutomationRuleEditorViewModel
 import com.tomtruyen.orkestr.features.automation.viewmodel.AutomationRulesViewModel
 import com.tomtruyen.orkestr.features.wifi.service.WifiNetworkService
@@ -31,9 +33,16 @@ val automationFeatureModule = module {
     }
 
     viewModel {
+        AutomationGroupsViewModel(
+            repository = get<AutomationNodeGroupRepository>(),
+        )
+    }
+
+    viewModel {
         AutomationRuleEditorViewModel(
             stringResolver = get<StringResolver>(),
             repository = get<AutomationRuleRepository>(),
+            groupRepository = get<AutomationNodeGroupRepository>(),
             definitions = get<AutomationDefinitionRegistry>(),
         )
     }

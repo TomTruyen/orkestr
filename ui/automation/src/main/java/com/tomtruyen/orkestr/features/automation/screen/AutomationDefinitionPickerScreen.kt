@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
@@ -49,14 +50,17 @@ import com.tomtruyen.orkestr.features.automation.component.DefinitionFieldPrevie
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorAction
 import com.tomtruyen.orkestr.features.automation.viewmodel.AutomationRuleEditorViewModel
 import com.tomtruyen.orkestr.ui.automation.R
+import com.tomtruyen.orkestr.ui.common.R as CommonR
 
 @Composable
 fun AutomationDefinitionSelectionScreen(viewModel: AutomationRuleEditorViewModel, modifier: Modifier = Modifier) {
     val uiState by viewModel.uiState.collectAsState()
     val pickerState = uiState.pickerState ?: return
     val groups = viewModel.definitionCategoryGroups(pickerState.section, pickerState.query)
+    val savedGroups = viewModel.definitionGroupItems(pickerState.section, pickerState.query)
     val permissionManager = AutomationPermissionManager.remember(LocalContext.current)
     var expandedCategories by rememberSaveable(pickerState.section) { mutableStateOf(setOf<String>()) }
+    var savedGroupsExpanded by rememberSaveable(pickerState.section) { mutableStateOf(false) }
 
     LaunchedEffect(pickerState.query, groups) {
         if (pickerState.query.isNotBlank()) {
@@ -91,7 +95,95 @@ fun AutomationDefinitionSelectionScreen(viewModel: AutomationRuleEditorViewModel
             )
         }
 
-        if (groups.isEmpty()) {
+        item(key = "saved-groups") {
+            OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+                Column {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { savedGroupsExpanded = !savedGroupsExpanded }
+                            .padding(horizontal = 18.dp, vertical = 16.dp),
+                    ) {
+                        Text(
+                            text = if (savedGroupsExpanded) "▾" else "▸",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = stringResource(R.string.automation_groups_picker_title),
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        Text(
+                            text = savedGroups.size.toString(),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+
+                    if (savedGroupsExpanded) {
+                        AutomationCardColumn {
+                            Text(
+                                text = stringResource(R.string.automation_groups_picker_description),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            if (savedGroups.isEmpty()) {
+                                EmptyStateCard(
+                                    title = stringResource(R.string.automation_empty_groups_title),
+                                    description = stringResource(R.string.automation_empty_groups_picker_description),
+                                )
+                            } else {
+                                savedGroups.forEach { groupItem ->
+                                    OutlinedCard(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                permissionManager.request(
+                                                    viewModel.requiredPermissionsForGroup(groupItem.group),
+                                                ) {
+                                                    viewModel.onAction(
+                                                        AutomationEditorAction.GroupSelected(groupItem.group),
+                                                    )
+                                                }
+                                            },
+                                    ) {
+                                        AutomationCardColumn {
+                                            Text(
+                                                text = groupItem.group.name,
+                                                style = MaterialTheme.typography.titleMedium,
+                                                fontWeight = FontWeight.SemiBold,
+                                            )
+                                            Text(
+                                                text = stringResource(
+                                                    R.string.automation_group_node_count,
+                                                    groupItem.summaries.size,
+                                                ),
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            )
+                                            groupItem.summaries.take(MAX_PREVIEW_SUMMARIES).forEach { summary ->
+                                                Text(
+                                                    text = summary,
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (groups.isEmpty() && savedGroups.isEmpty()) {
             item {
                 EmptyStateCard(
                     title = stringResource(R.string.automation_empty_matches_title),
@@ -99,7 +191,6 @@ fun AutomationDefinitionSelectionScreen(viewModel: AutomationRuleEditorViewModel
                 )
             }
         }
-
         groups.forEach { group ->
             item(key = "category-${group.category.name}") {
                 OutlinedCard(modifier = Modifier.fillMaxWidth()) {
@@ -198,28 +289,35 @@ fun AutomationDefinitionConfigurationScreen(viewModel: AutomationRuleEditorViewM
     val showConfigurationCard = definition.fields.isNotEmpty() ||
         pickerState.errors.isNotEmpty() ||
         customConfigurationButtonLabel != null
+    var groupNameDialogVisible by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             Card {
-                Button(
-                    onClick = { viewModel.onAction(AutomationEditorAction.SavePickerClicked) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                ) {
-                    Text(
-                        if (pickerState.editingIndex == null) {
-                            stringResource(
-                                R.string.automation_action_add_node,
-                                stringResource(pickerState.section.singularTitleRes),
-                            )
-                        } else {
-                            stringResource(R.string.automation_action_save_changes)
-                        },
-                    )
+                AutomationCardColumn {
+                    OutlinedButton(
+                        onClick = { groupNameDialogVisible = true },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(stringResource(R.string.automation_action_save_as_group))
+                    }
+                    Button(
+                        onClick = { viewModel.onAction(AutomationEditorAction.SavePickerClicked) },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(
+                            if (pickerState.editingIndex == null) {
+                                stringResource(
+                                    R.string.automation_action_add_node,
+                                    stringResource(pickerState.section.singularTitleRes),
+                                )
+                            } else {
+                                stringResource(R.string.automation_action_save_changes)
+                            },
+                        )
+                    }
                 }
             }
         },
@@ -291,6 +389,56 @@ fun AutomationDefinitionConfigurationScreen(viewModel: AutomationRuleEditorViewM
             }
         }
     }
+
+    SaveGroupDialog(
+        visible = groupNameDialogVisible,
+        sectionName = stringResource(pickerState.section.singularTitleRes),
+        onDismiss = { groupNameDialogVisible = false },
+        onSave = { name ->
+            viewModel.onAction(AutomationEditorAction.SaveDraftAsGroupClicked(name))
+            groupNameDialogVisible = false
+        },
+    )
+}
+
+@Composable
+internal fun SaveGroupDialog(visible: Boolean, sectionName: String, onDismiss: () -> Unit, onSave: (String) -> Unit) {
+    if (!visible) return
+    var name by rememberSaveable { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.automation_save_group_title, sectionName)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(
+                    text = stringResource(R.string.automation_save_group_description),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text(stringResource(R.string.automation_group_name_label)) },
+                    singleLine = true,
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { onSave(name) },
+                enabled = name.isNotBlank(),
+            ) {
+                Text(stringResource(R.string.automation_action_save_group))
+            }
+        },
+        dismissButton = {
+            OutlinedButton(onClick = onDismiss) {
+                Text(stringResource(CommonR.string.automation_action_close))
+            }
+        },
+    )
 }
 
 private fun customConfigurationButtonAnchorFieldId(typeKey: String?): String? = when (typeKey) {
@@ -302,3 +450,5 @@ private fun customConfigurationButtonAnchorFieldId(typeKey: String?): String? = 
 
     else -> null
 }
+
+private const val MAX_PREVIEW_SUMMARIES = 3

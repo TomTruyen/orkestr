@@ -23,6 +23,8 @@ Each rule is stored in Room as:
 - one or more actions
 - an action execution mode, defaulting to parallel
 
+Reusable trigger, constraint, and action groups are stored separately in Room. Groups are templates only: selecting a group while editing a rule copies that group's nodes into the rule, and later edits to either the rule or the group do not stay linked.
+
 For testing, the rules list also exposes a manual `Run now` action. It bypasses triggers and evaluates the rule’s constraints before executing actions.
 
 At runtime, the foreground service keeps only the necessary trigger integrations active, forwards platform events into the automation engine, evaluates matching rules, and executes actions.
@@ -48,13 +50,14 @@ At runtime, the foreground service keeps only the necessary trigger integrations
 
 1. The user edits a rule in `:ui:automation`.
 2. The UI reads available definitions from `AutomationDefinitionRegistry`.
-3. The selected node config is persisted through `AutomationRuleRepository` into Room.
-4. `AutomationForegroundService` observes enabled rules and computes the active `TriggerReceiverKey` set.
-5. Generated receiver factories register only the platform integrations required by enabled triggers.
-6. Receivers and services emit `AutomationEvent` instances into `AutomationRuntimeService`.
-7. `TriggerMatcher` checks whether any trigger in the rule matches the event.
-8. `ConstraintEvaluator` checks all configured constraints.
-9. `ActionExecutor` runs the configured actions using the rule's execution mode. Parallel is the default; sequential is available when action order matters.
+3. The user can either select one definition or insert a saved group template for the same section.
+4. The selected node config is persisted through `AutomationRuleRepository` into Room.
+5. `AutomationForegroundService` observes enabled rules and computes the active `TriggerReceiverKey` set.
+6. Generated receiver factories register only the platform integrations required by enabled triggers.
+7. Receivers and services emit `AutomationEvent` instances into `AutomationRuntimeService`.
+8. `TriggerMatcher` checks whether any trigger in the rule matches the event.
+9. `ConstraintEvaluator` checks all configured constraints.
+10. `ActionExecutor` runs the configured actions using the rule's execution mode. Parallel is the default; sequential is available when action order matters.
 
 ### Generated registration
 
@@ -78,6 +81,33 @@ That means adding a new capability is mostly a matter of creating the config/def
 - Constraint evaluation: [`ConstraintEvaluator.kt`](/home/tom/Documents/GitHub/orkestr/automation/src/main/java/com/tomtruyen/automation/features/constraints/ConstraintEvaluator.kt)
 - Action execution: [`ActionExecutor.kt`](/home/tom/Documents/GitHub/orkestr/automation/src/main/java/com/tomtruyen/automation/features/actions/ActionExecutor.kt)
 - Editor integration helpers: [`AutomationRuleEditorDefinitionHelpers.kt`](/home/tom/Documents/GitHub/orkestr/ui/automation/src/main/java/com/tomtruyen/orkestr/features/automation/viewmodel/AutomationRuleEditorDefinitionHelpers.kt)
+
+## Automation Groups
+
+Orkestr supports three reusable template types:
+
+| Group type | Contents | Where it appears |
+|------------|----------|------------------|
+| Trigger Groups | One or more configured triggers. | The trigger picker while editing a rule, and the Groups bottom-navigation screen. |
+| Constraint Groups | One or more configured constraints. | The constraint picker while editing a rule, and the Groups bottom-navigation screen. |
+| Action Groups | One or more configured actions. | The action picker while editing a rule, and the Groups bottom-navigation screen. |
+
+Groups are not shared live references. When a user selects a group, Orkestr inserts copies of the group's current trigger, constraint, or action configs into the flow. The inserted nodes can then be configured independently per rule.
+
+Current behavior:
+
+- Groups are persisted in Room through `AutomationNodeGroupRepository`.
+- The Groups bottom-navigation screen lists, edits, and deletes saved groups.
+- Group editing supports renaming, adding nodes, and removing nodes. It does not configure individual nodes from the management screen; configure a node in a rule first, then save it or its section as a group.
+- Rule editor sections can save the current trigger, constraint, or action list as a multi-node group.
+- Generic node configuration screens can save the current draft as a group after validation.
+- The custom Time Of Day constraint screen also supports saving the current draft as a group.
+- Android permission prompts still come from the inserted configs. Selecting a group with permission-backed nodes prompts for those permissions before insertion.
+
+Limitations:
+
+- Groups are editor templates only; they do not change runtime semantics.
+- Some highly custom configuration flows may need an explicit "Save as Group" button added to their dedicated screen.
 
 ## Adding A New Capability
 
