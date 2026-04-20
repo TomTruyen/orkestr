@@ -1,6 +1,5 @@
 package com.tomtruyen.automation.core
 
-import com.tomtruyen.automation.core.AutomationRule
 import com.tomtruyen.automation.core.event.AutomationEvent
 import com.tomtruyen.automation.core.event.ManualAutomationEvent
 import com.tomtruyen.automation.data.repository.AutomationRuleRepository
@@ -30,7 +29,13 @@ class AutomationRuntimeService(
 
     private suspend fun executeRule(rule: AutomationRule, event: AutomationEvent, ignoreTriggers: Boolean = false) {
         if (!ignoreTriggers && !triggerMatcher.matches(rule.triggers, event)) return
-        if (!constraintEvaluator.evaluateAll(rule.constraints, event)) return
+        if (!constraintEvaluator.evaluateGroups(
+                rule.constraintGroups.effectiveConstraintGroups(rule.constraints),
+                event,
+            )
+        ) {
+            return
+        }
 
         actionExecutor.executeAll(
             actions = rule.actions,

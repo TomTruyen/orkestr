@@ -1,6 +1,7 @@
 package com.tomtruyen.automation.data
 
 import androidx.room.TypeConverter
+import com.tomtruyen.automation.core.ConstraintGroup
 import com.tomtruyen.automation.features.actions.config.ActionConfig
 import com.tomtruyen.automation.features.constraints.config.ConstraintConfig
 import com.tomtruyen.automation.features.triggers.config.TriggerConfig
@@ -31,6 +32,20 @@ class AutomationRuleTypeConverters {
         if (value.isBlank()) return emptyList()
         return try {
             AutomationConfigJson.instance.decodeFromString(ListSerializer(ConstraintConfig.serializer()), value)
+        } catch (_: SerializationException) {
+            emptyList()
+        }
+    }
+
+    @TypeConverter
+    fun fromConstraintGroups(value: List<ConstraintGroup>): String =
+        AutomationConfigJson.instance.encodeToString(ListSerializer(ConstraintGroup.serializer()), value)
+
+    @TypeConverter
+    fun toConstraintGroups(value: String): List<ConstraintGroup> {
+        if (value.isBlank()) return emptyList()
+        return try {
+            AutomationConfigJson.instance.decodeFromString(ListSerializer(ConstraintGroup.serializer()), value)
         } catch (_: SerializationException) {
             emptyList()
         }

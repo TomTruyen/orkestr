@@ -1,5 +1,6 @@
 package com.tomtruyen.automation.features.constraints
 
+import com.tomtruyen.automation.core.ConstraintGroup
 import com.tomtruyen.automation.core.event.AutomationEvent
 import com.tomtruyen.automation.core.event.BatteryChangedEvent
 import com.tomtruyen.automation.core.model.BatteryChargeState
@@ -82,6 +83,42 @@ internal class ConstraintEvaluatorTest {
         val evaluator = ConstraintEvaluator(emptyList())
 
         val result = evaluator.evaluateAll(listOf(constraint), event)
+
+        assertFalse(result)
+    }
+
+    @Test
+    fun evaluateGroups_whenAnyGroupPasses_returnsTrue() = runTest {
+        val failingConstraint = constraint.copy(value = 90)
+        coEvery { delegate.evaluate(failingConstraint, event) } returns false
+        coEvery { delegate.evaluate(constraint, event) } returns true
+        val evaluator = ConstraintEvaluator(listOf(delegate))
+
+        val result = evaluator.evaluateGroups(
+            listOf(
+                ConstraintGroup(listOf(failingConstraint)),
+                ConstraintGroup(listOf(constraint)),
+            ),
+            event,
+        )
+
+        assertTrue(result)
+    }
+
+    @Test
+    fun evaluateGroups_whenEveryGroupFails_returnsFalse() = runTest {
+        val secondConstraint = constraint.copy(value = 90)
+        coEvery { delegate.evaluate(constraint, event) } returns false
+        coEvery { delegate.evaluate(secondConstraint, event) } returns false
+        val evaluator = ConstraintEvaluator(listOf(delegate))
+
+        val result = evaluator.evaluateGroups(
+            listOf(
+                ConstraintGroup(listOf(constraint)),
+                ConstraintGroup(listOf(secondConstraint)),
+            ),
+            event,
+        )
 
         assertFalse(result)
     }

@@ -11,6 +11,7 @@
     <string name="automation_definition_category_battery_power">Battery/Power</string>
     <string name="automation_definition_category_location">Location</string>
     <string name="automation_definition_category_notifications">Notifications</string>
+    <string name="automation_definition_category_conditions">Conditions</string>
     <string name="automation_definition_category_volume">Volume</string>
     <string name="automation_definition_category_utility">Utility</string>
 

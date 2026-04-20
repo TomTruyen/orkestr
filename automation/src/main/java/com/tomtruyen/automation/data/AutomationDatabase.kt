@@ -19,7 +19,7 @@ import com.tomtruyen.automation.data.entity.GeofenceEntity
         AutomationLogEntity::class,
         AutomationNodeGroupEntity::class,
     ],
-    version = 6,
+    version = 7,
     exportSchema = false,
 )
 @TypeConverters(AutomationRuleTypeConverters::class)

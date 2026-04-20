@@ -19,7 +19,7 @@ Orkestr has two main layers:
 Each rule is stored in Room as:
 
 - one or more triggers
-- zero or more constraints
+- zero or more constraints, optionally organized into condition groups
 - one or more actions
 - an action execution mode, defaulting to parallel
 
@@ -56,7 +56,7 @@ At runtime, the foreground service keeps only the necessary trigger integrations
 6. Generated receiver factories register only the platform integrations required by enabled triggers.
 7. Receivers and services emit `AutomationEvent` instances into `AutomationRuntimeService`.
 8. `TriggerMatcher` checks whether any trigger in the rule matches the event.
-9. `ConstraintEvaluator` checks all configured constraints.
+9. `ConstraintEvaluator` checks configured constraints. Ungrouped constraints behave as one AND group. Condition groups use AND inside each group and OR between groups.
 10. `ActionExecutor` runs the configured actions using the rule's execution mode. Parallel is the default; sequential is available when action order matters.
 
 ### Generated registration
@@ -99,15 +99,28 @@ Current behavior:
 - Groups are persisted in Room through `AutomationNodeGroupRepository`.
 - The Groups bottom-navigation screen lists, edits, and deletes saved groups.
 - Group editing supports renaming, adding nodes, and removing nodes. It does not configure individual nodes from the management screen; configure a node in a rule first, then save it or its section as a group.
-- Rule editor sections can save the current trigger, constraint, or action list as a multi-node group.
-- Generic node configuration screens can save the current draft as a group after validation.
-- The custom Time Of Day constraint screen also supports saving the current draft as a group.
+- Rule editor sections expose group actions from the More menu next to the add button. "Save as Group" stores all current nodes in that section as a template.
+- Long-pressing a node can enter selection mode so only selected triggers, constraints, or actions are saved as a template group.
+- Single-node configuration screens do not save template groups directly. Configure the node in a rule first, then save the full section or a selected subset from the rule editor.
 - Android permission prompts still come from the inserted configs. Selecting a group with permission-backed nodes prompts for those permissions before insertion.
 
 Limitations:
 
 - Groups are editor templates only; they do not change runtime semantics.
 - Some highly custom configuration flows may need an explicit "Save as Group" button added to their dedicated screen.
+
+## Constraint Conditions
+
+Constraint condition groups are part of a rule, not reusable templates.
+
+- Ungrouped constraints keep the existing behavior: every constraint must pass.
+- Within a condition group, every constraint must pass (`AND`).
+- Between condition groups, any group may pass (`OR`).
+- This is local rule logic. It does not require extra Android permissions and has no OS-version dependency.
+- Constraints inside groups still keep their own permission and OEM limitations. For example, Wi-Fi, Bluetooth, geofence, and usage-related constraints still depend on their underlying Android APIs and granted permissions.
+
+The rule editor lets users select constraints and create a condition group. Any constraints left outside that selection are kept as separate alternatives, so a selection like `A + B` from `A, B, C` evaluates as `(A AND B) OR C`.
+Condition group cards include an add action that opens the normal constraint picker and inserts the new constraint directly into that rule-level group.
 
 ## Adding A New Capability
 

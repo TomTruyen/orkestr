@@ -2,6 +2,7 @@ package com.tomtruyen.orkestr.features.automation.state
 
 import androidx.annotation.StringRes
 import com.tomtruyen.automation.core.AutomationNodeGroup
+import com.tomtruyen.automation.core.ConstraintGroup
 import com.tomtruyen.automation.core.config.AutomationCategory
 import com.tomtruyen.automation.core.config.AutomationConfig
 import com.tomtruyen.automation.core.definition.AutomationFieldDefinition
@@ -19,6 +20,7 @@ data class RuleEditorState(
     val enabled: Boolean = true,
     val triggers: List<TriggerConfig> = emptyList(),
     val constraints: List<ConstraintConfig> = emptyList(),
+    val constraintGroups: List<ConstraintGroup> = emptyList(),
     val actions: List<ActionConfig> = emptyList(),
     val actionExecutionMode: ActionExecutionMode = ActionExecutionMode.PARALLEL,
     val validation: RuleValidationState = RuleValidationState(),
@@ -40,6 +42,7 @@ data class DefinitionCategoryGroup(val category: AutomationCategory, val items: 
 data class DefinitionPickerState(
     val section: RuleSection,
     val editingIndex: Int? = null,
+    val targetConstraintGroupIndex: Int? = null,
     val query: String = "",
     val launchedFromSelection: Boolean = true,
     val selectedTypeKey: String? = null,

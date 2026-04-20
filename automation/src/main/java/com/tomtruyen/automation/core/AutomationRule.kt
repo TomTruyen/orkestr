@@ -11,6 +11,7 @@ data class AutomationRule(
     val enabled: Boolean,
     val triggers: List<TriggerConfig>,
     val constraints: List<ConstraintConfig>,
+    val constraintGroups: List<ConstraintGroup> = emptyList(),
     val actions: List<ActionConfig>,
     val actionExecutionMode: ActionExecutionMode = ActionExecutionMode.PARALLEL,
 )

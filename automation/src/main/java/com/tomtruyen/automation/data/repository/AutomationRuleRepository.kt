@@ -48,6 +48,7 @@ private fun AutomationRuleEntity.toDomain(): AutomationRule = AutomationRule(
     enabled = enabled,
     triggers = triggers,
     constraints = constraints,
+    constraintGroups = constraintGroups,
     actions = actions,
     actionExecutionMode = actionExecutionMode.toActionExecutionMode(),
 )
@@ -58,6 +59,7 @@ private fun AutomationRule.toEntity(): AutomationRuleEntity = AutomationRuleEnti
     enabled = enabled,
     triggers = triggers,
     constraints = constraints,
+    constraintGroups = constraintGroups,
     actions = actions,
     actionExecutionMode = actionExecutionMode.name,
     updatedAtEpochMillis = System.currentTimeMillis(),

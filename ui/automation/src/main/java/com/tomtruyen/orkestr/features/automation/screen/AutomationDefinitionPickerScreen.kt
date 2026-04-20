@@ -289,7 +289,6 @@ fun AutomationDefinitionConfigurationScreen(viewModel: AutomationRuleEditorViewM
     val showConfigurationCard = definition.fields.isNotEmpty() ||
         pickerState.errors.isNotEmpty() ||
         customConfigurationButtonLabel != null
-    var groupNameDialogVisible by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -297,12 +296,6 @@ fun AutomationDefinitionConfigurationScreen(viewModel: AutomationRuleEditorViewM
         bottomBar = {
             Card {
                 AutomationCardColumn {
-                    OutlinedButton(
-                        onClick = { groupNameDialogVisible = true },
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text(stringResource(R.string.automation_action_save_as_group))
-                    }
                     Button(
                         onClick = { viewModel.onAction(AutomationEditorAction.SavePickerClicked) },
                         modifier = Modifier.fillMaxWidth(),
@@ -389,16 +382,6 @@ fun AutomationDefinitionConfigurationScreen(viewModel: AutomationRuleEditorViewM
             }
         }
     }
-
-    SaveGroupDialog(
-        visible = groupNameDialogVisible,
-        sectionName = stringResource(pickerState.section.singularTitleRes),
-        onDismiss = { groupNameDialogVisible = false },
-        onSave = { name ->
-            viewModel.onAction(AutomationEditorAction.SaveDraftAsGroupClicked(name))
-            groupNameDialogVisible = false
-        },
-    )
 }
 
 @Composable

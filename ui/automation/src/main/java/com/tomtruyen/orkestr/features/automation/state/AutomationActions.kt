@@ -25,6 +25,15 @@ sealed interface AutomationEditorAction {
     data class EditNodeClicked(val section: RuleSection, val index: Int) : AutomationEditorAction
     data class DeleteNodeClicked(val section: RuleSection, val index: Int) : AutomationEditorAction
     data class SaveSectionAsGroupClicked(val section: RuleSection, val name: String) : AutomationEditorAction
+    data class SaveSelectedNodesAsGroupClicked(val section: RuleSection, val indices: Set<Int>, val name: String) :
+        AutomationEditorAction
+    data class CreateConstraintConditionGroupClicked(val indices: Set<Int>) : AutomationEditorAction
+    data class UpdateConstraintConditionGroupClicked(val groupIndex: Int, val indices: Set<Int>) :
+        AutomationEditorAction
+    data class DeleteConstraintConditionGroupClicked(val groupIndex: Int) : AutomationEditorAction
+    data class RemoveConstraintFromConditionGroupClicked(val groupIndex: Int, val constraintIndex: Int) :
+        AutomationEditorAction
+    data class AddConstraintToConditionGroupClicked(val groupIndex: Int) : AutomationEditorAction
     data class PickerQueryChanged(val query: String) : AutomationEditorAction
     data class DefinitionSelected(val typeKey: String) : AutomationEditorAction
     data class GroupSelected(val group: AutomationNodeGroup) : AutomationEditorAction

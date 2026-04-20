@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.tomtruyen.automation.core.AutomationNodeGroup
 import com.tomtruyen.automation.core.AutomationNodeGroupType
 import com.tomtruyen.automation.core.AutomationRule
+import com.tomtruyen.automation.core.ConstraintGroup
 import com.tomtruyen.automation.core.config.AutomationConfig
 import com.tomtruyen.automation.core.definition.AutomationDefinitionRegistry
 import com.tomtruyen.automation.core.definition.AutomationNodeDefinition
@@ -69,24 +70,59 @@ class AutomationRuleEditorViewModel private constructor(
         )
     }
 
+    @Suppress("CyclomaticComplexMethod")
     override fun onAction(action: AutomationEditorAction) {
         when (action) {
             AutomationEditorAction.CloseEditorClicked -> closeEditorAndNavigateBack()
+
             AutomationEditorAction.ClosePickerClicked -> closePickerAndReturnToEditor()
+
             AutomationEditorAction.BackToPickerSelectionClicked -> navigateBackFromConfiguration()
+
             is AutomationEditorAction.RuleNameChanged -> updateRuleName(action.name)
+
             is AutomationEditorAction.RuleEnabledChanged -> updateRuleEnabled(action.enabled)
+
             is AutomationEditorAction.RuleActionExecutionModeChanged -> updateActionExecutionMode(action.executionMode)
+
             AutomationEditorAction.SaveRuleClicked -> saveRule()
+
             is AutomationEditorAction.AddNodeClicked -> startAddingNode(action.section)
+
             is AutomationEditorAction.EditNodeClicked -> editNode(action.section, action.index)
+
             is AutomationEditorAction.DeleteNodeClicked -> deleteNode(action.section, action.index)
+
             is AutomationEditorAction.SaveSectionAsGroupClicked -> saveSectionAsGroup(action.section, action.name)
+
+            is AutomationEditorAction.SaveSelectedNodesAsGroupClicked ->
+                saveSelectedNodesAsGroup(action.section, action.indices, action.name)
+
+            is AutomationEditorAction.CreateConstraintConditionGroupClicked ->
+                createConstraintConditionGroup(action.indices)
+
+            is AutomationEditorAction.UpdateConstraintConditionGroupClicked ->
+                updateConstraintConditionGroup(action.groupIndex, action.indices)
+
+            is AutomationEditorAction.DeleteConstraintConditionGroupClicked ->
+                deleteConstraintConditionGroup(action.groupIndex)
+
+            is AutomationEditorAction.RemoveConstraintFromConditionGroupClicked ->
+                removeConstraintFromConditionGroup(action.groupIndex, action.constraintIndex)
+
+            is AutomationEditorAction.AddConstraintToConditionGroupClicked ->
+                startAddingConstraintToConditionGroup(action.groupIndex)
+
             is AutomationEditorAction.PickerQueryChanged -> updatePickerQuery(action.query)
+
             is AutomationEditorAction.DefinitionSelected -> navigateToConfiguration(action.typeKey)
+
             is AutomationEditorAction.GroupSelected -> insertGroup(action.group)
+
             is AutomationEditorAction.PickerFieldChanged -> updatePickerField(action.fieldId, action.value)
+
             is AutomationEditorAction.SaveDraftAsGroupClicked -> saveDraftAsGroup(action.name)
+
             AutomationEditorAction.SavePickerClicked -> savePickerSelection()
         }
     }
@@ -109,6 +145,7 @@ class AutomationRuleEditorViewModel private constructor(
                     enabled = rule.enabled,
                     triggers = rule.triggers,
                     constraints = rule.constraints,
+                    constraintGroups = rule.constraintGroups,
                     actions = rule.actions,
                     actionExecutionMode = rule.actionExecutionMode,
                 ),
@@ -237,6 +274,21 @@ class AutomationRuleEditorViewModel private constructor(
         )
     }
 
+    private fun startAddingConstraintToConditionGroup(groupIndex: Int) {
+        startSelection(
+            section = RuleSection.CONSTRAINTS,
+            editingIndex = null,
+            launchedFromSelection = true,
+            targetConstraintGroupIndex = groupIndex,
+        )
+        triggerEvent(
+            AutomationEditorEvent.NavigateToDefinitionSelection(
+                section = RuleSection.CONSTRAINTS,
+                editingIndex = null,
+            ),
+        )
+    }
+
     private fun editNode(section: RuleSection, index: Int) {
         startSelection(section, index, launchedFromSelection = false)
         val picker = uiState.value.pickerState ?: return
@@ -268,7 +320,12 @@ class AutomationRuleEditorViewModel private constructor(
         }
     }
 
-    private fun startSelection(section: RuleSection, editingIndex: Int?, launchedFromSelection: Boolean) {
+    private fun startSelection(
+        section: RuleSection,
+        editingIndex: Int?,
+        launchedFromSelection: Boolean,
+        targetConstraintGroupIndex: Int? = null,
+    ) {
         val current = uiState.value.editorState ?: return
         val existing = current.nodeAt(section, editingIndex)
 
@@ -276,12 +333,14 @@ class AutomationRuleEditorViewModel private constructor(
             DefinitionPickerState(
                 section = section,
                 editingIndex = editingIndex,
+                targetConstraintGroupIndex = targetConstraintGroupIndex,
                 launchedFromSelection = launchedFromSelection,
             )
         } else {
             DefinitionPickerState(
                 section = section,
                 editingIndex = editingIndex,
+                targetConstraintGroupIndex = targetConstraintGroupIndex,
                 launchedFromSelection = launchedFromSelection,
                 selectedTypeKey = existing.type.name,
                 draftConfig = existing,
@@ -356,6 +415,7 @@ class AutomationRuleEditorViewModel private constructor(
                     enabled = current.enabled,
                     triggers = current.triggers,
                     constraints = current.constraints,
+                    constraintGroups = current.constraintGroups,
                     actions = current.actions,
                     actionExecutionMode = current.actionExecutionMode,
                 ),
@@ -393,7 +453,15 @@ class AutomationRuleEditorViewModel private constructor(
                         editor = editor,
                         definition = definition,
                         updateEditor = { currentEditor, config ->
-                            currentEditor.withConstraint(config as ConstraintConfig, picker.editingIndex)
+                            val constraint = config as ConstraintConfig
+                            if (picker.targetConstraintGroupIndex != null && picker.editingIndex == null) {
+                                currentEditor.withConstraintInConditionGroup(
+                                    config = constraint,
+                                    groupIndex = picker.targetConstraintGroupIndex,
+                                )
+                            } else {
+                                currentEditor.withConstraint(constraint, picker.editingIndex)
+                            }
                         },
                     )
                 ) {
@@ -471,6 +539,11 @@ class AutomationRuleEditorViewModel private constructor(
 
                     RuleSection.CONSTRAINTS -> editor.copy(
                         constraints = editor.constraints + group.constraints,
+                        constraintGroups = if (editor.constraintGroups.isEmpty() || group.constraints.isEmpty()) {
+                            emptyList()
+                        } else {
+                            editor.constraintGroups + ConstraintGroup(group.constraints)
+                        },
                         validation = RuleValidationState(),
                     )
 
@@ -526,6 +599,66 @@ class AutomationRuleEditorViewModel private constructor(
             }
         }
         launch { groupRepository.upsertGroup(group) }
+    }
+
+    private fun saveSelectedNodesAsGroup(section: RuleSection, indices: Set<Int>, name: String) {
+        val editor = uiState.value.editorState ?: return
+        val trimmedName = name.trim()
+        if (trimmedName.isBlank()) return
+        val selectedIndices = indices.sorted()
+        if (selectedIndices.isEmpty()) return
+
+        val group = when (section) {
+            RuleSection.TRIGGERS -> AutomationNodeGroup(
+                id = UUID.randomUUID().toString(),
+                name = trimmedName,
+                type = AutomationNodeGroupType.TRIGGER,
+                triggers = selectedIndices.mapNotNull(editor.triggers::getOrNull),
+            ).takeIf { it.triggers.isNotEmpty() }
+
+            RuleSection.CONSTRAINTS -> AutomationNodeGroup(
+                id = UUID.randomUUID().toString(),
+                name = trimmedName,
+                type = AutomationNodeGroupType.CONSTRAINT,
+                constraints = selectedIndices.mapNotNull(editor.constraints::getOrNull),
+            ).takeIf { it.constraints.isNotEmpty() }
+
+            RuleSection.ACTIONS -> AutomationNodeGroup(
+                id = UUID.randomUUID().toString(),
+                name = trimmedName,
+                type = AutomationNodeGroupType.ACTION,
+                actions = selectedIndices.mapNotNull(editor.actions::getOrNull),
+            ).takeIf { it.actions.isNotEmpty() }
+        } ?: return
+
+        launch { groupRepository.upsertGroup(group) }
+    }
+
+    private fun createConstraintConditionGroup(indices: Set<Int>) {
+        val editor = uiState.value.editorState ?: return
+        updateState { it.copy(editorState = editor.withConstraintConditionGroup(indices)) }
+    }
+
+    private fun updateConstraintConditionGroup(groupIndex: Int, indices: Set<Int>) {
+        val editor = uiState.value.editorState ?: return
+        updateState { it.copy(editorState = editor.withConstraintConditionGroupUpdated(groupIndex, indices)) }
+    }
+
+    private fun deleteConstraintConditionGroup(groupIndex: Int) {
+        val editor = uiState.value.editorState ?: return
+        updateState { it.copy(editorState = editor.withConstraintConditionGroupDeleted(groupIndex)) }
+    }
+
+    private fun removeConstraintFromConditionGroup(groupIndex: Int, constraintIndex: Int) {
+        val editor = uiState.value.editorState ?: return
+        updateState {
+            it.copy(
+                editorState = editor.withConstraintRemovedFromConditionGroup(
+                    groupIndex = groupIndex,
+                    constraintIndex = constraintIndex,
+                ),
+            )
+        }
     }
 
     private fun validateRule(rule: RuleEditorState): List<String> {

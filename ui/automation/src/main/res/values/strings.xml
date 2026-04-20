@@ -30,6 +30,18 @@
     <string name="automation_action_open_wallpaper_picker_flow">Select Wallpaper</string>
     <string name="automation_action_save_as_group">Save as Group</string>
     <string name="automation_action_save_group">Save Group</string>
+    <string name="automation_action_more_options">More options</string>
+    <string name="automation_action_select_nodes_for_group">Template group</string>
+    <string name="automation_action_select_nodes_for_group_description">Choose the nodes to save as a reusable template.</string>
+    <string name="automation_action_select_constraints_for_condition_group">Condition group</string>
+    <string name="automation_action_select_constraints_for_condition_group_description">Choose constraints that must all pass together in this rule.</string>
+    <string name="automation_action_create_condition_group">Create condition group</string>
+    <string name="automation_action_add_constraint_to_condition_group">Add constraint to condition group</string>
+    <string name="automation_action_remove_from_condition_group">Remove from condition group</string>
+    <string name="automation_action_remove_from_condition_group_description">Move this constraint back to the main constraint list.</string>
+    <string name="automation_action_continue">Continue</string>
+    <string name="automation_action_configure_node_description">Edit this node configuration.</string>
+    <string name="automation_action_delete_node_description">Remove this node from the rule.</string>
     <string name="automation_action_confirm_delete_group">Delete Group</string>
 
     <!-- Automation rule editor -->
@@ -88,12 +100,21 @@
     <string name="automation_groups_picker_title">Saved Groups</string>
     <string name="automation_groups_picker_description">Insert a saved group as independent nodes in this rule.</string>
     <string name="automation_group_node_count">%1$d nodes</string>
+    <string name="automation_group_selection_count">%1$d selected</string>
+    <string name="automation_selection_template_group_title">Select nodes for template group</string>
+    <string name="automation_selection_condition_group_title">Select constraints for condition group</string>
+    <string name="automation_selection_edit_condition_group_title">Edit condition group</string>
     <string name="automation_group_name_label">Group name</string>
     <string name="automation_save_group_title">Save %1$s Group</string>
     <string name="automation_save_group_description">Groups are templates. Saving this group stores the current configuration so you can insert a copy into other rules later. Rules that use it can still be edited independently.</string>
     <string name="automation_edit_group_title">Edit group</string>
     <string name="automation_edit_group_description">Rename this template, add nodes, or remove saved nodes. Existing rules that already used this group will not change.</string>
     <string name="automation_group_nodes_title">Saved nodes</string>
+    <string name="automation_conditions_title">Conditions</string>
+    <string name="automation_conditions_helper">Constraints inside a condition group use AND. Separate condition groups use OR. Without condition groups, all constraints use AND.</string>
+    <string name="automation_condition_group_label">Condition Group</string>
+    <string name="automation_condition_and_separator">AND</string>
+    <string name="automation_condition_or_separator">OR</string>
     <string name="automation_delete_group_title">Delete group?</string>
     <string name="automation_delete_group_message">Delete "%1$s"? Rules that already used this group will not change.</string>
     <string name="automation_notification_app_search_label">Search apps</string>

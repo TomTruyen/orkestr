@@ -1,5 +1,6 @@
 package com.tomtruyen.automation.data
 
+import com.tomtruyen.automation.core.ConstraintGroup
 import com.tomtruyen.automation.core.model.BatteryChargeState
 import com.tomtruyen.automation.core.model.DoNotDisturbMode
 import com.tomtruyen.automation.core.model.PowerConnectionState
@@ -67,6 +68,38 @@ internal class AutomationRuleTypeConvertersTest {
     @Test
     fun constraints_whenInputIsInvalid_returnsEmptyList() {
         assertEquals(emptyList<Any>(), converters.toConstraints("not-json"))
+    }
+
+    @Test
+    fun constraintGroups_roundTripThroughJson() {
+        val groups = listOf(
+            ConstraintGroup(
+                constraints = listOf(
+                    BatteryLevelConstraintConfig(
+                        operator = ComparisonOperator.GREATER_THAN_OR_EQUAL,
+                        value = 70,
+                    ),
+                ),
+            ),
+            ConstraintGroup(
+                constraints = listOf(
+                    BatteryLevelConstraintConfig(
+                        operator = ComparisonOperator.LESS_THAN_OR_EQUAL,
+                        value = 30,
+                    ),
+                ),
+            ),
+        )
+
+        val encoded = converters.fromConstraintGroups(groups)
+        val decoded = converters.toConstraintGroups(encoded)
+
+        assertEquals(groups, decoded)
+    }
+
+    @Test
+    fun constraintGroups_whenInputIsInvalid_returnsEmptyList() {
+        assertEquals(emptyList<Any>(), converters.toConstraintGroups("not-json"))
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.tomtruyen.automation.features.constraints
 
+import com.tomtruyen.automation.core.ConstraintGroup
 import com.tomtruyen.automation.core.event.AutomationEvent
 import com.tomtruyen.automation.features.constraints.config.ConstraintConfig
 import com.tomtruyen.automation.features.constraints.delegate.ConstraintDelegate
@@ -12,6 +13,14 @@ class ConstraintEvaluator(delegates: List<ConstraintDelegate<out ConstraintConfi
 
         return constraints.all { constraint ->
             delegatesByType[constraint.type]?.evaluateTyped(constraint, event) ?: false
+        }
+    }
+
+    suspend fun evaluateGroups(groups: List<ConstraintGroup>, event: AutomationEvent): Boolean {
+        if (groups.isEmpty()) return true
+
+        return groups.any { group ->
+            group.constraints.isNotEmpty() && evaluateAll(group.constraints, event)
         }
     }
 }
