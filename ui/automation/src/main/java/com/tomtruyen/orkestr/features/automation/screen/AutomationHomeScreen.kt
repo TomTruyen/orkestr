@@ -1,16 +1,25 @@
 package com.tomtruyen.orkestr.features.automation.screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
@@ -22,16 +31,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tomtruyen.automation.core.AutomationRule
-import com.tomtruyen.automation.features.actions.config.ActionConfig
-import com.tomtruyen.automation.features.constraints.config.ConstraintConfig
-import com.tomtruyen.automation.features.triggers.config.TriggerConfig
 import com.tomtruyen.orkestr.common.component.AutomationCardColumn
 import com.tomtruyen.orkestr.common.component.AutomationSectionHeader
-import com.tomtruyen.orkestr.common.component.AutomationTitleRow
 import com.tomtruyen.orkestr.common.component.EmptyStateCard
 import com.tomtruyen.orkestr.features.automation.state.AutomationRulesAction
 import com.tomtruyen.orkestr.features.automation.viewmodel.AutomationRulesViewModel
@@ -39,13 +45,7 @@ import com.tomtruyen.orkestr.ui.automation.R
 import com.tomtruyen.orkestr.ui.common.R as CommonR
 
 @Composable
-fun AutomationHomeScreen(
-    viewModel: AutomationRulesViewModel,
-    summarizeTrigger: (TriggerConfig) -> String,
-    summarizeConstraint: (ConstraintConfig) -> String,
-    summarizeAction: (ActionConfig) -> String,
-    modifier: Modifier = Modifier,
-) {
+fun AutomationHomeScreen(viewModel: AutomationRulesViewModel, modifier: Modifier = Modifier) {
     val state by viewModel.uiState.collectAsState()
     var pendingDelete by remember { mutableStateOf<AutomationRule?>(null) }
 
@@ -81,57 +81,89 @@ fun AutomationHomeScreen(
         }
 
         itemsIndexed(state.rules, key = { _, rule -> rule.id }) { _, rule ->
-            OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+            var menuExpanded by remember(rule.id) { mutableStateOf(false) }
+            OutlinedCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { viewModel.onAction(AutomationRulesAction.EditRuleClicked(rule)) },
+            ) {
                 AutomationCardColumn {
-                    AutomationTitleRow(
-                        title = rule.name,
-                        subtitle = stringResource(
-                            R.string.automation_rule_counts,
-                            rule.triggers.size,
-                            rule.constraints.size,
-                            rule.actions.size,
-                        ),
-                        trailing = {
-                            Switch(
-                                checked = rule.enabled,
-                                onCheckedChange = {
-                                    viewModel.onAction(AutomationRulesAction.ToggleRuleEnabled(rule, it))
-                                },
-                            )
-                        },
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.automation_rule_flow_summary,
-                            rule.triggers.firstOrNull()?.let(summarizeTrigger)
-                                ?: stringResource(R.string.automation_none_configured),
-                            rule.actions.firstOrNull()?.let(summarizeAction)
-                                ?: stringResource(R.string.automation_none_configured),
-                        ),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    if (rule.constraints.isNotEmpty()) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = summarizeConstraint(rule.constraints.first()),
+                            text = rule.name,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.weight(1f),
+                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Row {
+                                Switch(
+                                    checked = rule.enabled,
+                                    onCheckedChange = {
+                                        viewModel.onAction(AutomationRulesAction.ToggleRuleEnabled(rule, it))
+                                    },
+                                )
+                                Box {
+                                    IconButton(onClick = { menuExpanded = true }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.MoreVert,
+                                            contentDescription = stringResource(
+                                                R.string.automation_action_more_options,
+                                            ),
+                                        )
+                                    }
+                                    DropdownMenu(
+                                        expanded = menuExpanded,
+                                        onDismissRequest = { menuExpanded = false },
+                                    ) {
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(R.string.automation_action_edit)) },
+                                            onClick = {
+                                                menuExpanded = false
+                                                viewModel.onAction(AutomationRulesAction.EditRuleClicked(rule))
+                                            },
+                                        )
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(R.string.automation_action_copy)) },
+                                            onClick = {
+                                                menuExpanded = false
+                                                viewModel.onAction(AutomationRulesAction.CopyRuleClicked(rule))
+                                            },
+                                        )
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(R.string.automation_action_run_now)) },
+                                            onClick = {
+                                                menuExpanded = false
+                                                viewModel.onAction(AutomationRulesAction.RunRuleNowClicked(rule))
+                                            },
+                                        )
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(R.string.automation_action_delete)) },
+                                            onClick = {
+                                                menuExpanded = false
+                                                pendingDelete = rule
+                                            },
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(
+                            text = stringResource(R.string.automation_rule_trigger_count, rule.triggers.size),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button(onClick = { viewModel.onAction(AutomationRulesAction.EditRuleClicked(rule)) }) {
-                            Text(stringResource(R.string.automation_action_edit))
-                        }
-                        OutlinedButton(
-                            onClick = { viewModel.onAction(AutomationRulesAction.RunRuleNowClicked(rule)) },
-                        ) {
-                            Text(stringResource(R.string.automation_action_run_now))
-                        }
-                        OutlinedButton(
-                            onClick = { pendingDelete = rule },
-                        ) {
-                            Text(stringResource(R.string.automation_action_delete))
-                        }
+                        Text(
+                            text = stringResource(R.string.automation_rule_constraint_count, rule.constraints.size),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Text(
+                            text = stringResource(R.string.automation_rule_action_count, rule.actions.size),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
                 }
             }

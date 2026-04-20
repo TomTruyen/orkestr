@@ -104,6 +104,9 @@ class AutomationRuleEditorViewModel private constructor(
             is AutomationEditorAction.UpdateConstraintConditionGroupClicked ->
                 updateConstraintConditionGroup(action.groupIndex, action.indices)
 
+            is AutomationEditorAction.CopyConstraintConditionGroupClicked ->
+                copyConstraintConditionGroup(action.groupIndex)
+
             is AutomationEditorAction.DeleteConstraintConditionGroupClicked ->
                 deleteConstraintConditionGroup(action.groupIndex)
 
@@ -647,6 +650,11 @@ class AutomationRuleEditorViewModel private constructor(
     private fun deleteConstraintConditionGroup(groupIndex: Int) {
         val editor = uiState.value.editorState ?: return
         updateState { it.copy(editorState = editor.withConstraintConditionGroupDeleted(groupIndex)) }
+    }
+
+    private fun copyConstraintConditionGroup(groupIndex: Int) {
+        val editor = uiState.value.editorState ?: return
+        updateState { it.copy(editorState = editor.withConstraintConditionGroupCopied(groupIndex)) }
     }
 
     private fun removeConstraintFromConditionGroup(groupIndex: Int, constraintIndex: Int) {

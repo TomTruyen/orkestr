@@ -14,7 +14,7 @@
     <string name="geofence_error_geocoder_no_results">No address results found.</string>
 
     <string name="geofence_saved_title">Saved geofences</string>
-    <string name="geofence_saved_description">Select one geofence for this trigger, then choose whether the rule runs on enter or exit.</string>
+    <string name="geofence_saved_description">Select one geofence for this automation.</string>
     <string name="geofence_none_title">No geofences yet</string>
     <string name="geofence_none_description">Create a geofence to use this trigger.</string>
     <string name="geofence_transition_title">Trigger on</string>

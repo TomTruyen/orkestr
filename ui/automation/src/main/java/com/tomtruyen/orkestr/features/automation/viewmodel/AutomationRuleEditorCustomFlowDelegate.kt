@@ -20,6 +20,7 @@ import com.tomtruyen.orkestr.common.StringResolver
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorEvent
 import com.tomtruyen.orkestr.features.automation.state.AutomationEditorUiState
 import com.tomtruyen.orkestr.features.automation.state.DefinitionPickerState
+import com.tomtruyen.orkestr.features.automation.state.RuleSection
 import kotlin.reflect.KClass
 
 internal interface AutomationRuleEditorCustomFlowDelegate {
@@ -121,19 +122,22 @@ internal class AutomationRuleEditorCustomFlowCoordinator(
 
     override fun applySelectedGeofence(geofence: AutomationGeofence) {
         val picker = state().pickerState ?: return
-        val config = when (picker.selectedTypeKey) {
-            TriggerType.GEOFENCE.name -> GeofenceTriggerConfig(
+        val currentConstraint = currentDraftConfigOrDefault(GeofenceConstraintConfig::class)
+        val config = when (picker.section) {
+            RuleSection.TRIGGERS -> GeofenceTriggerConfig(
                 geofenceId = geofence.id,
                 geofenceName = geofence.name,
             )
 
-            else -> GeofenceConstraintConfig(
+            RuleSection.CONSTRAINTS -> currentConstraint.copy(
                 geofenceId = geofence.id,
                 geofenceName = geofence.name,
                 latitude = geofence.latitude,
                 longitude = geofence.longitude,
                 radiusMeters = geofence.radiusMeters,
             )
+
+            RuleSection.ACTIONS -> return
         }
         applyDraftConfig(config, picker)
         triggerEvent(
@@ -171,9 +175,10 @@ internal class AutomationRuleEditorCustomFlowCoordinator(
 
     override fun applySelectedWifi(config: WifiSsidTriggerConfig) {
         val picker = state().pickerState ?: return
-        val configToApply = when (picker.selectedTypeKey) {
-            TriggerType.WIFI_SSID_IN_RANGE.name -> config
-            else -> WifiSsidConstraintConfig(ssid = config.ssid.trim())
+        val configToApply = when (picker.section) {
+            RuleSection.TRIGGERS -> config
+            RuleSection.CONSTRAINTS -> WifiSsidConstraintConfig(ssid = config.ssid.trim())
+            RuleSection.ACTIONS -> return
         }
         applyDraftConfigAndOpenConfiguration(configToApply)
     }
@@ -228,6 +233,7 @@ internal class AutomationRuleEditorCustomFlowCoordinator(
         updateState {
             it.copy(
                 pickerState = picker.copy(
+                    selectedTypeKey = config.type.name,
                     draftConfig = config,
                     errors = emptyList(),
                 ),

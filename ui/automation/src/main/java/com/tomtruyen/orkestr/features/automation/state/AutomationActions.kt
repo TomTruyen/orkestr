@@ -8,6 +8,7 @@ import com.tomtruyen.automation.features.actions.ActionExecutionMode
 sealed interface AutomationRulesAction {
     data object CreateRuleClicked : AutomationRulesAction
     data class EditRuleClicked(val rule: AutomationRule) : AutomationRulesAction
+    data class CopyRuleClicked(val rule: AutomationRule) : AutomationRulesAction
     data class DeleteRuleClicked(val rule: AutomationRule) : AutomationRulesAction
     data class ToggleRuleEnabled(val rule: AutomationRule, val enabled: Boolean) : AutomationRulesAction
     data class RunRuleNowClicked(val rule: AutomationRule) : AutomationRulesAction
@@ -30,6 +31,7 @@ sealed interface AutomationEditorAction {
     data class CreateConstraintConditionGroupClicked(val indices: Set<Int>) : AutomationEditorAction
     data class UpdateConstraintConditionGroupClicked(val groupIndex: Int, val indices: Set<Int>) :
         AutomationEditorAction
+    data class CopyConstraintConditionGroupClicked(val groupIndex: Int) : AutomationEditorAction
     data class DeleteConstraintConditionGroupClicked(val groupIndex: Int) : AutomationEditorAction
     data class RemoveConstraintFromConditionGroupClicked(val groupIndex: Int, val constraintIndex: Int) :
         AutomationEditorAction

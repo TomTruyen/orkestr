@@ -14,6 +14,7 @@
     <string name="automation_action_save_rule">Save Rule</string>
     <string name="automation_action_configure">Configure</string>
     <string name="automation_action_edit">Edit</string>
+    <string name="automation_action_copy">Copy</string>
     <string name="automation_action_delete">Delete</string>
     <string name="automation_action_remove">Remove</string>
     <string name="automation_action_choose_different">Choose Different %1$s</string>
@@ -86,6 +87,9 @@
     <!-- Automation summaries -->
     <string name="automation_node_actions_title">%1$s options</string>
     <string name="automation_rule_counts">%1$d triggers • %2$d constraints • %3$d actions</string>
+    <string name="automation_rule_trigger_count">Triggers: %1$d</string>
+    <string name="automation_rule_constraint_count">Constraints: %1$d</string>
+    <string name="automation_rule_action_count">Actions: %1$d</string>
     <string name="automation_rule_flow_summary">%1$s  •  %2$s</string>
     <string name="automation_summary_when">When</string>
     <string name="automation_summary_only_if">Only If</string>
@@ -101,6 +105,7 @@
     <string name="automation_groups_picker_description">Insert a saved group as independent nodes in this rule.</string>
     <string name="automation_group_node_count">%1$d nodes</string>
     <string name="automation_group_selection_count">%1$d selected</string>
+    <string name="automation_selected_geofence_title">Selected geofence</string>
     <string name="automation_selection_template_group_title">Select nodes for template group</string>
     <string name="automation_selection_condition_group_title">Select constraints for condition group</string>
     <string name="automation_selection_edit_condition_group_title">Edit condition group</string>

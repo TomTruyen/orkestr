@@ -10,6 +10,7 @@ import com.tomtruyen.orkestr.features.automation.state.AutomationRulesEvent
 import com.tomtruyen.orkestr.features.automation.state.AutomationRulesUiState
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import java.util.UUID
 
 class AutomationRulesViewModel(
     private val repository: AutomationRuleRepository,
@@ -30,6 +31,10 @@ class AutomationRulesViewModel(
         repository.deleteRule(id)
     }
 
+    private fun copyRule(rule: AutomationRule) = launch {
+        repository.upsertRule(rule.copyAsDuplicate())
+    }
+
     private fun toggleRuleEnabled(id: String, enabled: Boolean) = launch {
         repository.updateEnabled(id, enabled)
     }
@@ -48,6 +53,8 @@ class AutomationRulesViewModel(
                 triggerEvent(AutomationRulesEvent.NavigateToEditRule(action.rule))
             }
 
+            is AutomationRulesAction.CopyRuleClicked -> copyRule(action.rule)
+
             is AutomationRulesAction.DeleteRuleClicked -> deleteRule(action.rule.id)
 
             is AutomationRulesAction.ToggleRuleEnabled -> toggleRuleEnabled(
@@ -59,3 +66,8 @@ class AutomationRulesViewModel(
         }
     }
 }
+
+internal fun AutomationRule.copyAsDuplicate(): AutomationRule = copy(
+    id = UUID.randomUUID().toString(),
+    name = "$name Copy",
+)

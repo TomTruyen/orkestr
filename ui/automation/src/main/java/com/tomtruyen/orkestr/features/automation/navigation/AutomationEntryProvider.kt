@@ -54,9 +54,6 @@ internal fun EntryProviderScope<NavKey>.automationEntries(
         ) { modifier ->
             AutomationHomeScreen(
                 viewModel = rulesViewModel,
-                summarizeTrigger = editorViewModel::summarizeTrigger,
-                summarizeConstraint = editorViewModel::summarizeConstraint,
-                summarizeAction = editorViewModel::summarizeAction,
                 modifier = modifier,
             )
         }

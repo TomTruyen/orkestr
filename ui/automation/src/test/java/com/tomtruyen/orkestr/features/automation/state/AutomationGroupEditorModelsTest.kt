@@ -7,6 +7,7 @@ import com.tomtruyen.automation.features.actions.config.LogMessageActionConfig
 import com.tomtruyen.automation.features.constraints.config.BatteryLevelConstraintConfig
 import com.tomtruyen.automation.features.triggers.config.BatteryChangedTriggerConfig
 import com.tomtruyen.orkestr.features.automation.viewmodel.withConstraintConditionGroup
+import com.tomtruyen.orkestr.features.automation.viewmodel.withConstraintConditionGroupCopied
 import com.tomtruyen.orkestr.features.automation.viewmodel.withConstraintConditionGroupDeleted
 import com.tomtruyen.orkestr.features.automation.viewmodel.withConstraintConditionGroupUpdated
 import com.tomtruyen.orkestr.features.automation.viewmodel.withConstraintInConditionGroup
@@ -143,6 +144,25 @@ internal class AutomationGroupEditorModelsTest {
 
         assertEquals(listOf(ConstraintGroup(listOf(second))), updated.constraintGroups)
         assertEquals(listOf(first, second), updated.constraints)
+    }
+
+    @Test
+    fun withConstraintConditionGroupCopied_insertsDuplicateAfterOriginal() {
+        val first = BatteryLevelConstraintConfig(value = 20)
+        val second = BatteryLevelConstraintConfig(value = 40)
+        val third = BatteryLevelConstraintConfig(value = 80)
+        val firstGroup = ConstraintGroup(listOf(first, second))
+        val secondGroup = ConstraintGroup(listOf(third))
+        val state = RuleEditorState(
+            id = "rule",
+            constraints = listOf(first, second, third),
+            constraintGroups = listOf(firstGroup, secondGroup),
+        )
+
+        val updated = state.withConstraintConditionGroupCopied(groupIndex = 0)
+
+        assertEquals(listOf(firstGroup, firstGroup, secondGroup), updated.constraintGroups)
+        assertEquals(listOf(first, second, third), updated.constraints)
     }
 
     @Test

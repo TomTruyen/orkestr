@@ -201,6 +201,9 @@ fun AutomationRuleEditorScreen(viewModel: AutomationRuleEditorViewModel, modifie
                             conditionGroupIndex = group.index,
                         )
                     },
+                    onCopyConditionGroup = { groupIndex ->
+                        viewModel.onAction(AutomationEditorAction.CopyConstraintConditionGroupClicked(groupIndex))
+                    },
                     onDeleteConditionGroup = { groupIndex ->
                         viewModel.onAction(AutomationEditorAction.DeleteConstraintConditionGroupClicked(groupIndex))
                     },
@@ -431,6 +434,7 @@ private fun RuleSectionEditorCard(
     onConditionNodeClick: (Int) -> Unit = {},
     onConditionNodeLongClick: (Int, String) -> Unit = { _, _ -> },
     onEditConditionGroup: (ConditionGroupUiState) -> Unit = {},
+    onCopyConditionGroup: (Int) -> Unit = {},
     onDeleteConditionGroup: (Int) -> Unit = {},
 ) {
     var menuExpanded by rememberSaveable { mutableStateOf(false) }
@@ -502,6 +506,7 @@ private fun RuleSectionEditorCard(
                 onConditionNodeClick = onConditionNodeClick,
                 onConditionNodeLongClick = onConditionNodeLongClick,
                 onEditConditionGroup = onEditConditionGroup,
+                onCopyConditionGroup = onCopyConditionGroup,
                 onDeleteConditionGroup = onDeleteConditionGroup,
             )
         }
@@ -690,6 +695,7 @@ private fun ConditionGroupsSummary(
     onConditionNodeClick: (Int) -> Unit,
     onConditionNodeLongClick: (Int, String) -> Unit,
     onEditConditionGroup: (ConditionGroupUiState) -> Unit,
+    onCopyConditionGroup: (Int) -> Unit,
     onDeleteConditionGroup: (Int) -> Unit,
 ) {
     Column(
@@ -748,6 +754,13 @@ private fun ConditionGroupsSummary(
                                     onClick = {
                                         menuExpanded = false
                                         onEditConditionGroup(group)
+                                    },
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.automation_action_copy)) },
+                                    onClick = {
+                                        menuExpanded = false
+                                        onCopyConditionGroup(group.index)
                                     },
                                 )
                                 DropdownMenuItem(

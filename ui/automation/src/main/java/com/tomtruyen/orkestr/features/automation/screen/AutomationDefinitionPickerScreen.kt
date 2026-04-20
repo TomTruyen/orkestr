@@ -37,7 +37,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tomtruyen.automation.features.actions.ActionType
+import com.tomtruyen.automation.features.constraints.config.GeofenceConstraintConfig
 import com.tomtruyen.automation.features.triggers.TriggerType
+import com.tomtruyen.automation.features.triggers.config.GeofenceTriggerConfig
 import com.tomtruyen.orkestr.common.component.AutomationBetaChip
 import com.tomtruyen.orkestr.common.component.AutomationCardColumn
 import com.tomtruyen.orkestr.common.component.AutomationDefinitionHeaderCard
@@ -366,6 +368,9 @@ fun AutomationDefinitionConfigurationScreen(viewModel: AutomationRuleEditorViewM
                                 customConfigurationButtonLabel != null &&
                                 customConfigurationButtonFieldId == null
                             ) {
+                                SelectedGeofenceSummary(
+                                    config = draftConfig,
+                                )
                                 OutlinedButton(
                                     onClick = viewModel::openSelectedCustomConfigurationFlow,
                                     modifier = Modifier.fillMaxWidth(),
@@ -422,6 +427,31 @@ internal fun SaveGroupDialog(visible: Boolean, sectionName: String, onDismiss: (
             }
         },
     )
+}
+
+@Composable
+private fun SelectedGeofenceSummary(config: Any?) {
+    val geofenceName = when (config) {
+        is GeofenceConstraintConfig -> config.geofenceName
+        is GeofenceTriggerConfig -> config.geofenceName
+        else -> return
+    }.takeIf { it.isNotBlank() } ?: return
+
+    OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+        AutomationCardColumn {
+            Text(
+                text = stringResource(R.string.automation_selected_geofence_title),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Text(
+                text = geofenceName,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+        }
+    }
 }
 
 private fun customConfigurationButtonAnchorFieldId(typeKey: String?): String? = when (typeKey) {

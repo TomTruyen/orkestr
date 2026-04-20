@@ -124,6 +124,19 @@ internal fun RuleEditorState.withConstraintConditionGroupDeleted(groupIndex: Int
     )
 }
 
+internal fun RuleEditorState.withConstraintConditionGroupCopied(groupIndex: Int): RuleEditorState {
+    if (groupIndex !in constraintGroups.indices) return this
+    val groupCopy = constraintGroups[groupIndex].copy(
+        constraints = constraintGroups[groupIndex].constraints.toList(),
+    )
+    return copy(
+        constraintGroups = constraintGroups.toMutableList().also { groups ->
+            groups.add(groupIndex + 1, groupCopy)
+        },
+        validation = RuleValidationState(),
+    )
+}
+
 internal fun RuleEditorState.withConstraintRemovedFromConditionGroup(
     groupIndex: Int,
     constraintIndex: Int,
