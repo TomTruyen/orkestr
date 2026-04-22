@@ -390,11 +390,13 @@ private fun conditionGroupLayout(
 ): ConstraintLayoutState {
     val groupedIndices = mutableSetOf<Int>()
     val groupStates = conditionGroups.mapIndexedNotNull { groupIndex, groupConstraints ->
+        val groupIndices = mutableSetOf<Int>()
         val entries = groupConstraints.mapNotNull { groupedConstraint ->
             val constraintIndex = constraints.indices.firstOrNull { index ->
-                index !in groupedIndices && constraints[index] == groupedConstraint
+                index !in groupIndices && constraints[index] == groupedConstraint
             } ?: return@mapNotNull null
 
+            groupIndices += constraintIndex
             groupedIndices += constraintIndex
             NodeEntry(index = constraintIndex, label = summarize(groupedConstraint))
         }

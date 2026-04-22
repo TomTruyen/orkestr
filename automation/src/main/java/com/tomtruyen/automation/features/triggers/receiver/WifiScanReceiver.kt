@@ -34,6 +34,8 @@ class WifiScanReceiver(
             ?.takeIf(String::isNotBlank)
     },
 ) : TriggerReceiver() {
+    private var lastSnapshot: WifiSnapshot? = null
+
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action !in ACTIONS) return
         val visibleSsids = runCatching { visibleSsidsProvider(context) }.getOrElse { error ->
@@ -43,15 +45,27 @@ class WifiScanReceiver(
             if (error is SecurityException) null else throw error
         }
         logger.debug("Received wifi scan event connected=$connectedSsid visible=${visibleSsids.joinToString()}")
+        val previousSnapshot = lastSnapshot
+        lastSnapshot = WifiSnapshot(
+            visibleSsids = visibleSsids,
+            connectedSsid = connectedSsid,
+        )
         scope.launch {
             service.handleEvent(
                 WifiScanResultEvent(
                     visibleSsids = visibleSsids,
                     connectedSsid = connectedSsid,
+                    previousVisibleSsids = previousSnapshot?.visibleSsids,
+                    previousConnectedSsid = previousSnapshot?.connectedSsid,
                 ),
             )
         }
     }
+
+    private data class WifiSnapshot(
+        val visibleSsids: Set<String>,
+        val connectedSsid: String?,
+    )
 
     @GenerateReceiverFactory
     companion object Factory : TriggerFactory {

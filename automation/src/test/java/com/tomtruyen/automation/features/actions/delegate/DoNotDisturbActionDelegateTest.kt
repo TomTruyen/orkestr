@@ -42,6 +42,7 @@ internal class DoNotDisturbActionDelegateTest {
         every { context.getSystemService(NotificationManager::class.java) } returns notificationManager
         every { notificationManager.setInterruptionFilter(any()) } just runs
         every { notificationManager.isNotificationPolicyAccessGranted } returns true
+        every { notificationManager.currentInterruptionFilter } returns NotificationManager.INTERRUPTION_FILTER_ALL
 
         delegate = DoNotDisturbActionDelegate(context)
     }
@@ -71,6 +72,21 @@ internal class DoNotDisturbActionDelegateTest {
     }
 
     @Test
+    fun execute_whenAlreadyInRequestedMode_doesNothing() = runTest {
+        every { NotificationPolicyAccessPermission.isGranted(context) } returns true
+        every {
+            notificationManager.currentInterruptionFilter
+        } returns NotificationManager.INTERRUPTION_FILTER_PRIORITY
+
+        delegate.execute(
+            DoNotDisturbActionConfig(mode = DoNotDisturbMode.PRIORITY_ONLY),
+            batteryChangedEvent(),
+        )
+
+        verify(exactly = 0) { notificationManager.setInterruptionFilter(any()) }
+    }
+
+    @Test
     fun execute_whenModeIsTotalSilence_setsNoneFilter() = runTest {
         every { NotificationPolicyAccessPermission.isGranted(context) } returns true
 
@@ -85,6 +101,7 @@ internal class DoNotDisturbActionDelegateTest {
     @Test
     fun execute_whenModeIsOff_setsAllFilter() = runTest {
         every { NotificationPolicyAccessPermission.isGranted(context) } returns true
+        every { notificationManager.currentInterruptionFilter } returns NotificationManager.INTERRUPTION_FILTER_PRIORITY
 
         delegate.execute(
             DoNotDisturbActionConfig(mode = DoNotDisturbMode.OFF),

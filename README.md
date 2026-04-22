@@ -186,7 +186,7 @@ Reference points by complexity:
 | Battery Saver State | Matches battery saver turning on or off. |
 | Application Lifecycle | Matches an app being launched or closed. Requires Usage Access special app access (`PACKAGE_USAGE_STATS`). |
 | Notification Received | Matches notifications from a selected app. Requires notification listener access. |
-| Wi-Fi SSID In Range | Matches a selected SSID entering or leaving range. Requires location and nearby Wi-Fi permissions. |
+| Wi-Fi SSID In Range | Matches a selected SSID entering or leaving range. Requires location and nearby Wi-Fi permissions. Repeated scans do not re-run the trigger until the SSID leaves and changes back again. |
 | Geofence | Matches entry/exit for a saved geofence. Requires fine and background location. |
 | Network Connectivity | Matches the default network connecting or disconnecting. Requires `ACCESS_NETWORK_STATE`. Available on Android 8.0+. This does not guarantee validated internet access. |
 | Bluetooth Device Connection | Matches any Bluetooth device connecting or disconnecting. Requires `BLUETOOTH_CONNECT` on Android 12+. OEM Bluetooth behavior may vary. |

@@ -13,30 +13,69 @@ internal class WifiSsidTriggerDelegateTest {
     private val delegate = WifiSsidTriggerDelegate()
 
     @Test
-    fun matches_whenVisibleSsidMatches_returnsTrue() {
+    fun matches_whenVisibleSsidEntersRange_returnsTrue() {
         val config = WifiSsidTriggerConfig(ssid = "Office WiFi")
-        val event = WifiScanResultEvent(visibleSsids = setOf("\"Office WiFi\""), connectedSsid = null)
+        val event = WifiScanResultEvent(
+            visibleSsids = setOf("\"Office WiFi\""),
+            connectedSsid = null,
+            previousVisibleSsids = emptySet(),
+            previousConnectedSsid = null,
+        )
 
         assertTrue(delegate.matches(config, event))
     }
 
     @Test
-    fun matches_whenConnectedSsidMatches_returnsTrue() {
+    fun matches_whenConnectedSsidEntersRange_returnsTrue() {
         val config = WifiSsidTriggerConfig(ssid = "Office WiFi")
-        val event = WifiScanResultEvent(visibleSsids = emptySet(), connectedSsid = "\"Office WiFi\"")
+        val event = WifiScanResultEvent(
+            visibleSsids = emptySet(),
+            connectedSsid = "\"Office WiFi\"",
+            previousVisibleSsids = emptySet(),
+            previousConnectedSsid = null,
+        )
 
         assertTrue(delegate.matches(config, event))
     }
 
     @Test
-    fun matches_whenTriggerTypeIsOutOfRange_returnsTrueWhenNetworkIsMissing() {
+    fun matches_whenTriggerTypeIsOutOfRange_returnsTrueWhenNetworkLeavesRange() {
         val config = WifiSsidTriggerConfig(
             ssid = "Office WiFi",
             triggerType = WifiRangeTriggerType.OUT_OF_RANGE,
         )
-        val event = WifiScanResultEvent(visibleSsids = setOf("Guest"), connectedSsid = null)
+        val event = WifiScanResultEvent(
+            visibleSsids = setOf("Guest"),
+            connectedSsid = null,
+            previousVisibleSsids = setOf("Office WiFi"),
+            previousConnectedSsid = null,
+        )
 
         assertTrue(delegate.matches(config, event))
+    }
+
+    @Test
+    fun matches_whenStateRemainsInRange_returnsFalse() {
+        val config = WifiSsidTriggerConfig(ssid = "Office WiFi")
+        val event = WifiScanResultEvent(
+            visibleSsids = setOf("Office WiFi", "Guest"),
+            connectedSsid = null,
+            previousVisibleSsids = setOf("Office WiFi"),
+            previousConnectedSsid = null,
+        )
+
+        assertFalse(delegate.matches(config, event))
+    }
+
+    @Test
+    fun matches_whenNoPreviousSnapshotExists_returnsFalse() {
+        val config = WifiSsidTriggerConfig(ssid = "Office WiFi")
+        val event = WifiScanResultEvent(
+            visibleSsids = setOf("Office WiFi"),
+            connectedSsid = null,
+        )
+
+        assertFalse(delegate.matches(config, event))
     }
 
     @Test

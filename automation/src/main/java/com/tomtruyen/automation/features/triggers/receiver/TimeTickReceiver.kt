@@ -22,7 +22,7 @@ class TimeTickReceiver(
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action !in ACTIONS) return
         val now = nowProvider()
-        logger.debug("Received time tick event for ${now.hour}:${now.minute}")
+        logger.debug("Received time tick event for ${now.formatHourMinute()}")
         scope.launch {
             service.handleEvent(
                 TimeBasedEvent(
@@ -33,6 +33,8 @@ class TimeTickReceiver(
             )
         }
     }
+
+    private fun LocalDateTime.formatHourMinute(): String = "%02d:%02d".format(hour, minute)
 
     @GenerateReceiverFactory
     companion object Factory : TriggerFactory {

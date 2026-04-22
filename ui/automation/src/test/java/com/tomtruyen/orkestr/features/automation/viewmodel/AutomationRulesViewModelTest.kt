@@ -28,7 +28,7 @@ internal class AutomationRulesViewModelTest {
         val copy = rule.copyAsDuplicate()
 
         assertNotEquals(rule.id, copy.id)
-        assertEquals("Original Copy", copy.name)
+        assertEquals("Original Duplicate", copy.name)
         assertEquals(rule.enabled, copy.enabled)
         assertEquals(rule.triggers, copy.triggers)
         assertEquals(rule.constraints, copy.constraints)

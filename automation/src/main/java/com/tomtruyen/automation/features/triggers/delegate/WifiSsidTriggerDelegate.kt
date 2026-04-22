@@ -14,13 +14,27 @@ class WifiSsidTriggerDelegate : TriggerDelegate<WifiSsidTriggerConfig> {
     override fun matches(config: WifiSsidTriggerConfig, event: AutomationEvent): Boolean {
         if (event !is WifiScanResultEvent) return false
         val expected = normalizeSsid(config.ssid)
-        val inRange = expected == normalizeSsid(event.connectedSsid) ||
-            expected in event.visibleSsids.map(::normalizeSsid).toSet()
+        val currentInRange = inRange(
+            expected = expected,
+            connectedSsid = event.connectedSsid,
+            visibleSsids = event.visibleSsids,
+        )
+        val previousInRange = event.previousVisibleSsids?.let {
+            inRange(
+                expected = expected,
+                connectedSsid = event.previousConnectedSsid,
+                visibleSsids = it,
+            )
+        } ?: return false
         return when (config.triggerType) {
-            WifiRangeTriggerType.IN_RANGE -> inRange
-            WifiRangeTriggerType.OUT_OF_RANGE -> !inRange
+            WifiRangeTriggerType.IN_RANGE -> !previousInRange && currentInRange
+            WifiRangeTriggerType.OUT_OF_RANGE -> previousInRange && !currentInRange
         }
     }
+
+    private fun inRange(expected: String, connectedSsid: String?, visibleSsids: Set<String>): Boolean =
+        expected == normalizeSsid(connectedSsid) ||
+            expected in visibleSsids.map(::normalizeSsid).toSet()
 
     private fun normalizeSsid(ssid: String?): String = ssid.orEmpty().trim().removeSurrounding("\"")
 }

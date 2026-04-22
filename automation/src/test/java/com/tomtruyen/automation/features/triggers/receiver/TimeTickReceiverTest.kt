@@ -76,6 +76,19 @@ internal class TimeTickReceiverTest {
     }
 
     @Test
+    fun onReceive_logsTimeWithLeadingZeroPadding() = runTest {
+        val scope = TestScope(StandardTestDispatcher(testScheduler))
+        val receiver = TimeTickReceiver(service, scope, logger) { LocalDateTime.of(2026, 4, 6, 8, 5) }
+
+        receiver.onReceive(context, Intent(Intent.ACTION_TIME_TICK))
+        advanceUntilIdle()
+
+        verify {
+            logger.debug("Received time tick event for 08:05")
+        }
+    }
+
+    @Test
     fun factoryRegister_registersReceiver() = runTest {
         val scope = TestScope(StandardTestDispatcher(testScheduler))
         mockkStatic(ContextCompat::class)

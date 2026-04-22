@@ -70,6 +70,8 @@ internal class WifiScanReceiverTest {
                 WifiScanResultEvent(
                     visibleSsids = setOf("Office WiFi", "Guest"),
                     connectedSsid = "\"Office WiFi\"",
+                    previousVisibleSsids = null,
+                    previousConnectedSsid = null,
                 ),
             )
         }
@@ -121,6 +123,42 @@ internal class WifiScanReceiverTest {
                 WifiScanResultEvent(
                     visibleSsids = emptySet(),
                     connectedSsid = null,
+                    previousVisibleSsids = null,
+                    previousConnectedSsid = null,
+                ),
+            )
+        }
+    }
+
+    @Test
+    fun onReceive_whenSnapshotChanges_forwardsPreviousSnapshot() = runTest {
+        val scope = TestScope(StandardTestDispatcher(testScheduler))
+        var visibleSsids = setOf("Office WiFi")
+        var connectedSsid: String? = null
+        val receiver = WifiScanReceiver(
+            service = service,
+            scope = scope,
+            logger = logger,
+            visibleSsidsProvider = { visibleSsids },
+            connectedSsidProvider = { connectedSsid },
+        )
+
+        receiver.onReceive(context, Intent(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION))
+        advanceUntilIdle()
+
+        visibleSsids = setOf("Office WiFi", "Guest")
+        connectedSsid = "\"Office WiFi\""
+
+        receiver.onReceive(context, Intent(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION))
+        advanceUntilIdle()
+
+        coVerify {
+            service.handleEvent(
+                WifiScanResultEvent(
+                    visibleSsids = setOf("Office WiFi", "Guest"),
+                    connectedSsid = "\"Office WiFi\"",
+                    previousVisibleSsids = setOf("Office WiFi"),
+                    previousConnectedSsid = null,
                 ),
             )
         }

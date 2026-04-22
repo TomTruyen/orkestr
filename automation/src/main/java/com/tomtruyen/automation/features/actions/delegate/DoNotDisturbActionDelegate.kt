@@ -20,15 +20,16 @@ class DoNotDisturbActionDelegate(private val context: Context) : ActionDelegate<
         val notificationManager = context.getSystemService(NotificationManager::class.java) ?: return
         if (!notificationManager.isNotificationPolicyAccessGranted) return
 
+        val targetFilter = when (config.mode) {
+            DoNotDisturbMode.PRIORITY_ONLY -> NotificationManager.INTERRUPTION_FILTER_PRIORITY
+            DoNotDisturbMode.ALARMS_ONLY -> NotificationManager.INTERRUPTION_FILTER_ALARMS
+            DoNotDisturbMode.TOTAL_SILENCE -> NotificationManager.INTERRUPTION_FILTER_NONE
+            DoNotDisturbMode.OFF -> NotificationManager.INTERRUPTION_FILTER_ALL
+        }
+        if (notificationManager.currentInterruptionFilter == targetFilter) return
+
         runCatching {
-            notificationManager.setInterruptionFilter(
-                when (config.mode) {
-                    DoNotDisturbMode.PRIORITY_ONLY -> NotificationManager.INTERRUPTION_FILTER_PRIORITY
-                    DoNotDisturbMode.ALARMS_ONLY -> NotificationManager.INTERRUPTION_FILTER_ALARMS
-                    DoNotDisturbMode.TOTAL_SILENCE -> NotificationManager.INTERRUPTION_FILTER_NONE
-                    DoNotDisturbMode.OFF -> NotificationManager.INTERRUPTION_FILTER_ALL
-                },
-            )
+            notificationManager.setInterruptionFilter(targetFilter)
         }
     }
 }

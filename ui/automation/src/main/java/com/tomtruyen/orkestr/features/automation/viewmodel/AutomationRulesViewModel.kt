@@ -69,5 +69,5 @@ class AutomationRulesViewModel(
 
 internal fun AutomationRule.copyAsDuplicate(): AutomationRule = copy(
     id = UUID.randomUUID().toString(),
-    name = "$name Copy",
+    name = "$name Duplicate",
 )

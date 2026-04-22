@@ -14,7 +14,7 @@
     <string name="automation_action_save_rule">Save Rule</string>
     <string name="automation_action_configure">Configure</string>
     <string name="automation_action_edit">Edit</string>
-    <string name="automation_action_copy">Copy</string>
+    <string name="automation_action_copy">Duplicate</string>
     <string name="automation_action_delete">Delete</string>
     <string name="automation_action_remove">Remove</string>
     <string name="automation_action_choose_different">Choose Different %1$s</string>
