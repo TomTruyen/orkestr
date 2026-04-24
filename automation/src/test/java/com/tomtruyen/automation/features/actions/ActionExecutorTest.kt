@@ -6,8 +6,11 @@ import com.tomtruyen.automation.core.event.AutomationEvent
 import com.tomtruyen.automation.core.event.BatteryChangedEvent
 import com.tomtruyen.automation.core.model.BatteryChargeState
 import com.tomtruyen.automation.core.model.BatteryPlugStatus
+import com.tomtruyen.automation.core.model.DoNotDisturbMode
+import com.tomtruyen.automation.features.actions.config.DoNotDisturbActionConfig
 import com.tomtruyen.automation.features.actions.config.LogMessageActionConfig
 import com.tomtruyen.automation.features.actions.config.OpenWebsiteActionConfig
+import com.tomtruyen.automation.features.actions.config.SetPhoneVibrateActionConfig
 import com.tomtruyen.automation.features.actions.delegate.ActionDelegate
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -38,6 +41,12 @@ internal class ActionExecutorTest {
     private lateinit var secondDelegate: ActionDelegate<OpenWebsiteActionConfig>
 
     @MockK
+    private lateinit var doNotDisturbDelegate: ActionDelegate<DoNotDisturbActionConfig>
+
+    @MockK
+    private lateinit var setPhoneVibrateDelegate: ActionDelegate<SetPhoneVibrateActionConfig>
+
+    @MockK
     private lateinit var logger: AutomationLogger
 
     private lateinit var action: LogMessageActionConfig
@@ -59,6 +68,10 @@ internal class ActionExecutorTest {
         coEvery { delegate.execute(any(), any()) } returns Unit
         coEvery { secondDelegate.type } returns ActionType.OPEN_WEBSITE
         coEvery { secondDelegate.execute(any(), any()) } returns Unit
+        coEvery { doNotDisturbDelegate.type } returns ActionType.DO_NOT_DISTURB
+        coEvery { doNotDisturbDelegate.execute(any(), any()) } returns Unit
+        coEvery { setPhoneVibrateDelegate.type } returns ActionType.SET_PHONE_VIBRATE
+        coEvery { setPhoneVibrateDelegate.execute(any(), any()) } returns Unit
         every { logger.log(any()) } just runs
         every { logger.log(any(), any()) } just runs
         every { logger.error(any(), any()) } just runs
@@ -182,5 +195,55 @@ internal class ActionExecutorTest {
                 failure,
             )
         }
+    }
+
+    @Test
+    fun executeAll_whenParallel_serializesAudioPolicyActionsButKeepsOtherActionsParallel() = runTest {
+        val executionOrder = mutableListOf<String>()
+        val dndStarted = CompletableDeferred<Unit>()
+        val releaseDnd = CompletableDeferred<Unit>()
+        val doNotDisturbAction = DoNotDisturbActionConfig(mode = DoNotDisturbMode.PRIORITY_ONLY)
+        val vibrateAction = SetPhoneVibrateActionConfig(enabled = true)
+        val websiteAction = OpenWebsiteActionConfig(url = "https://orkestr.app")
+        val executor = ActionExecutor(
+            context,
+            listOf(doNotDisturbDelegate, setPhoneVibrateDelegate, secondDelegate),
+            logger,
+        )
+
+        coEvery { doNotDisturbDelegate.execute(doNotDisturbAction, event) } coAnswers {
+            executionOrder += "start-dnd"
+            dndStarted.complete(Unit)
+            releaseDnd.await()
+            executionOrder += "end-dnd"
+        }
+        coEvery { setPhoneVibrateDelegate.execute(vibrateAction, event) } coAnswers {
+            executionOrder += "start-vibrate"
+            executionOrder += "end-vibrate"
+        }
+        coEvery { secondDelegate.execute(websiteAction, event) } coAnswers {
+            dndStarted.await()
+            executionOrder += "start-website"
+            executionOrder += "end-website"
+        }
+
+        val job = launch {
+            executor.executeAll(
+                actions = listOf(doNotDisturbAction, vibrateAction, websiteAction),
+                event = event,
+                executionMode = ActionExecutionMode.PARALLEL,
+            )
+        }
+
+        dndStarted.await()
+        advanceUntilIdle()
+        assertEquals(listOf("start-dnd", "start-website", "end-website"), executionOrder)
+
+        releaseDnd.complete(Unit)
+        job.join()
+        assertEquals(
+            listOf("start-dnd", "start-website", "end-website", "end-dnd", "start-vibrate", "end-vibrate"),
+            executionOrder,
+        )
     }
 }

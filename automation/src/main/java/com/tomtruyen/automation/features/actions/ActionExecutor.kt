@@ -30,18 +30,45 @@ class ActionExecutor(
             }
 
             ActionExecutionMode.PARALLEL -> supervisorScope {
-                actions.map { action ->
-                    launch {
-                        runCatching {
-                            delegatesByType[action.type]?.executeTyped(action, event)
-                        }.onFailure { error ->
-                            logger?.error("Action ${action.type.name} failed during parallel execution", error)
-                        }
+                val (serializedActions, parallelActions) = actions.partition { it.type.requiresSerializedExecutionInParallelMode() }
+
+                buildList {
+                    if (serializedActions.isNotEmpty()) {
+                        add(
+                            launch {
+                                serializedActions.forEach { action ->
+                                    executeSafely(action, event)
+                                }
+                            },
+                        )
                     }
+
+                    addAll(
+                        parallelActions.map { action ->
+                            launch {
+                                executeSafely(action, event)
+                            }
+                        },
+                    )
                 }.joinAll()
             }
         }
     }
+
+    private suspend fun executeSafely(action: ActionConfig, event: AutomationEvent) {
+        runCatching {
+            delegatesByType[action.type]?.executeTyped(action, event)
+        }.onFailure { error ->
+            logger?.error("Action ${action.type.name} failed during parallel execution", error)
+        }
+    }
+}
+
+private fun ActionType.requiresSerializedExecutionInParallelMode(): Boolean = when (this) {
+    ActionType.DO_NOT_DISTURB,
+    ActionType.SET_PHONE_VIBRATE,
+    -> true
+    else -> false
 }
 
 @Suppress("UNCHECKED_CAST")

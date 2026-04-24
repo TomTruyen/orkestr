@@ -223,7 +223,7 @@ Reference points by complexity:
 |--------|-------|
 | Show Notification | Posts a local notification. Requires `POST_NOTIFICATIONS` on Android 13+. |
 | Log Message | Writes a message to the automation logger with a configurable severity (`Debug`, `Info`, `Warning`, or `Error`). |
-| Do Not Disturb | Changes the public Android DND mode. Requires notification policy access on Android 6.0+. Reapplying the already-active mode is treated as a no-op to avoid DND self-trigger loops. |
+| Do Not Disturb | Changes the public Android DND mode. Requires notification policy access on Android 6.0+. Reapplying the already-active mode is treated as a no-op to avoid DND self-trigger loops. When combined with `Set Phone Vibrate`, Orkestr serializes those two actions even in parallel mode so the final audio-policy state stays deterministic. |
 | Launch Application | Opens a selected installed app. |
 | Open Website | Opens a configured URL in the default browser. |
 | Vibrate Phone | Vibrates the device for a configured duration. Requires `VIBRATE`. |
@@ -231,7 +231,7 @@ Reference points by complexity:
 | Set Wallpaper | Applies a user-selected gallery/document image to the home screen, lock screen, or both. Requires `SET_WALLPAPER`. Available on Android 8.0+. Behavior may vary by OEM wallpaper implementation. |
 | Force Location Update | Requests a fresh location fix. Requires fine and background location. Best-effort only; Android may still delay or deny the update. |
 | Set Phone Volume | Sets media, ring, or call volume as a percentage of the stream max. Call volume behavior depends on device state and is most relevant while in a call. |
-| Set Phone Vibrate | Switches the ringer mode between vibrate and normal. Behavior may vary by OEM and current sound settings. |
+| Set Phone Vibrate | Switches the ringer mode between vibrate and normal. Behavior may vary by OEM and current sound settings. When combined with `Do Not Disturb`, Orkestr serializes those two actions even in parallel mode because Android may apply them through the same underlying audio-policy state. |
 
 ## Persistence And Migrations
 
