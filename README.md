@@ -223,15 +223,15 @@ Reference points by complexity:
 |--------|-------|
 | Show Notification | Posts a local notification. Requires `POST_NOTIFICATIONS` on Android 13+. |
 | Log Message | Writes a message to the automation logger with a configurable severity (`Debug`, `Info`, `Warning`, or `Error`). |
-| Do Not Disturb | Changes the public Android DND mode. Requires notification policy access on Android 6.0+. Reapplying the already-active mode is treated as a no-op to avoid DND self-trigger loops. When combined with `Set Phone Vibrate`, Orkestr serializes those two actions even in parallel mode so the final audio-policy state stays deterministic. |
-| Launch Application | Opens a selected installed app. |
-| Open Website | Opens a configured URL in the default browser. |
+| Do Not Disturb | Changes the public Android DND mode. Requires notification policy access on Android 6.0+. Reapplying the already-active mode is treated as a no-op to avoid DND self-trigger loops. In parallel rules, Orkestr serializes it with other audio-policy actions such as `Set Phone Vibrate` and `Set Phone Volume` so the final system state stays deterministic. |
+| Launch Application | Opens a selected installed app. In parallel rules, Orkestr serializes it with other foreground launch actions such as `Open Website` so final navigation follows rule order. |
+| Open Website | Opens a configured URL in the default browser. In parallel rules, Orkestr serializes it with other foreground launch actions such as `Launch Application` so final navigation follows rule order. |
 | Vibrate Phone | Vibrates the device for a configured duration. Requires `VIBRATE`. |
-| Flash Torch | Flashes the device torch in a burst pattern. Requires camera permission and hardware flash support. Behavior varies by device. |
-| Set Wallpaper | Applies a user-selected gallery/document image to the home screen, lock screen, or both. Requires `SET_WALLPAPER`. Available on Android 8.0+. Behavior may vary by OEM wallpaper implementation. |
+| Flash Torch | Flashes the device torch in a burst pattern. Requires camera permission and hardware flash support. Behavior varies by device. Repeated torch actions in the same rule are serialized to avoid hardware-state races. |
+| Set Wallpaper | Applies a user-selected gallery/document image to the home screen, lock screen, or both. Requires `SET_WALLPAPER`. Available on Android 8.0+. Behavior may vary by OEM wallpaper implementation. Repeated wallpaper actions in the same rule are serialized so later actions win predictably. |
 | Force Location Update | Requests a fresh location fix. Requires fine and background location. Best-effort only; Android may still delay or deny the update. |
-| Set Phone Volume | Sets media, ring, or call volume as a percentage of the stream max. Call volume behavior depends on device state and is most relevant while in a call. |
-| Set Phone Vibrate | Switches the ringer mode between vibrate and normal. Behavior may vary by OEM and current sound settings. When combined with `Do Not Disturb`, Orkestr serializes those two actions even in parallel mode because Android may apply them through the same underlying audio-policy state. |
+| Set Phone Volume | Sets media, ring, or call volume as a percentage of the stream max. Call volume behavior depends on device state and is most relevant while in a call. In parallel rules, Orkestr serializes it with other audio-policy actions so rule order decides the final audio state. |
+| Set Phone Vibrate | Switches the ringer mode between vibrate and normal. Behavior may vary by OEM and current sound settings. In parallel rules, Orkestr serializes it with other audio-policy actions because Android may apply them through the same underlying system state. |
 
 ## Persistence And Migrations
 

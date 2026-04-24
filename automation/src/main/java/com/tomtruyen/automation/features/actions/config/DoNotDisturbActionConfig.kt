@@ -14,6 +14,7 @@ import kotlinx.serialization.Transient
 data class DoNotDisturbActionConfig(val mode: DoNotDisturbMode = DoNotDisturbMode.PRIORITY_ONLY) : ActionConfig {
     override val type: ActionType = ActionType.DO_NOT_DISTURB
     override val category: AutomationCategory = AutomationCategory.VOLUME
+    override val parallelExecutionConflictGroup: ActionExecutionConflictGroup = ActionExecutionConflictGroup.AUDIO_POLICY
 
     @Transient
     override val requiredPermissions: List<AutomationPermission> = listOf(NotificationPolicyAccessPermission)

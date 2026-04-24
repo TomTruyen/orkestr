@@ -10,6 +10,7 @@ import kotlinx.serialization.Serializable
 data class VibratePhoneActionConfig(val durationMillis: Int = 500) : ActionConfig {
     override val type: ActionType = ActionType.VIBRATE_PHONE
     override val category: AutomationCategory = AutomationCategory.UTILITY
+    override val parallelExecutionConflictGroup: ActionExecutionConflictGroup = ActionExecutionConflictGroup.VIBRATION
 
     companion object {
         const val DISCRIMINATOR = "vibrate_phone"

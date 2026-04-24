@@ -17,6 +17,7 @@ data class FlashTorchActionConfig(
 ) : ActionConfig {
     override val type: ActionType = ActionType.FLASH_TORCH
     override val category: AutomationCategory = AutomationCategory.UTILITY
+    override val parallelExecutionConflictGroup: ActionExecutionConflictGroup = ActionExecutionConflictGroup.TORCH
 
     @Transient
     override val requiredPermissions: List<AutomationPermission> = listOf(CameraPermission)

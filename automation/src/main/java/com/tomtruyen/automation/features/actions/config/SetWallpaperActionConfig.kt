@@ -15,6 +15,7 @@ data class SetWallpaperActionConfig(
 ) : ActionConfig {
     override val type: ActionType = ActionType.SET_WALLPAPER
     override val category: AutomationCategory = AutomationCategory.UTILITY
+    override val parallelExecutionConflictGroup: ActionExecutionConflictGroup = ActionExecutionConflictGroup.WALLPAPER
 
     companion object {
         const val DISCRIMINATOR = "set_wallpaper"

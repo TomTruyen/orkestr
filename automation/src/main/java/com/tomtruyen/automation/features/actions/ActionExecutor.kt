@@ -30,13 +30,14 @@ class ActionExecutor(
             }
 
             ActionExecutionMode.PARALLEL -> supervisorScope {
-                val (serializedActions, parallelActions) = actions.partition { it.type.requiresSerializedExecutionInParallelMode() }
+                val groupedActions = actions.groupBy { it.parallelExecutionConflictGroup }
 
                 buildList {
-                    if (serializedActions.isNotEmpty()) {
+                    groupedActions.forEach { (group, grouped) ->
+                        if (group == null) return@forEach
                         add(
                             launch {
-                                serializedActions.forEach { action ->
+                                grouped.forEach { action ->
                                     executeSafely(action, event)
                                 }
                             },
@@ -44,7 +45,7 @@ class ActionExecutor(
                     }
 
                     addAll(
-                        parallelActions.map { action ->
+                        groupedActions[null].orEmpty().map { action ->
                             launch {
                                 executeSafely(action, event)
                             }
@@ -62,13 +63,6 @@ class ActionExecutor(
             logger?.error("Action ${action.type.name} failed during parallel execution", error)
         }
     }
-}
-
-private fun ActionType.requiresSerializedExecutionInParallelMode(): Boolean = when (this) {
-    ActionType.DO_NOT_DISTURB,
-    ActionType.SET_PHONE_VIBRATE,
-    -> true
-    else -> false
 }
 
 @Suppress("UNCHECKED_CAST")
