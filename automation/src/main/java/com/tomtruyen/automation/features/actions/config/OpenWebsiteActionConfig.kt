@@ -10,7 +10,8 @@ import kotlinx.serialization.Serializable
 data class OpenWebsiteActionConfig(val url: String = "") : ActionConfig {
     override val type: ActionType = ActionType.OPEN_WEBSITE
     override val category: AutomationCategory = AutomationCategory.UTILITY
-    override val parallelExecutionConflictGroup: ActionExecutionConflictGroup = ActionExecutionConflictGroup.ACTIVITY_LAUNCH
+    override val parallelExecutionConflictGroup: ActionExecutionConflictGroup =
+        ActionExecutionConflictGroup.ACTIVITY_LAUNCH
 
     companion object {
         const val DISCRIMINATOR = "open_website"

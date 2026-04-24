@@ -10,7 +10,8 @@ import kotlinx.serialization.Serializable
 data class SetPhoneVibrateActionConfig(val enabled: Boolean = true) : ActionConfig {
     override val type: ActionType = ActionType.SET_PHONE_VIBRATE
     override val category: AutomationCategory = AutomationCategory.VOLUME
-    override val parallelExecutionConflictGroup: ActionExecutionConflictGroup = ActionExecutionConflictGroup.AUDIO_POLICY
+    override val parallelExecutionConflictGroup: ActionExecutionConflictGroup =
+        ActionExecutionConflictGroup.AUDIO_POLICY
 
     companion object {
         const val DISCRIMINATOR = "set_phone_vibrate"

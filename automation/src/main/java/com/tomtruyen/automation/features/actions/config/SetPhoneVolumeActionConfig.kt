@@ -14,7 +14,8 @@ data class SetPhoneVolumeActionConfig(
 ) : ActionConfig {
     override val type: ActionType = ActionType.SET_PHONE_VOLUME
     override val category: AutomationCategory = AutomationCategory.VOLUME
-    override val parallelExecutionConflictGroup: ActionExecutionConflictGroup = ActionExecutionConflictGroup.AUDIO_POLICY
+    override val parallelExecutionConflictGroup: ActionExecutionConflictGroup =
+        ActionExecutionConflictGroup.AUDIO_POLICY
 
     companion object {
         const val DISCRIMINATOR = "set_phone_volume"

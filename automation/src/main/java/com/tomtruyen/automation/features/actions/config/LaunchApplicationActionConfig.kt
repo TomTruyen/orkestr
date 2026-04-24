@@ -10,7 +10,8 @@ import kotlinx.serialization.Serializable
 data class LaunchApplicationActionConfig(val packageName: String = "", val appLabel: String = "") : ActionConfig {
     override val type: ActionType = ActionType.LAUNCH_APPLICATION
     override val category: AutomationCategory = AutomationCategory.UTILITY
-    override val parallelExecutionConflictGroup: ActionExecutionConflictGroup = ActionExecutionConflictGroup.ACTIVITY_LAUNCH
+    override val parallelExecutionConflictGroup: ActionExecutionConflictGroup =
+        ActionExecutionConflictGroup.ACTIVITY_LAUNCH
 
     companion object {
         const val DISCRIMINATOR = "launch_application"
