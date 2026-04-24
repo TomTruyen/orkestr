@@ -8,4 +8,7 @@ import kotlinx.serialization.Serializable
 sealed interface ActionConfig : AutomationConfig<ActionType> {
     val parallelExecutionConflictGroup: ActionExecutionConflictGroup?
         get() = null
+
+    val parallelExecutionConflictPriority: Int
+        get() = 0
 }

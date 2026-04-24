@@ -15,6 +15,7 @@ data class DoNotDisturbActionConfig(val mode: DoNotDisturbMode = DoNotDisturbMod
     override val type: ActionType = ActionType.DO_NOT_DISTURB
     override val category: AutomationCategory = AutomationCategory.VOLUME
     override val parallelExecutionConflictGroup: ActionExecutionConflictGroup = ActionExecutionConflictGroup.AUDIO_POLICY
+    override val parallelExecutionConflictPriority: Int = 100
 
     @Transient
     override val requiredPermissions: List<AutomationPermission> = listOf(NotificationPolicyAccessPermission)

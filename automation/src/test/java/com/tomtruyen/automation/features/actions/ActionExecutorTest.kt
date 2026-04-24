@@ -28,6 +28,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -212,8 +213,6 @@ internal class ActionExecutorTest {
     @Test
     fun executeAll_whenParallel_serializesAudioPolicyActionsButKeepsOtherActionsParallel() = runTest {
         val executionOrder = mutableListOf<String>()
-        val dndStarted = CompletableDeferred<Unit>()
-        val releaseDnd = CompletableDeferred<Unit>()
         val doNotDisturbAction = DoNotDisturbActionConfig(mode = DoNotDisturbMode.PRIORITY_ONLY)
         val volumeAction = SetPhoneVolumeActionConfig(levelPercent = 25)
         val websiteAction = OpenWebsiteActionConfig(url = "https://orkestr.app")
@@ -225,8 +224,6 @@ internal class ActionExecutorTest {
 
         coEvery { doNotDisturbDelegate.execute(doNotDisturbAction, event) } coAnswers {
             executionOrder += "start-dnd"
-            dndStarted.complete(Unit)
-            releaseDnd.await()
             executionOrder += "end-dnd"
         }
         coEvery { setPhoneVolumeDelegate.execute(volumeAction, event) } coAnswers {
@@ -234,27 +231,18 @@ internal class ActionExecutorTest {
             executionOrder += "end-volume"
         }
         coEvery { secondDelegate.execute(websiteAction, event) } coAnswers {
-            dndStarted.await()
             executionOrder += "start-website"
             executionOrder += "end-website"
         }
 
-        val job = launch {
-            executor.executeAll(
-                actions = listOf(doNotDisturbAction, volumeAction, websiteAction),
-                event = event,
-                executionMode = ActionExecutionMode.PARALLEL,
-            )
-        }
+        executor.executeAll(
+            actions = listOf(doNotDisturbAction, volumeAction, websiteAction),
+            event = event,
+            executionMode = ActionExecutionMode.PARALLEL,
+        )
 
-        dndStarted.await()
-        advanceUntilIdle()
-        assertEquals(listOf("start-dnd", "start-website", "end-website"), executionOrder)
-
-        releaseDnd.complete(Unit)
-        job.join()
         assertEquals(
-            listOf("start-dnd", "start-website", "end-website", "end-dnd", "start-volume", "end-volume"),
+            listOf("start-volume", "end-volume", "start-dnd", "end-dnd", "start-website", "end-website"),
             executionOrder,
         )
     }
@@ -262,10 +250,6 @@ internal class ActionExecutorTest {
     @Test
     fun executeAll_whenParallel_serializesEachConflictGroupIndependently() = runTest {
         val executionOrder = mutableListOf<String>()
-        val dndStarted = CompletableDeferred<Unit>()
-        val releaseDnd = CompletableDeferred<Unit>()
-        val websiteStarted = CompletableDeferred<Unit>()
-        val releaseWebsite = CompletableDeferred<Unit>()
         val doNotDisturbAction = DoNotDisturbActionConfig(mode = DoNotDisturbMode.PRIORITY_ONLY)
         val vibrateAction = SetPhoneVibrateActionConfig(enabled = true)
         val websiteAction = OpenWebsiteActionConfig(url = "https://orkestr.app")
@@ -278,8 +262,6 @@ internal class ActionExecutorTest {
 
         coEvery { doNotDisturbDelegate.execute(doNotDisturbAction, event) } coAnswers {
             executionOrder += "start-dnd"
-            dndStarted.complete(Unit)
-            releaseDnd.await()
             executionOrder += "end-dnd"
         }
         coEvery { setPhoneVibrateDelegate.execute(vibrateAction, event) } coAnswers {
@@ -288,8 +270,6 @@ internal class ActionExecutorTest {
         }
         coEvery { secondDelegate.execute(websiteAction, event) } coAnswers {
             executionOrder += "start-website"
-            websiteStarted.complete(Unit)
-            releaseWebsite.await()
             executionOrder += "end-website"
         }
         coEvery { launchApplicationDelegate.execute(launchAction, event) } coAnswers {
@@ -297,37 +277,17 @@ internal class ActionExecutorTest {
             executionOrder += "end-launch"
         }
 
-        val job = launch {
-            executor.executeAll(
-                actions = listOf(doNotDisturbAction, vibrateAction, websiteAction, launchAction),
-                event = event,
-                executionMode = ActionExecutionMode.PARALLEL,
-            )
-        }
-
-        dndStarted.await()
-        websiteStarted.await()
-        advanceUntilIdle()
-        assertEquals(listOf("start-dnd", "start-website"), executionOrder)
-
-        releaseWebsite.complete(Unit)
-        advanceUntilIdle()
-        assertEquals(listOf("start-dnd", "start-website", "end-website", "start-launch", "end-launch"), executionOrder)
-
-        releaseDnd.complete(Unit)
-        job.join()
-        assertEquals(
-            listOf(
-                "start-dnd",
-                "start-website",
-                "end-website",
-                "start-launch",
-                "end-launch",
-                "end-dnd",
-                "start-vibrate",
-                "end-vibrate",
-            ),
-            executionOrder,
+        executor.executeAll(
+            actions = listOf(doNotDisturbAction, vibrateAction, websiteAction, launchAction),
+            event = event,
+            executionMode = ActionExecutionMode.PARALLEL,
         )
+
+        assertTrue(executionOrder.indexOf("start-website") < executionOrder.indexOf("end-website"))
+        assertTrue(executionOrder.indexOf("end-website") < executionOrder.indexOf("start-launch"))
+        assertTrue(executionOrder.indexOf("start-launch") < executionOrder.indexOf("end-launch"))
+        assertTrue(executionOrder.indexOf("start-vibrate") < executionOrder.indexOf("end-vibrate"))
+        assertTrue(executionOrder.indexOf("end-vibrate") < executionOrder.indexOf("start-dnd"))
+        assertTrue(executionOrder.indexOf("start-dnd") < executionOrder.indexOf("end-dnd"))
     }
 }

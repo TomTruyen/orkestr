@@ -30,24 +30,33 @@ class ActionExecutor(
             }
 
             ActionExecutionMode.PARALLEL -> supervisorScope {
-                val groupedActions = actions.groupBy { it.parallelExecutionConflictGroup }
+                val groupedActions = actions
+                    .withIndex()
+                    .groupBy { it.value.parallelExecutionConflictGroup }
 
                 buildList {
                     groupedActions.forEach { (group, grouped) ->
                         if (group == null) return@forEach
                         add(
                             launch {
-                                grouped.forEach { action ->
-                                    executeSafely(action, event)
-                                }
+                                grouped
+                                    .sortedWith(
+                                        compareBy<IndexedValue<ActionConfig>>(
+                                            { it.value.parallelExecutionConflictPriority },
+                                            { it.index },
+                                        ),
+                                    )
+                                    .forEach { indexedAction ->
+                                        executeSafely(indexedAction.value, event)
+                                    }
                             },
                         )
                     }
 
                     addAll(
-                        groupedActions[null].orEmpty().map { action ->
+                        groupedActions[null].orEmpty().map { indexedAction ->
                             launch {
-                                executeSafely(action, event)
+                                executeSafely(indexedAction.value, event)
                             }
                         },
                     )
