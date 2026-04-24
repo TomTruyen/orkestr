@@ -4,6 +4,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import com.tomtruyen.automation.core.event.BatteryChangedEvent
+import com.tomtruyen.automation.core.event.DoNotDisturbModeChangedEvent
 import com.tomtruyen.automation.core.model.BatteryChargeState
 import com.tomtruyen.automation.core.model.BatteryPlugStatus
 import com.tomtruyen.automation.core.model.DoNotDisturbMode
@@ -81,6 +82,19 @@ internal class DoNotDisturbActionDelegateTest {
         delegate.execute(
             DoNotDisturbActionConfig(mode = DoNotDisturbMode.PRIORITY_ONLY),
             batteryChangedEvent(),
+        )
+
+        verify(exactly = 0) { notificationManager.setInterruptionFilter(any()) }
+    }
+
+    @Test
+    fun execute_whenTriggeredBySameDndModeChange_doesNothing() = runTest {
+        every { NotificationPolicyAccessPermission.isGranted(context) } returns true
+        every { notificationManager.currentInterruptionFilter } returns NotificationManager.INTERRUPTION_FILTER_UNKNOWN
+
+        delegate.execute(
+            DoNotDisturbActionConfig(mode = DoNotDisturbMode.PRIORITY_ONLY),
+            DoNotDisturbModeChangedEvent(DoNotDisturbMode.PRIORITY_ONLY),
         )
 
         verify(exactly = 0) { notificationManager.setInterruptionFilter(any()) }

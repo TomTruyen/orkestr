@@ -62,10 +62,7 @@ class WifiScanReceiver(
         }
     }
 
-    private data class WifiSnapshot(
-        val visibleSsids: Set<String>,
-        val connectedSsid: String?,
-    )
+    private data class WifiSnapshot(val visibleSsids: Set<String>, val connectedSsid: String?)
 
     @GenerateReceiverFactory
     companion object Factory : TriggerFactory {

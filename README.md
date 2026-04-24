@@ -223,7 +223,7 @@ Reference points by complexity:
 |--------|-------|
 | Show Notification | Posts a local notification. Requires `POST_NOTIFICATIONS` on Android 13+. |
 | Log Message | Writes a message to the automation logger with a configurable severity (`Debug`, `Info`, `Warning`, or `Error`). |
-| Do Not Disturb | Changes the public Android DND mode. Requires notification policy access. |
+| Do Not Disturb | Changes the public Android DND mode. Requires notification policy access on Android 6.0+. Reapplying the already-active mode is treated as a no-op to avoid DND self-trigger loops. |
 | Launch Application | Opens a selected installed app. |
 | Open Website | Opens a configured URL in the default browser. |
 | Vibrate Phone | Vibrates the device for a configured duration. Requires `VIBRATE`. |

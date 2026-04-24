@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Build
 import com.tomtruyen.automation.codegen.GenerateActionDelegate
 import com.tomtruyen.automation.core.event.AutomationEvent
+import com.tomtruyen.automation.core.event.DoNotDisturbModeChangedEvent
 import com.tomtruyen.automation.core.model.DoNotDisturbMode
 import com.tomtruyen.automation.features.actions.ActionType
 import com.tomtruyen.automation.features.actions.config.DoNotDisturbActionConfig
@@ -19,6 +20,7 @@ class DoNotDisturbActionDelegate(private val context: Context) : ActionDelegate<
 
         val notificationManager = context.getSystemService(NotificationManager::class.java) ?: return
         if (!notificationManager.isNotificationPolicyAccessGranted) return
+        if (event is DoNotDisturbModeChangedEvent && event.mode == config.mode) return
 
         val targetFilter = when (config.mode) {
             DoNotDisturbMode.PRIORITY_ONLY -> NotificationManager.INTERRUPTION_FILTER_PRIORITY
